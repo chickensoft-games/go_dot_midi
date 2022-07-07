@@ -10,9 +10,10 @@
  *  Loads the midi and calculates the timing before hand so when sequencing no BPM calculation is needed.
  */
 using System;
+using System.IO;
 using AudioSynthesis.Midi;
-using AudioSynthesis.Synthesis;
 using AudioSynthesis.Midi.Event;
+using AudioSynthesis.Synthesis;
 
 namespace AudioSynthesis.Sequencer
 {
@@ -62,11 +63,11 @@ namespace AudioSynthesis.Sequencer
             this.synth = synth;
             blockList = new bool[Synthesizer.DefaultChannelCount];
         }
-        public bool LoadMidi(IResource midiFile)
+        public bool LoadMidi(Stream midiFileStream)
         {
             if (playing == true)
                 return false;
-            LoadMidiFile(new MidiFile(midiFile));
+            LoadMidiFile(new MidiFile(midiFileStream));
             return true;
         }
         public bool LoadMidi(MidiFile midiFile)

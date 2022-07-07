@@ -1,9 +1,11 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using AudioSynthesis.Bank;
+using AudioSynthesis.Midi;
+using AudioSynthesis.Sequencer;
+using AudioSynthesis.Synthesis;
 using Godot;
-using MeltySynth;
 
 /// <summary>
 /// Midi player for MeltySynth, based on
@@ -20,35 +22,74 @@ using MeltySynth;
 public class MidiPlayer : AudioStreamPlayer {
   // Melty Synth and Godot both use this sample rate, so no need to configure.
   protected const int SAMPLE_RATE = 44100;
+  protected const int CHANNELS = 2; // stereo
 
-  [Export(hintString: "Resource path to sound font file")]
+  [Export(PropertyHint.File, hintString: "Resource path to sound font file")]
   public string SoundFontPath { get; set; } = "";
 
-  [Export(hintString: "Resource path to midi file")]
+  [Export(PropertyHint.File, hintString: "Resource path to midi file")]
   public string MidiFilePath { get; set; } = "";
 
-  protected SoundFont _soundFont = null!;
   protected MidiFile _midiFile = null!;
   protected Synthesizer _synthesizer = null!;
   protected MidiFileSequencer _sequencer = null!;
-  private bool _started = false;
+  protected AudioStreamGeneratorPlayback _playback = null!;
+  protected bool _started = false;
+
+  protected float[] _buffer = new float[] { };
+  protected int _bufferHead = 0;
 
   public override void _Ready() {
-    _soundFont = new SoundFont(ReadFile(SoundFontPath));
+    // based on https://github.com/n-yoda/unity-midi/blob/master/Assets/UnityMidi/Scripts/MidiPlayer.cs
+    // _soundFont = new SoundFont(ReadFile(SoundFontPath));
     _midiFile = new MidiFile(ReadFile(MidiFilePath));
-    _synthesizer = new Synthesizer(_soundFont, SAMPLE_RATE);
+    _synthesizer = new Synthesizer(SAMPLE_RATE, CHANNELS);
     _sequencer = new MidiFileSequencer(_synthesizer);
+    _synthesizer.MixGain = 1.0f;
+    _synthesizer.LoadBank(
+      ReadFile(SoundFontPath),
+      System.IO.Path.GetFileName(SoundFontPath),
+      PatchBank.PatchBankType.Sf2
+    );
+    _sequencer.LoadMidi(_midiFile);
 
-    // Synchronously render the midi file to a sample and set it as the
-    // playback stream.
+    _playback = (AudioStreamGeneratorPlayback)GetStreamPlayback();
+
+    var a = new int[] { 1 };
+    var b = new int[10];
+    Array.Copy(a, b, 1);
+    GD.Print("b" + b.ToString());
   }
 
   public override void _Process(float delta) {
     if (!_started) {
       _started = true;
-      Stream = RenderMidi();
+      _sequencer.Play();
       Play();
       GD.Print("Is Playing? " + Playing.ToString());
+    }
+    if (_started) {
+      Buffer();
+    }
+  }
+
+  public void Buffer() {
+
+    var initFrames = _playback.GetFramesAvailable();
+    var deinterleaved = new float[][] { };
+
+    for (var frame = 0; frame < initFrames; frame++) {
+      if (_bufferHead >= _buffer.Length) {
+        _sequencer.FillMidiEventQueue();
+        _synthesizer.GetNext();
+        _buffer = _synthesizer.WorkingBuffer;
+        _bufferHead = 0;
+      }
+      var length = Mathf.Min(_buffer.Length - _bufferHead, initFrames - frame);
+
+      _playback.PushFrame(new Vector2(_buffer[_bufferHead + frame], _buffer[_bufferHead + frame]));
+      _bufferHead += length;
+      initFrames -= 1;
     }
   }
 
@@ -66,65 +107,65 @@ public class MidiPlayer : AudioStreamPlayer {
     return new MemoryStream(data);
   }
 
-  protected AudioStreamSample RenderMidi() {
-    // For now, render the entire midi file. Godot doesn't seem to allow
-    // you to buffer up interleaved, 16 bit stereo PCM audio outside the C++
-    // layer (GDExtension/GDNative).
+  // protected AudioStreamSample RenderMidi() {
+  //   // For now, render the entire midi file. Godot doesn't seem to allow
+  //   // you to buffer up interleaved, 16 bit stereo PCM audio outside the C++
+  //   // layer (GDExtension/GDNative).
 
-    // Compute number of samples needed to render entire file based on its
-    // total seconds.
-    var numSamples = (int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds);
+  //   // Compute number of samples needed to render entire file based on its
+  //   // total seconds.
+  //   var numSamples = (int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds);
 
-    // The output buffer.
-    // var stereo = new short[numSamples * 2];
+  //   // The output buffer.
+  //   // var stereo = new short[numSamples * 2];
 
-    var left = new float[numSamples];
-    var right = new float[numSamples];
+  //   var left = new float[numSamples];
+  //   var right = new float[numSamples];
 
-    // Render the waveform.
-    // _sequencer.RenderInterleavedInt16(stereo);
-    _sequencer.Play(_midiFile, false);
-    _sequencer.Render(left, right);
+  //   // Render the waveform.
+  //   // _sequencer.RenderInterleavedInt16(stereo);
+  //   _sequencer.Play(_midiFile, false);
+  //   _sequencer.Render(left, right);
 
-    var lMax = left.Max(x => Math.Abs(x));
-    var rMax = right.Max(x => Math.Abs(x));
-    var a = 0.99F / Math.Max(lMax, rMax);
+  //   var lMax = left.Max(x => Math.Abs(x));
+  //   var rMax = right.Max(x => Math.Abs(x));
+  //   var a = 0.99F / Math.Max(lMax, rMax);
 
-    var dataStream = new MemoryStream();
-    var writer = new BinaryWriter(dataStream);
+  //   var dataStream = new MemoryStream();
+  //   var writer = new BinaryWriter(dataStream);
 
-    var foundNonZero = false;
+  //   var foundNonZero = false;
 
-    for (var t = 0; t < left.Length; t++) {
-      if (left[t] != 0) {
-        foundNonZero = true;
-      }
-      if (right[t] != 0) {
-        foundNonZero = true;
-      }
-      WriteSample(writer, a * left[t]);
-      WriteSample(writer, a * right[t]);
-    }
+  //   for (var t = 0; t < left.Length; t++) {
+  //     if (left[t] != 0) {
+  //       foundNonZero = true;
+  //     }
+  //     if (right[t] != 0) {
+  //       foundNonZero = true;
+  //     }
+  //     WriteSample(writer, a * left[t]);
+  //     WriteSample(writer, a * right[t]);
+  //   }
 
 
-    GD.Print("Found non-zero values? " + foundNonZero.ToString());
+  //   GD.Print("Found non-zero values? " + foundNonZero.ToString());
 
-    var binaryData = dataStream.ToArray();
+  //   var binaryData = dataStream.ToArray();
 
-    var sample = new AudioStreamSample {
-      Format = AudioStreamSample.FormatEnum.Format16Bits,
-      LoopMode = AudioStreamSample.LoopModeEnum.Forward,
-      MixRate = SAMPLE_RATE,
-      Stereo = true,
-      LoopBegin = 0,
-      LoopEnd = numSamples - 1,
-      Data = binaryData
-    };
+  //   var sample = new AudioStreamSample {
+  //     Format = AudioStreamSample.FormatEnum.Format16Bits,
+  //     LoopMode = AudioStreamSample.LoopModeEnum.Forward,
+  //     MixRate = SAMPLE_RATE,
+  //     Stereo = true,
+  //     LoopBegin = 0,
+  //     LoopEnd = numSamples - 1,
+  //     Data = binaryData
+  //   };
 
-    sample.SaveToWav("test.wav");
+  //   sample.SaveToWav("test.wav");
 
-    return sample;
-  }
+  //   return sample;
+  // }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   protected void WriteSample(BinaryWriter writer, float sample)
