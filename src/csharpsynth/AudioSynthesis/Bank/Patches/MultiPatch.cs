@@ -1,119 +1,119 @@
-﻿using System;
-using System.Collections.Generic;
-using AudioSynthesis.Sf2;
-using AudioSynthesis.Synthesis;
-
+﻿
 namespace AudioSynthesis.Bank.Patches {
+  using System;
+  using AudioSynthesis.Sf2;
+  using AudioSynthesis.Synthesis;
   /* Patch containing other patches mapped to channel, velocity, or key ranges.
    * Must not contain any other MultiPatches within. */
   public class MultiPatch : Patch {
     private class PatchInterval {
-      public Patch patch = null;
-      public byte startChannel = 0;
-      public byte startKey = 0;
-      public byte startVelocity = 0;
-      public byte endChannel = 15;
-      public byte endKey = 127;
-      public byte endVelocity = 127;
+      public Patch Patch = null!;
+      public byte StartChannel = 0;
+      public byte StartKey = 0;
+      public byte StartVelocity = 0;
+      public byte EndChannel = 15;
+      public byte EndKey = 127;
+      public byte EndVelocity = 127;
 
       public PatchInterval() {
       }
       public PatchInterval(Patch patch, byte startChannel, byte endChannel, byte startKey, byte endKey, byte startVelocity, byte endVelocity) {
-        this.patch = patch;
-        this.startChannel = startChannel;
-        this.endChannel = endChannel;
-        this.startKey = startKey;
-        this.endKey = endKey;
-        this.startVelocity = startVelocity;
-        this.endVelocity = endVelocity;
+        Patch = patch;
+        StartChannel = startChannel;
+        EndChannel = endChannel;
+        StartKey = startKey;
+        EndKey = endKey;
+        StartVelocity = startVelocity;
+        EndVelocity = endVelocity;
       }
-      public bool CheckAllIntervals(int channel, int key, int velocity) {
-        return (channel >= startChannel && channel <= endChannel) &&
-            (key >= startKey && key <= endKey) &&
-            (velocity >= startVelocity && velocity <= endVelocity);
-      }
-      public bool CheckChannelAndKey(int channel, int key) {
-        return (channel >= startChannel && channel <= endChannel) &&
-            (key >= startKey && key <= endKey);
-      }
-      public bool CheckKeyAndVelocity(int key, int velocity) {
-        return (key >= startKey && key <= endKey) &&
-            (velocity >= startVelocity && velocity <= endVelocity);
-      }
-      public bool CheckKey(int key) {
-        return (key >= startKey && key <= endKey);
-      }
+      public bool CheckAllIntervals(int channel, int key, int velocity) => channel >= StartChannel && channel <= EndChannel &&
+            key >= StartKey && key <= EndKey &&
+            velocity >= StartVelocity && velocity <= EndVelocity;
 
-      public override string ToString() {
-        return string.Format("{0}, Channel: {1}-{2}, Key: {3}-{4}, Velocity: {5}-{6}", patch, startChannel, endChannel, startKey, endKey, startVelocity, endVelocity);
-      }
+      public bool CheckChannelAndKey(int channel, int key) => channel >= StartChannel && channel <= EndChannel &&
+            key >= StartKey && key <= EndKey;
+      public bool CheckKeyAndVelocity(int key, int velocity) => key >= StartKey && key <= EndKey &&
+            velocity >= StartVelocity && velocity <= EndVelocity;
+      public bool CheckKey(int key) => key >= StartKey && key <= EndKey;
+
+      public override string ToString() => string.Format("{0}, Channel: {1}-{2}, Key: {3}-{4}, Velocity: {5}-{6}", Patch, StartChannel, EndChannel, StartKey, EndKey, StartVelocity, EndVelocity);
     }
     private enum IntervalType { Channel_Key_Velocity, Channel_Key, Key_Velocity, Key };
-    private IntervalType iType;
-    private PatchInterval[] intervalList;
+    private IntervalType _iType;
+    private PatchInterval[] _intervalList = null!;
 
     public MultiPatch(string name) : base(name) { }
     public int FindPatches(int channel, int key, int velocity, Patch[] layers) {
-      int count = 0;
-      switch (iType) {
+      var count = 0;
+      switch (_iType) {
         case IntervalType.Channel_Key_Velocity:
-          for (int x = 0; x < intervalList.Length; x++) {
-            if (intervalList[x].CheckAllIntervals(channel, key, velocity)) {
-              layers[count++] = intervalList[x].patch;
-              if (count == layers.Length)
+          for (var x = 0; x < _intervalList.Length; x++) {
+            if (_intervalList[x].CheckAllIntervals(channel, key, velocity)) {
+              layers[count++] = _intervalList[x].Patch;
+              if (count == layers.Length) {
                 break;
+              }
             }
           }
           break;
         case IntervalType.Channel_Key:
-          for (int x = 0; x < intervalList.Length; x++) {
-            if (intervalList[x].CheckChannelAndKey(channel, key)) {
-              layers[count++] = intervalList[x].patch;
-              if (count == layers.Length)
+          for (var x = 0; x < _intervalList.Length; x++) {
+            if (_intervalList[x].CheckChannelAndKey(channel, key)) {
+              layers[count++] = _intervalList[x].Patch;
+              if (count == layers.Length) {
                 break;
+              }
             }
           }
           break;
         case IntervalType.Key_Velocity:
-          for (int x = 0; x < intervalList.Length; x++) {
-            if (intervalList[x].CheckKeyAndVelocity(key, velocity)) {
-              layers[count++] = intervalList[x].patch;
-              if (count == layers.Length)
+          for (var x = 0; x < _intervalList.Length; x++) {
+            if (_intervalList[x].CheckKeyAndVelocity(key, velocity)) {
+              layers[count++] = _intervalList[x].Patch;
+              if (count == layers.Length) {
                 break;
+              }
             }
           }
           break;
         case IntervalType.Key:
-          for (int x = 0; x < intervalList.Length; x++) {
-            if (intervalList[x].CheckKey(key)) {
-              layers[count++] = intervalList[x].patch;
-              if (count == layers.Length)
+          for (var x = 0; x < _intervalList.Length; x++) {
+            if (_intervalList[x].CheckKey(key)) {
+              layers[count++] = _intervalList[x].Patch;
+              if (count == layers.Length) {
                 break;
+              }
             }
           }
+          break;
+        default:
           break;
       }
       return count;
     }
-    public override bool Start(VoiceParameters voiceparams) { throw new NotImplementedException(); }
-    public override void Stop(VoiceParameters voiceparams) { throw new NotImplementedException(); }
-    public override void Process(VoiceParameters voiceparams, int startIndex, int endIndex) { throw new NotImplementedException(); }
+    public override bool Start(VoiceParameters voiceparams) => throw new NotImplementedException();
+    public override void Stop(VoiceParameters voiceparams) => throw new NotImplementedException();
+    public override void Process(VoiceParameters voiceparams, int startIndex, int endIndex) => throw new NotImplementedException();
     public override void Load(DescriptorList description, AssetManager assets) {
-      intervalList = new PatchInterval[description.CustomDescriptions.Length];
-      for (int x = 0; x < intervalList.Length; x++) {
-        if (!description.CustomDescriptions[x].ID.ToLower().Equals("mpat"))
-          throw new Exception(string.Format("The patch: {0} has an invalid descriptor with id {1}", this._patchName, description.CustomDescriptions[x].ID));
-        string patchName = (string)description.CustomDescriptions[x].Objects[0];
-        PatchAsset pAsset = assets.FindPatch(patchName);
-        if (pAsset == null)
+      _intervalList = new PatchInterval[description.CustomDescriptions.Length];
+      for (var x = 0; x < _intervalList.Length; x++) {
+        if (!description.CustomDescriptions[x].ID.ToLower().Equals("mpat")) {
+          throw new Exception(string.Format("The patch: {0} has an invalid descriptor with id {1}", _patchName, description.CustomDescriptions[x].ID));
+        }
+
+        var patchName = (string)description.CustomDescriptions[x].Objects[0];
+        var pAsset = assets.FindPatch(patchName);
+        if (pAsset == null) {
           throw new Exception(string.Format("The patch: {0} could not be found. For multi patches all sub patches must be loaded first.", patchName));
-        byte sChan = (byte)description.CustomDescriptions[x].Objects[1];
-        byte eChan = (byte)description.CustomDescriptions[x].Objects[2];
-        byte sKey = (byte)description.CustomDescriptions[x].Objects[3];
-        byte eKey = (byte)description.CustomDescriptions[x].Objects[4];
-        byte sVel = (byte)description.CustomDescriptions[x].Objects[5];
-        byte eVel = (byte)description.CustomDescriptions[x].Objects[6];
-        intervalList[x] = new PatchInterval(pAsset.Patch, sChan, eChan, sKey, eKey, sVel, eVel);
+        }
+
+        var sChan = (byte)description.CustomDescriptions[x].Objects[1];
+        var eChan = (byte)description.CustomDescriptions[x].Objects[2];
+        var sKey = (byte)description.CustomDescriptions[x].Objects[3];
+        var eKey = (byte)description.CustomDescriptions[x].Objects[4];
+        var sVel = (byte)description.CustomDescriptions[x].Objects[5];
+        var eVel = (byte)description.CustomDescriptions[x].Objects[6];
+        _intervalList[x] = new PatchInterval(pAsset.Patch, sChan, eChan, sKey, eKey, sVel, eVel);
       }
       DetermineIntervalType();
     }
@@ -132,9 +132,9 @@ namespace AudioSynthesis.Bank.Patches {
     //    }
     //    DetermineIntervalType();
     //}
-    public void LoadSf2(Sf2.Sf2Region[] regions, AssetManager assets) {
-      intervalList = new PatchInterval[regions.Length];
-      for (int x = 0; x < intervalList.Length; x++) {
+    public void LoadSf2(Sf2Region[] regions, AssetManager assets) {
+      _intervalList = new PatchInterval[regions.Length];
+      for (var x = 0; x < _intervalList.Length; x++) {
         byte loKey;
         byte hiKey;
         byte loVel;
@@ -151,39 +151,43 @@ namespace AudioSynthesis.Bank.Patches {
           hiVel = (byte)(regions[x].Generators[(int)GeneratorEnum.VelocityRange] & 0xFF);
           loVel = (byte)((regions[x].Generators[(int)GeneratorEnum.VelocityRange] >> 8) & 0xFF);
         }
-        Sf2Patch sf2 = new Sf2Patch(_patchName + "_" + x);
+        var sf2 = new Sf2Patch(_patchName + "_" + x);
         sf2.Load(regions[x], assets);
-        intervalList[x] = new PatchInterval(sf2, 0, 15, loKey, hiKey, loVel, hiVel);
+        _intervalList[x] = new PatchInterval(sf2, 0, 15, loKey, hiKey, loVel, hiVel);
       }
       DetermineIntervalType();
     }
-    public override string ToString() {
-      return string.Format("MultiPatch: {0}, IntervalCount: {1}, IntervalType: {2}", _patchName, intervalList.Length, iType);
-    }
+    public override string ToString() => string.Format("MultiPatch: {0}, IntervalCount: {1}, IntervalType: {2}", _patchName, _intervalList.Length, _iType);
 
     private void DetermineIntervalType() {//see if checks on channel and velocity intervals are necessary
-      bool checkChannel = false;
-      bool checkVelocity = false;
-      for (int x = 0; x < intervalList.Length; x++) {
-        if (intervalList[x].startChannel != 0 || intervalList[x].endChannel != 15) {
+      var checkChannel = false;
+      var checkVelocity = false;
+      for (var x = 0; x < _intervalList.Length; x++) {
+        if (_intervalList[x].StartChannel != 0 || _intervalList[x].EndChannel != 15) {
           checkChannel = true;
-          if (checkChannel && checkVelocity)
+          if (checkChannel && checkVelocity) {
             break;
+          }
         }
-        if (intervalList[x].startVelocity != 0 || intervalList[x].endVelocity != 127) {
+        if (_intervalList[x].StartVelocity != 0 || _intervalList[x].EndVelocity != 127) {
           checkVelocity = true;
-          if (checkChannel && checkVelocity)
+          if (checkChannel && checkVelocity) {
             break;
+          }
         }
       }
-      if (checkChannel & checkVelocity)
-        iType = IntervalType.Channel_Key_Velocity;
-      else if (checkChannel)
-        iType = IntervalType.Channel_Key;
-      else if (checkVelocity)
-        iType = IntervalType.Key_Velocity;
-      else
-        iType = IntervalType.Key;
+      if (checkChannel & checkVelocity) {
+        _iType = IntervalType.Channel_Key_Velocity;
+      }
+      else if (checkChannel) {
+        _iType = IntervalType.Channel_Key;
+      }
+      else if (checkVelocity) {
+        _iType = IntervalType.Key_Velocity;
+      }
+      else {
+        _iType = IntervalType.Key;
+      }
     }
   }
 }
