@@ -32,32 +32,32 @@
           absevents[x][x2].DeltaTime = totalDeltaTime;
         }
       }
-      //sort by absolute delta time also makes sure events occur in order of track and when they are recieved.
-      var eventcount = 0;
+      //sort by absolute delta time also makes sure events occur in order of track and when they are received.
+      var eventCount = 0;
       var delta = 0;
-      var nextdelta = int.MaxValue;
+      var nextDelta = int.MaxValue;
       var counters = new int[absevents.Length];
-      while (eventcount < finalTrack.MidiEvents.Length) {
+      while (eventCount < finalTrack.MidiEvents.Length) {
         for (var x = 0; x < absevents.Length; x++) {
           while (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime == delta) {
-            finalTrack.MidiEvents[eventcount] = absevents[x][counters[x]];
-            eventcount++;
+            finalTrack.MidiEvents[eventCount] = absevents[x][counters[x]];
+            eventCount++;
             counters[x]++;
           }
-          if (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime < nextdelta) {
-            nextdelta = absevents[x][counters[x]].DeltaTime;
+          if (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime < nextDelta) {
+            nextDelta = absevents[x][counters[x]].DeltaTime;
           }
         }
-        delta = nextdelta;
-        nextdelta = int.MaxValue;
+        delta = nextDelta;
+        nextDelta = int.MaxValue;
       }
       //set total time
       finalTrack.EndTime = finalTrack.MidiEvents[^1].DeltaTime;
       //put back into regular delta time
-      for (int x = 0, deltadiff = 0; x < finalTrack.MidiEvents.Length; x++) {
-        var oldtime = finalTrack.MidiEvents[x].DeltaTime;
-        finalTrack.MidiEvents[x].DeltaTime -= deltadiff;
-        deltadiff = oldtime;
+      for (int x = 0, deltaDiff = 0; x < finalTrack.MidiEvents.Length; x++) {
+        var oldTime = finalTrack.MidiEvents[x].DeltaTime;
+        finalTrack.MidiEvents[x].DeltaTime -= deltaDiff;
+        deltaDiff = oldTime;
       }
       Tracks = new MidiTrack[] { finalTrack };
       MidiFormat = TrackFormat.SingleTrack;
@@ -68,7 +68,7 @@
       var notesPlayed = 0;
       var activeChannels = 0;
       var programsUsed = new List<byte>();
-      var drumprogramsUsed = new List<byte>();
+      var drumProgramsUsed = new List<byte>();
       //Loop to get track info
       for (var x = 0; x < Tracks.Length; x++) {
         eventCount += Tracks[x].MidiEvents.Length;
@@ -80,13 +80,13 @@
           }
         }
         foreach (var p in Tracks[x].DrumInstruments) {
-          if (!drumprogramsUsed.Contains(p)) {
-            drumprogramsUsed.Add(p);
+          if (!drumProgramsUsed.Contains(p)) {
+            drumProgramsUsed.Add(p);
           }
         }
         activeChannels |= Tracks[x].ActiveChannels;
       }
-      var track = new MidiTrack(programsUsed.ToArray(), drumprogramsUsed.ToArray(), new MidiEvent[eventCount]) {
+      var track = new MidiTrack(programsUsed.ToArray(), drumProgramsUsed.ToArray(), new MidiEvent[eventCount]) {
         NoteOnCount = notesPlayed,
         ActiveChannels = activeChannels
       };
@@ -224,7 +224,7 @@
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
         case 0x2://copyright
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
-        case 0x3://trackname
+        case 0x3://track name
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
         case 0x4://inst name
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
@@ -232,25 +232,25 @@
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
         case 0x6://marker
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
-        case 0x7://cuepoint
+        case 0x7://cue point
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
-        case 0x8://patchname
+        case 0x8://patch name
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
-        case 0x9://portname
+        case 0x9://port name
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
-        case 0x20://midichannel
+        case 0x20://midi channel
           if (reader.ReadByte() != 1) {
             throw new Exception("Invalid midi channel event. Expected size of 1.");
           }
 
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
-        case 0x21://midiport
+        case 0x21://midi port
           if (reader.ReadByte() != 1) {
             throw new Exception("Invalid midi port event. Expected size of 1.");
           }
 
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
-        case 0x2F://endoftrack
+        case 0x2F://end of track
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
         case 0x51://tempo
           if (reader.ReadByte() != 3) {
@@ -387,7 +387,7 @@
       do {
         next = reader.ReadByte();
         value <<= 7;
-        value |= (next & 0x7F);
+        value |= next & 0x7F;
       } while ((next & 0x80) == 0x80);
       return value;
     }
