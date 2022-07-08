@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-using AudioSynthesis.Bank;
-using AudioSynthesis.Bank.Patches;
-using AudioSynthesis.Midi;
-
+﻿
 namespace AudioSynthesis.Synthesis {
+  using System.Collections.Generic;
+  using AudioSynthesis.Bank;
+  using AudioSynthesis.Bank.Patches;
+  using AudioSynthesis.Midi;
   public partial class Synthesizer {
-    internal Queue<MidiMessage> midiEventQueue;
-    internal int[] midiEventCounts;
-    private Patch[] layerList;
+    internal Queue<MidiMessage> MidiEventQueue;
+    internal int[] MidiEventCounts;
+    private readonly Patch[] _layerList;
 
-    public IEnumerator<MidiMessage> MidiMessageEnumerator {
-      get { return midiEventQueue.GetEnumerator(); }
-    }
+    public IEnumerator<MidiMessage> MidiMessageEnumerator => MidiEventQueue.GetEnumerator();
     /// <summary>
     /// Starts a voice with the given key and velocity.
     /// </summary>
@@ -20,61 +18,66 @@ namespace AudioSynthesis.Synthesis {
     /// <param name="velocity">The volume of the voice.</param>
     public void NoteOn(int channel, int note, int velocity) {
       // Get the correct instrument depending if it is a drum or not
-      SynthParameters sChan = synthChannels[channel];
-      Patch inst = bank.GetPatch(sChan.bankSelect, sChan.program);
-      if (inst == null)
+      var sChan = _synthChannels[channel];
+      var inst = SoundBank.GetPatch(sChan.BankSelect, sChan.Program);
+      if (inst == null) {
         return;
+      }
       // A NoteOn can trigger multiple voices via layers
       int layerCount;
       if (inst is MultiPatch) {
-        layerCount = ((MultiPatch)inst).FindPatches(channel, note, velocity, layerList);
+        layerCount = ((MultiPatch)inst).FindPatches(channel, note, velocity, _layerList);
       }
       else {
         layerCount = 1;
-        layerList[0] = inst;
+        _layerList[0] = inst;
       }
       // If a key with the same note value exists, stop it
-      if (voiceManager.Registry[channel, note] != null) {
-        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
+      if (_voiceManager.Registry[channel, note] != null) {
+        var node = _voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.Stop();
           node = node.Next;
         }
-        voiceManager.RemoveFromRegistry(channel, note);
+        _voiceManager.RemoveFromRegistry(channel, note);
       }
       // Check exclusive groups
-      for (int x = 0; x < layerCount; x++) {
-        bool notseen = true;
-        for (int i = x - 1; i >= 0; i--) {
-          if (layerList[x].ExclusiveGroupTarget == layerList[i].ExclusiveGroupTarget) {
+      for (var x = 0; x < layerCount; x++) {
+        var notseen = true;
+        for (var i = x - 1; i >= 0; i--) {
+          if (_layerList[x].ExclusiveGroupTarget == _layerList[i].ExclusiveGroupTarget) {
             notseen = false;
             break;
           }
         }
-        if (layerList[x].ExclusiveGroupTarget != 0 && notseen) {
-          LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
+        if (_layerList[x].ExclusiveGroupTarget != 0 && notseen) {
+          var node = _voiceManager.ActiveVoices.First;
           while (node != null) {
-            if (layerList[x].ExclusiveGroupTarget == node.Value.Patch.ExclusiveGroup) {
+            if (_layerList[x].ExclusiveGroupTarget == node.Value.Patch.ExclusiveGroup) {
               node.Value.Stop();
-              voiceManager.RemoveFromRegistry(node.Value);
+              _voiceManager.RemoveFromRegistry(node.Value);
             }
             node = node.Next;
           }
         }
       }
       // Assign a voice to each layer
-      for (int x = 0; x < layerCount; x++) {
-        Voice voice = voiceManager.GetFreeVoice();
+      for (var x = 0; x < layerCount; x++) {
+        var voice = _voiceManager.GetFreeVoice();
         if (voice == null)// out of voices and skipping is enabled
+{
           break;
-        voice.Configure(channel, note, velocity, layerList[x], synthChannels[channel]);
-        voiceManager.AddToRegistry(voice);
-        voiceManager.ActiveVoices.AddLast(voice);
+        }
+
+        voice.Configure(channel, note, velocity, _layerList[x], _synthChannels[channel]);
+        _voiceManager.AddToRegistry(voice);
+        _voiceManager.ActiveVoices.AddLast(voice);
         voice.Start();
       }
       // Clear layer list
-      for (int x = 0; x < layerCount; x++)
-        layerList[x] = null;
+      for (var x = 0; x < layerCount; x++) {
+        _layerList[x] = null!;
+      }
     }
     /// <summary>
     /// Attempts to stop a voice by putting it into its release phase.
@@ -83,20 +86,20 @@ namespace AudioSynthesis.Synthesis {
     /// <param name="channel">The channel of the voice.</param>
     /// <param name="note">The key of the voice.</param>
     public void NoteOff(int channel, int note) {
-      if (synthChannels[channel].holdPedal) {
-        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
+      if (_synthChannels[channel].HoldPedal) {
+        var node = _voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.VoiceParams.NoteOffPending = true;
           node = node.Next;
         }
       }
       else {
-        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
+        var node = _voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.Stop();
           node = node.Next;
         }
-        voiceManager.RemoveFromRegistry(channel, note);
+        _voiceManager.RemoveFromRegistry(channel, note);
       }
     }
     /// <summary>
@@ -104,28 +107,28 @@ namespace AudioSynthesis.Synthesis {
     /// </summary>
     /// <param name="immediate">If true all voices will stop immediately regardless of their release phase.</param>
     public void NoteOffAll(bool immediate) {
-      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
+      var node = _voiceManager.ActiveVoices.First;
       if (immediate) {//if immediate ignore hold pedals and clear the entire registry
-        voiceManager.ClearRegistry();
+        _voiceManager.ClearRegistry();
         while (node != null) {
           node.Value.StopImmediately();
-          LinkedListNode<Voice> delnode = node;
+          var delnode = node;
           node = node.Next;
-          voiceManager.ActiveVoices.Remove(delnode);
-          voiceManager.FreeVoices.AddFirst(delnode);
+          _voiceManager.ActiveVoices.Remove(delnode);
+          _voiceManager.FreeVoices.AddFirst(delnode);
         }
       }
       else {//otherwise we have to check for hold pedals and double check the registry before removing the voice
         while (node != null) {
-          VoiceParameters voiceParams = node.Value.VoiceParams;
+          var voiceParams = node.Value.VoiceParams;
           if (voiceParams.State == VoiceStateEnum.Playing) {
             //if hold pedal is enabled do not stop the voice
-            if (synthChannels[voiceParams.Channel].holdPedal) {
+            if (_synthChannels[voiceParams.Channel].HoldPedal) {
               voiceParams.NoteOffPending = true;
             }
             else {
               node.Value.Stop();
-              voiceManager.RemoveFromRegistry(node.Value);
+              _voiceManager.RemoveFromRegistry(node.Value);
             }
           }
           node = node.Next;
@@ -138,22 +141,25 @@ namespace AudioSynthesis.Synthesis {
     /// <param name="channel">The midi channel.</param>
     /// <param name="immediate">If true the voices will stop immediately regardless of their release phase.</param>
     public void NoteOffAll(int channel, bool immediate) {
-      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
+      var node = _voiceManager.ActiveVoices.First;
       while (node != null) {
         if (channel == node.Value.VoiceParams.Channel) {
           if (immediate) {
             node.Value.StopImmediately();
-            LinkedListNode<Voice> delnode = node;
+            var delnode = node;
             node = node.Next;
-            voiceManager.ActiveVoices.Remove(delnode);
-            voiceManager.FreeVoices.AddFirst(delnode);
+            _voiceManager.ActiveVoices.Remove(delnode);
+            _voiceManager.FreeVoices.AddFirst(delnode);
           }
           else {
             //if hold pedal is enabled do not stop the voice
-            if (synthChannels[channel].holdPedal)
+            if (_synthChannels[channel].HoldPedal) {
               node.Value.VoiceParams.NoteOffPending = true;
-            else
+            }
+            else {
               node.Value.Stop();
+            }
+
             node = node.Next;
           }
         }
@@ -169,10 +175,13 @@ namespace AudioSynthesis.Synthesis {
           NoteOff(channel, data1);
           break;
         case 0x90: //NoteOn
-          if (data2 == 0)
+          if (data2 == 0) {
             NoteOff(channel, data1);
-          else
+          }
+          else {
             NoteOn(channel, data1, data2);
+          }
+
           break;
         /*case 0xA0: //NoteAftertouch
             synth uses channel after touch instead
@@ -181,62 +190,70 @@ namespace AudioSynthesis.Synthesis {
           #region Controller Switch
           switch (data1) {
             case 0x00: //Bank select coarse
-              if (channel == MidiHelper.DrumChannel)
+              if (channel == MidiHelper.DrumChannel) {
                 data2 += PatchBank.DrumBank;
-              if (bank.IsBankLoaded(data2))
-                synthChannels[channel].bankSelect = (byte)data2;
-              else
-                synthChannels[channel].bankSelect = (channel == MidiHelper.DrumChannel) ? (byte)PatchBank.DrumBank : (byte)0;
+              }
+
+              if (SoundBank.IsBankLoaded(data2)) {
+                _synthChannels[channel].BankSelect = (byte)data2;
+              }
+              else {
+                _synthChannels[channel].BankSelect = (channel == MidiHelper.DrumChannel) ? (byte)PatchBank.DrumBank : (byte)0;
+              }
+
               break;
             case 0x01: //Modulation wheel coarse
-              synthChannels[channel].modRange.Coarse = (byte)data2;
-              synthChannels[channel].UpdateCurrentMod();
+              _synthChannels[channel].ModRange.Coarse = (byte)data2;
+              _synthChannels[channel].UpdateCurrentMod();
               break;
             case 0x21: //Modulation wheel fine
-              synthChannels[channel].modRange.Fine = (byte)data2;
-              synthChannels[channel].UpdateCurrentMod();
+              _synthChannels[channel].ModRange.Fine = (byte)data2;
+              _synthChannels[channel].UpdateCurrentMod();
               break;
             case 0x07: //Channel volume coarse
-              synthChannels[channel].volume.Coarse = (byte)data2;
+              _synthChannels[channel].Volume.Coarse = (byte)data2;
               break;
             case 0x27: //Channel volume fine
-              synthChannels[channel].volume.Fine = (byte)data2;
+              _synthChannels[channel].Volume.Fine = (byte)data2;
               break;
             case 0x0A: //Pan coarse
-              synthChannels[channel].pan.Coarse = (byte)data2;
-              synthChannels[channel].UpdateCurrentPan();
+              _synthChannels[channel].Pan.Coarse = (byte)data2;
+              _synthChannels[channel].UpdateCurrentPan();
               break;
             case 0x2A: //Pan fine
-              synthChannels[channel].pan.Fine = (byte)data2;
-              synthChannels[channel].UpdateCurrentPan();
+              _synthChannels[channel].Pan.Fine = (byte)data2;
+              _synthChannels[channel].UpdateCurrentPan();
               break;
             case 0x0B: //Expression coarse
-              synthChannels[channel].expression.Coarse = (byte)data2;
-              synthChannels[channel].UpdateCurrentVolume();
+              _synthChannels[channel].Expression.Coarse = (byte)data2;
+              _synthChannels[channel].UpdateCurrentVolume();
               break;
             case 0x2B: //Expression fine
-              synthChannels[channel].expression.Fine = (byte)data2;
-              synthChannels[channel].UpdateCurrentVolume();
+              _synthChannels[channel].Expression.Fine = (byte)data2;
+              _synthChannels[channel].UpdateCurrentVolume();
               break;
             case 0x40: //Hold Pedal
-              if (synthChannels[channel].holdPedal && !(data2 > 63)) //if hold pedal is released stop any voices with pending release tags
+              if (_synthChannels[channel].HoldPedal && !(data2 > 63)) //if hold pedal is released stop any voices with pending release tags
+{
                 ReleaseHoldPedal(channel);
-              synthChannels[channel].holdPedal = data2 > 63;
+              }
+
+              _synthChannels[channel].HoldPedal = data2 > 63;
               break;
             case 0x44: //Legato Pedal
-              synthChannels[channel].legatoPedal = data2 > 63;
+              _synthChannels[channel].LegatoPedal = data2 > 63;
               break;
             case 0x63: //NRPN Coarse Select   //fix for invalid DataEntry after unsupported NRPN events
-              synthChannels[channel].rpn.Combined = 0x3FFF; //todo implement NRPN
+              _synthChannels[channel].Rpn.Combined = 0x3FFF; //todo implement NRPN
               break;
             case 0x62: //NRPN Fine Select     //fix for invalid DataEntry after unsupported NRPN events
-              synthChannels[channel].rpn.Combined = 0x3FFF; //todo implement NRPN
+              _synthChannels[channel].Rpn.Combined = 0x3FFF; //todo implement NRPN
               break;
             case 0x65: //RPN Coarse Select
-              synthChannels[channel].rpn.Coarse = (byte)data2;
+              _synthChannels[channel].Rpn.Coarse = (byte)data2;
               break;
             case 0x64: //RPN Fine Select
-              synthChannels[channel].rpn.Fine = (byte)data2;
+              _synthChannels[channel].Rpn.Fine = (byte)data2;
               break;
             case 0x78: //All Sounds Off
               NoteOffAll(true);
@@ -245,46 +262,48 @@ namespace AudioSynthesis.Synthesis {
               NoteOffAll(false);
               break;
             case 0x06: //DataEntry Coarse
-              switch (synthChannels[channel].rpn.Combined) {
+              switch (_synthChannels[channel].Rpn.Combined) {
                 case 0: //change semitone, pitchwheel
-                  synthChannels[channel].pitchBendRangeCoarse = (byte)data2;
-                  synthChannels[channel].UpdateCurrentPitch();
+                  _synthChannels[channel].PitchBendRangeCoarse = (byte)data2;
+                  _synthChannels[channel].UpdateCurrentPitch();
                   break;
                 case 1: //master fine tune coarse
-                  synthChannels[channel].masterFineTune.Coarse = (byte)data2;
+                  _synthChannels[channel].MasterFineTune.Coarse = (byte)data2;
                   break;
                 case 2: //master coarse tune coarse
-                  synthChannels[channel].masterCoarseTune = (short)(data2 - 64);
+                  _synthChannels[channel].MasterCoarseTune = (short)(data2 - 64);
                   break;
                 default:
                   break;
               }
               break;
             case 0x26: //DataEntry Fine
-              switch (synthChannels[channel].rpn.Combined) {
+              switch (_synthChannels[channel].Rpn.Combined) {
                 case 0: //change cents, pitchwheel
-                  synthChannels[channel].pitchBendRangeFine = (byte)data2;
-                  synthChannels[channel].UpdateCurrentPitch();
+                  _synthChannels[channel].PitchBendRangeFine = (byte)data2;
+                  _synthChannels[channel].UpdateCurrentPitch();
                   break;
                 case 1: //master fine tune fine
-                  synthChannels[channel].masterFineTune.Fine = (byte)data2;
+                  _synthChannels[channel].MasterFineTune.Fine = (byte)data2;
                   break;
                 default:
                   break;
               }
               break;
             case 0x79: //Reset the following controllers, follows midi spec: RP-015
-              synthChannels[channel].expression.Combined = 0x3FFF;
-              synthChannels[channel].modRange.Combined = 0;
-              if (synthChannels[channel].holdPedal)
+              _synthChannels[channel].Expression.Combined = 0x3FFF;
+              _synthChannels[channel].ModRange.Combined = 0;
+              if (_synthChannels[channel].HoldPedal) {
                 ReleaseHoldPedal(channel);
-              synthChannels[channel].holdPedal = false;
-              synthChannels[channel].legatoPedal = false;
-              synthChannels[channel].rpn.Combined = 0x3FFF;
-              synthChannels[channel].pitchBend.Combined = 0x2000;
-              synthChannels[channel].channelAfterTouch = 0;
-              synthChannels[channel].UpdateCurrentPitch(); //because pitchBend was reset
-              synthChannels[channel].UpdateCurrentVolume(); //because expression was reset
+              }
+
+              _synthChannels[channel].HoldPedal = false;
+              _synthChannels[channel].LegatoPedal = false;
+              _synthChannels[channel].Rpn.Combined = 0x3FFF;
+              _synthChannels[channel].PitchBend.Combined = 0x2000;
+              _synthChannels[channel].ChannelAfterTouch = 0;
+              _synthChannels[channel].UpdateCurrentPitch(); //because pitchBend was reset
+              _synthChannels[channel].UpdateCurrentVolume(); //because expression was reset
               break;
             default:
               return;
@@ -292,15 +311,15 @@ namespace AudioSynthesis.Synthesis {
           #endregion
           break;
         case 0xC0: //Program Change
-          synthChannels[channel].program = (byte)data1;
+          _synthChannels[channel].Program = (byte)data1;
           break;
         case 0xD0: //Channel Aftertouch
-          synthChannels[channel].channelAfterTouch = (byte)data2;
+          _synthChannels[channel].ChannelAfterTouch = (byte)data2;
           break;
         case 0xE0: //Pitch Bend
-          synthChannels[channel].pitchBend.Coarse = (byte)data2;
-          synthChannels[channel].pitchBend.Fine = (byte)data1;
-          synthChannels[channel].UpdateCurrentPitch();
+          _synthChannels[channel].PitchBend.Coarse = (byte)data2;
+          _synthChannels[channel].PitchBend.Fine = (byte)data1;
+          _synthChannels[channel].UpdateCurrentPitch();
           break;
         default:
           return;
@@ -309,21 +328,21 @@ namespace AudioSynthesis.Synthesis {
 
     //private
     private void ReleaseAllHoldPedals() {
-      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
+      var node = _voiceManager.ActiveVoices.First;
       while (node != null) {
         if (node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();
-          voiceManager.RemoveFromRegistry(node.Value);
+          _voiceManager.RemoveFromRegistry(node.Value);
         }
         node = node.Next;
       }
     }
     private void ReleaseHoldPedal(int channel) {
-      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
+      var node = _voiceManager.ActiveVoices.First;
       while (node != null) {
         if (node.Value.VoiceParams.Channel == channel && node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();
-          voiceManager.RemoveFromRegistry(node.Value);
+          _voiceManager.RemoveFromRegistry(node.Value);
         }
         node = node.Next;
       }

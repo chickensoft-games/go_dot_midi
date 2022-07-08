@@ -236,7 +236,7 @@
       LfoDescriptions = new LfoDescriptor[3];
       LfoDescriptions[0] = new LfoDescriptor();
       LfoDescriptions[0].DelayTime = region.pitchLfoDelay; //make sure pitch lfo is enabled for midi mod event
-      LfoDescriptions[0].Frequency = region.pitchLfoFrequency > 0 ? region.pitchLfoFrequency : (float)Synthesizer.DefaultLfoFrequency;
+      LfoDescriptions[0].Frequency = region.pitchLfoFrequency > 0 ? region.pitchLfoFrequency : (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
       LfoDescriptions[0].Depth = region.pitchLfoDepth;
       LfoDescriptions[1] = new LfoDescriptor();
       LfoDescriptions[1].DelayTime = region.filterLfoDelay;

@@ -84,7 +84,7 @@
     }
     private void ApplyDefault() {
       DelayTime = 0f;
-      Frequency = (float)Synthesizer.DefaultLfoFrequency;
+      Frequency = (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
       Depth = 1;
       Generator = Generator.DefaultSine;
     }

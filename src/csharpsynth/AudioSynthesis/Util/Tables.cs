@@ -112,7 +112,7 @@ namespace AudioSynthesis.Util {
     }
     private static float[] RemoveDenormals(float[] data) {
       for (var x = 0; x < data.Length; x++) {
-        if (Math.Abs(data[x]) <= Synthesizer.DenormLimit) {
+        if (Math.Abs(data[x]) <= Synthesizer.DENORM_LIMIT) {
           data[x] = 0f;
         }
       }
@@ -120,8 +120,8 @@ namespace AudioSynthesis.Util {
     }
 
     /*Windowing methods*/
-    public static double VonHannWindow(double i, int size) => 0.5 - (0.5 * Math.Cos(Synthesizer.TwoPi * (0.5 + (i / size))));
-    public static double HammingWindow(double i, int size) => 0.54 - (0.46 * Math.Cos(Synthesizer.TwoPi * i / size));
-    public static double BlackmanWindow(double i, int size) => 0.42659 - (0.49656 * Math.Cos(Synthesizer.TwoPi * i / size)) + (0.076849 * Math.Cos(4.0 * Math.PI * i / size));
+    public static double VonHannWindow(double i, int size) => 0.5 - (0.5 * Math.Cos(Synthesizer.TWO_PI * (0.5 + (i / size))));
+    public static double HammingWindow(double i, int size) => 0.54 - (0.46 * Math.Cos(Synthesizer.TWO_PI * i / size));
+    public static double BlackmanWindow(double i, int size) => 0.42659 - (0.49656 * Math.Cos(Synthesizer.TWO_PI * i / size)) + (0.076849 * Math.Cos(4.0 * Math.PI * i / size));
   }
 }

@@ -15,11 +15,11 @@ namespace AudioSynthesis.Sequencer {
   public class MidiInputSequencer {
     public Synthesizer Synth { get; set; }
 
-    public MidiInputSequencer(Synthesizer synth) => this.Synth = synth;
+    public MidiInputSequencer(Synthesizer synth) => Synth = synth;
     public void AddMidiEvent(MidiMessage midiMsg) {
       midiMsg.delta = 0;
-      Synth.midiEventQueue.Enqueue(midiMsg);
-      Synth.midiEventCounts[0]++;
+      Synth.MidiEventQueue.Enqueue(midiMsg);
+      Synth.MidiEventCounts[0]++;
     }
   }
 }

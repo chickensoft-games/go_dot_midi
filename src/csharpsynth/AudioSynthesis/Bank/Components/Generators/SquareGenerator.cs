@@ -8,7 +8,7 @@
     public SquareGenerator(GeneratorDescriptor description)
         : base(description) {
       if (end < 0) {
-        end = Synthesizer.TwoPi;
+        end = Synthesizer.TWO_PI;
       }
 
       if (start < 0) {
@@ -24,7 +24,7 @@
       }
 
       if (genPeriod < 0) {
-        genPeriod = Synthesizer.TwoPi;
+        genPeriod = Synthesizer.TWO_PI;
       }
 
       if (root < 0) {

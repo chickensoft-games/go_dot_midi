@@ -48,7 +48,7 @@
       value = SynthHelper.Clamp(value, -1f, 1f);
       switch (formula) {
         case PanFormulaEnum.Neg3dBCenter: {
-            var dvalue = Synthesizer.HalfPi * (value + 1f) / 2f;
+            var dvalue = Synthesizer.HALF_PI * (value + 1f) / 2f;
             Left = (float)Math.Cos(dvalue);
             Right = (float)Math.Sin(dvalue);
           }
@@ -59,9 +59,9 @@
           }
           break;
         case PanFormulaEnum.ZeroCenter: {
-            var dvalue = Synthesizer.HalfPi * (value + 1.0) / 2.0;
-            Left = (float)(Math.Cos(dvalue) / Synthesizer.InverseSqrtOfTwo);
-            Right = (float)(Math.Sin(dvalue) / Synthesizer.InverseSqrtOfTwo);
+            var dvalue = Synthesizer.HALF_PI * (value + 1.0) / 2.0;
+            Left = (float)(Math.Cos(dvalue) / Synthesizer.INVERSE_SQRT_OF_TWO);
+            Right = (float)(Math.Sin(dvalue) / Synthesizer.INVERSE_SQRT_OF_TWO);
           }
           break;
         default:

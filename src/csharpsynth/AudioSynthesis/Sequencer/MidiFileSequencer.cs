@@ -52,7 +52,7 @@ namespace AudioSynthesis.Sequencer {
     //--Public Methods
     public MidiFileSequencer(Synthesizer synth) {
       this.synth = synth;
-      blockList = new bool[Synthesizer.DefaultChannelCount];
+      blockList = new bool[Synthesizer.DEFAULT_CHANNEL_COUNT];
     }
     public bool LoadMidi(Stream midiFileStream) {
       if (playing == true)
@@ -110,7 +110,7 @@ namespace AudioSynthesis.Sequencer {
       }
     }
     public void FillMidiEventQueue() {
-      if (!playing || synth.midiEventQueue.Count != 0)
+      if (!playing || synth.MidiEventQueue.Count != 0)
         return;
       if (sampleTime >= totalTime) {
         sampleTime = 0;
@@ -122,12 +122,12 @@ namespace AudioSynthesis.Sequencer {
         return;
       }
       int newMSize = (int)(synth.MicroBufferSize * playbackrate);
-      for (int x = 0; x < synth.midiEventCounts.Length; x++) {
+      for (int x = 0; x < synth.MidiEventCounts.Length; x++) {
         sampleTime += newMSize;
         while (eventIndex < mdata.Length && mdata[eventIndex].delta < sampleTime) {
           if (mdata[eventIndex].command != 0x90 || blockList[mdata[eventIndex].channel] == false) {
-            synth.midiEventQueue.Enqueue(mdata[eventIndex]);
-            synth.midiEventCounts[x]++;
+            synth.MidiEventQueue.Enqueue(mdata[eventIndex]);
+            synth.MidiEventCounts[x]++;
           }
           eventIndex++;
         }

@@ -47,48 +47,48 @@ namespace AudioSynthesis.Bank.Patches {
       voiceparams.PData[1].double1 = mGen.LoopStartPhase;
       voiceparams.PData[2].double1 = 0.0;
       //reset envelopes
-      voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.synth.SampleRate, fVel, cEnv);
-      voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.synth.SampleRate, fVel, mEnv);
+      voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, cEnv);
+      voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, mEnv);
       //reset lfo (vibra)
-      voiceparams.Lfos[0].QuickSetup(voiceparams.SynthParams.synth.SampleRate, lfo);
+      voiceparams.Lfos[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, lfo);
       //calculate initial pitch
-      voiceparams.PitchOffset = (int)(100.0 * (voiceparams.SynthParams.masterCoarseTune + (voiceparams.SynthParams.masterFineTune.Combined - 8192.0) / 8192.0));
+      voiceparams.PitchOffset = (int)(100.0 * (voiceparams.SynthParams.MasterCoarseTune + (voiceparams.SynthParams.MasterFineTune.Combined - 8192.0) / 8192.0));
       //calc initial volume
-      voiceparams.VolOffset = voiceparams.SynthParams.volume.Combined / 16383f;
-      voiceparams.VolOffset *= voiceparams.VolOffset * fVel * voiceparams.SynthParams.synth.MixGain;
+      voiceparams.VolOffset = voiceparams.SynthParams.Volume.Combined / 16383f;
+      voiceparams.VolOffset *= voiceparams.VolOffset * fVel * voiceparams.SynthParams.Synth.MixGain;
       //check if we have finished before we have begun
       return voiceparams.Envelopes[0].CurrentState != EnvelopeStateEnum.None;
     }
     public override void Stop(VoiceParameters voiceparams) {
-      voiceparams.Envelopes[0].Release(Synthesis.Synthesizer.NonAudible);
-      voiceparams.Envelopes[1].Release(Synthesis.Synthesizer.DenormLimit);
+      voiceparams.Envelopes[0].Release(Synthesis.Synthesizer.NON_AUDIBLE);
+      voiceparams.Envelopes[1].Release(Synthesis.Synthesizer.DENORM_LIMIT);
     }
     public override void Process(VoiceParameters voiceparams, int startIndex, int endIndex) {
       //--Base pitch calculation
-      double carrierPitch = SynthHelper.CentsToPitch((voiceparams.Note - cGen.RootKey) * cGen.KeyTrack + cGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.currentPitch)
-          * cGen.Period * cGen.Frequency * cIndex / voiceparams.SynthParams.synth.SampleRate;
-      double modulatorPitch = SynthHelper.CentsToPitch((voiceparams.Note - mGen.RootKey) * mGen.KeyTrack + mGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.currentPitch)
-          * mGen.Period * mGen.Frequency * mIndex / voiceparams.SynthParams.synth.SampleRate;
+      double carrierPitch = SynthHelper.CentsToPitch((voiceparams.Note - cGen.RootKey) * cGen.KeyTrack + cGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
+          * cGen.Period * cGen.Frequency * cIndex / voiceparams.SynthParams.Synth.SampleRate;
+      double modulatorPitch = SynthHelper.CentsToPitch((voiceparams.Note - mGen.RootKey) * mGen.KeyTrack + mGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
+          * mGen.Period * mGen.Frequency * mIndex / voiceparams.SynthParams.Synth.SampleRate;
       //--Base volume calculation
-      float baseVolume = voiceparams.VolOffset * voiceparams.SynthParams.currentVolume;
+      float baseVolume = voiceparams.VolOffset * voiceparams.SynthParams.CurrentVolume;
       //--Main Loop
-      for (int x = startIndex; x < endIndex; x += Synthesizer.DefaultBlockSize * voiceparams.SynthParams.synth.AudioChannels) {
+      for (int x = startIndex; x < endIndex; x += Synthesizer.DEFAULT_BLOCK_SIZE * voiceparams.SynthParams.Synth.AudioChannels) {
         //--Calculate pitch modifications
         double pitchMod;
-        if (voiceparams.SynthParams.modRange.Combined != 0) {
-          voiceparams.Lfos[0].Increment(Synthesizer.DefaultBlockSize);
-          pitchMod = SynthHelper.CentsToPitch((int)(voiceparams.Lfos[0].Value * voiceparams.SynthParams.currentMod));
+        if (voiceparams.SynthParams.ModRange.Combined != 0) {
+          voiceparams.Lfos[0].Increment(Synthesizer.DEFAULT_BLOCK_SIZE);
+          pitchMod = SynthHelper.CentsToPitch((int)(voiceparams.Lfos[0].Value * voiceparams.SynthParams.CurrentMod));
         }
         else {
           pitchMod = 1;
         }
         //--Get amplitude values for carrier and modulator
-        voiceparams.Envelopes[0].Increment(Synthesizer.DefaultBlockSize);
-        voiceparams.Envelopes[1].Increment(Synthesizer.DefaultBlockSize);
+        voiceparams.Envelopes[0].Increment(Synthesizer.DEFAULT_BLOCK_SIZE);
+        voiceparams.Envelopes[1].Increment(Synthesizer.DEFAULT_BLOCK_SIZE);
         float c_amp = baseVolume * voiceparams.Envelopes[0].Value;
         float m_amp = voiceparams.Envelopes[1].Value;
         //--Interpolator for modulator amplitude
-        float linear_m_amp = (m_amp - voiceparams.PData[3].float1) / Synthesizer.DefaultBlockSize;
+        float linear_m_amp = (m_amp - voiceparams.PData[3].float1) / Synthesizer.DEFAULT_BLOCK_SIZE;
         //--Process block
         for (int i = 0; i < voiceparams.BlockBuffer.Length; i++) {
           //calculate current modulator amplitude
@@ -103,10 +103,10 @@ namespace AudioSynthesis.Bank.Patches {
         }
         voiceparams.PData[3].float1 = m_amp;
         //--Mix block based on number of channels
-        if (voiceparams.SynthParams.synth.AudioChannels == 2)
+        if (voiceparams.SynthParams.Synth.AudioChannels == 2)
           voiceparams.MixMonoToStereoInterp(x,
-              c_amp * voiceparams.SynthParams.currentPan.Left,
-              c_amp * voiceparams.SynthParams.currentPan.Right);
+              c_amp * voiceparams.SynthParams.CurrentPan.Left,
+              c_amp * voiceparams.SynthParams.CurrentPan.Right);
         else
           voiceparams.MixMonoToMonoInterp(x, c_amp);
         //--Bounds check

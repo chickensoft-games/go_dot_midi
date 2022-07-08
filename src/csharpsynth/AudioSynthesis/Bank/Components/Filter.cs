@@ -144,11 +144,11 @@
 
     //--helper methods for coeff update
     private float[] GenerateFilterCoeff(double fc, double q) {
-      fc = SynthHelper.Clamp(fc, Synthesizer.DenormLimit, .49);
+      fc = SynthHelper.Clamp(fc, Synthesizer.DENORM_LIMIT, .49);
       var coeff = new float[4];
       switch (FilterMethod) {
         case FilterTypeEnum.BiquadLowpass: {
-            var w0 = Synthesizer.TwoPi * fc;
+            var w0 = Synthesizer.TWO_PI * fc;
             var cosw0 = Math.Cos(w0);
             var alpha = Math.Sin(w0) / (2.0 * q);
             var a0inv = 1.0 / (1.0 + alpha);
@@ -159,7 +159,7 @@
           }
           break;
         case FilterTypeEnum.BiquadHighpass: {
-            var w0 = Synthesizer.TwoPi * fc;
+            var w0 = Synthesizer.TWO_PI * fc;
             var cosw0 = Math.Cos(w0);
             var alpha = Math.Sin(w0) / (2.0 * q);
             var a0inv = 1.0 / (1.0 + alpha);
