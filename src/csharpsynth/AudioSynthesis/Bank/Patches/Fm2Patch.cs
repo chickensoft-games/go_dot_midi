@@ -43,9 +43,9 @@ namespace AudioSynthesis.Bank.Patches {
       //calculate velocity
       float fVel = voiceparams.Velocity / 127f;
       //reset counters
-      voiceparams.PData[0].double1 = cGen.LoopStartPhase;
-      voiceparams.PData[1].double1 = mGen.LoopStartPhase;
-      voiceparams.PData[2].double1 = 0.0;
+      voiceparams.PData[0].Double1 = cGen.LoopStartPhase;
+      voiceparams.PData[1].Double1 = mGen.LoopStartPhase;
+      voiceparams.PData[2].Double1 = 0.0;
       //reset envelopes
       voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, cEnv);
       voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, mEnv);
@@ -88,20 +88,20 @@ namespace AudioSynthesis.Bank.Patches {
         float c_amp = baseVolume * voiceparams.Envelopes[0].Value;
         float m_amp = voiceparams.Envelopes[1].Value;
         //--Interpolator for modulator amplitude
-        float linear_m_amp = (m_amp - voiceparams.PData[3].float1) / Synthesizer.DEFAULT_BLOCK_SIZE;
+        float linear_m_amp = (m_amp - voiceparams.PData[3].Float1) / Synthesizer.DEFAULT_BLOCK_SIZE;
         //--Process block
         for (int i = 0; i < voiceparams.BlockBuffer.Length; i++) {
           //calculate current modulator amplitude
-          voiceparams.PData[3].float1 += linear_m_amp;
+          voiceparams.PData[3].Float1 += linear_m_amp;
           //calculate sample
-          voiceparams.BlockBuffer[i] = cGen.GetValue(voiceparams.PData[0].double1 + voiceparams.PData[3].float1 * mGen.GetValue(voiceparams.PData[1].double1 + voiceparams.PData[2].double1 * feedBack));
+          voiceparams.BlockBuffer[i] = cGen.GetValue(voiceparams.PData[0].Double1 + voiceparams.PData[3].Float1 * mGen.GetValue(voiceparams.PData[1].Double1 + voiceparams.PData[2].Double1 * feedBack));
           //store sample for feedback calculation
-          voiceparams.PData[2].double1 = voiceparams.BlockBuffer[i];
+          voiceparams.PData[2].Double1 = voiceparams.BlockBuffer[i];
           //increment phase counters
-          voiceparams.PData[0].double1 += carrierPitch * pitchMod;
-          voiceparams.PData[1].double1 += modulatorPitch * pitchMod;
+          voiceparams.PData[0].Double1 += carrierPitch * pitchMod;
+          voiceparams.PData[1].Double1 += modulatorPitch * pitchMod;
         }
-        voiceparams.PData[3].float1 = m_amp;
+        voiceparams.PData[3].Float1 = m_amp;
         //--Mix block based on number of channels
         if (voiceparams.SynthParams.Synth.AudioChannels == 2)
           voiceparams.MixMonoToStereoInterp(x,
@@ -111,15 +111,15 @@ namespace AudioSynthesis.Bank.Patches {
           voiceparams.MixMonoToMonoInterp(x, c_amp);
         //--Bounds check
         if (sync == SyncMode.Soft) {
-          if (voiceparams.PData[0].double1 >= cGen.LoopEndPhase)
-            voiceparams.PData[0].double1 = cGen.LoopStartPhase + (voiceparams.PData[0].double1 - cGen.LoopEndPhase) % (cGen.LoopEndPhase - cGen.LoopStartPhase);
-          if (voiceparams.PData[1].double1 >= mGen.LoopEndPhase)
-            voiceparams.PData[1].double1 = mGen.LoopStartPhase + (voiceparams.PData[1].double1 - mGen.LoopEndPhase) % (mGen.LoopEndPhase - mGen.LoopStartPhase);
+          if (voiceparams.PData[0].Double1 >= cGen.LoopEndPhase)
+            voiceparams.PData[0].Double1 = cGen.LoopStartPhase + (voiceparams.PData[0].Double1 - cGen.LoopEndPhase) % (cGen.LoopEndPhase - cGen.LoopStartPhase);
+          if (voiceparams.PData[1].Double1 >= mGen.LoopEndPhase)
+            voiceparams.PData[1].Double1 = mGen.LoopStartPhase + (voiceparams.PData[1].Double1 - mGen.LoopEndPhase) % (mGen.LoopEndPhase - mGen.LoopStartPhase);
         }
         else {
-          if (voiceparams.PData[0].double1 >= cGen.LoopEndPhase) {
-            voiceparams.PData[0].double1 = cGen.LoopStartPhase;
-            voiceparams.PData[1].double1 = mGen.LoopStartPhase;
+          if (voiceparams.PData[0].Double1 >= cGen.LoopEndPhase) {
+            voiceparams.PData[0].Double1 = cGen.LoopStartPhase;
+            voiceparams.PData[1].Double1 = mGen.LoopStartPhase;
           }
         }
         //--Check and end early if necessary

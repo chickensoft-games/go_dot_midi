@@ -209,7 +209,7 @@ namespace AudioSynthesis.Synthesis {
         if (MidiEventQueue.Count > 0) {
           for (var i = 0; i < MidiEventCounts[x]; i++) {
             var m = MidiEventQueue.Dequeue();
-            ProcessMidiMessage(m.channel, m.command, m.data1, m.data2);
+            ProcessMidiMessage(m.Channel, m.Command, m.Data1, m.Data2);
           }
         }
         //voice processing loop

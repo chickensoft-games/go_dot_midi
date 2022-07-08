@@ -80,7 +80,7 @@ namespace AudioSynthesis.Bank.Patches {
             (voiceparams.Lfos[0].Value * _modLfoToPitch) + (voiceparams.Lfos[1].Value * _vibLfoToPitch))));
         //--Filter
         if (voiceparams.Filters[0].Enabled) {
-          var centsFc = voiceparams.PData[0].int1 + (voiceparams.Lfos[0].Value * _modLfoToFilterFc) + (voiceparams.Envelopes[0].Value * _modEnvToFilterFc);
+          var centsFc = voiceparams.PData[0].Int1 + (voiceparams.Lfos[0].Value * _modLfoToFilterFc) + (voiceparams.Envelopes[0].Value * _modEnvToFilterFc);
           if (centsFc > 13500) {
             centsFc = 13500;
           }

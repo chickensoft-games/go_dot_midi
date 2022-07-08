@@ -124,8 +124,8 @@ namespace AudioSynthesis.Sequencer {
       int newMSize = (int)(synth.MicroBufferSize * playbackrate);
       for (int x = 0; x < synth.MidiEventCounts.Length; x++) {
         sampleTime += newMSize;
-        while (eventIndex < mdata.Length && mdata[eventIndex].delta < sampleTime) {
-          if (mdata[eventIndex].command != 0x90 || blockList[mdata[eventIndex].channel] == false) {
+        while (eventIndex < mdata.Length && mdata[eventIndex].Delta < sampleTime) {
+          if (mdata[eventIndex].Command != 0x90 || blockList[mdata[eventIndex].Channel] == false) {
             synth.MidiEventQueue.Enqueue(mdata[eventIndex]);
             synth.MidiEventCounts[x]++;
           }
@@ -150,19 +150,19 @@ namespace AudioSynthesis.Sequencer {
         MidiEvent mEvent = midiFile.Tracks[0].MidiEvents[x];
         mdata[x] = new MidiMessage((byte)mEvent.Channel, (byte)mEvent.Command, (byte)mEvent.Data1, (byte)mEvent.Data2);
         absDelta += synth.SampleRate * mEvent.DeltaTime * (60.0 / (BPM * midiFile.Division));
-        mdata[x].delta = (int)absDelta;
+        mdata[x].Delta = (int)absDelta;
         //Update tempo
         if (mEvent.Command == 0xFF && mEvent.Data1 == 0x51)
           BPM = Math.Round(MidiHelper.MicroSecondsPerMinute / (double)((MetaNumberEvent)mEvent).Value, 2);
       }
       //Set total time to proper value
-      totalTime = mdata[mdata.Length - 1].delta;
+      totalTime = mdata[mdata.Length - 1].Delta;
     }
     private void SilentProcess(int amount) {
-      while (eventIndex < mdata.Length && mdata[eventIndex].delta < (sampleTime + amount)) {
-        if (mdata[eventIndex].command != 0x90) {
+      while (eventIndex < mdata.Length && mdata[eventIndex].Delta < (sampleTime + amount)) {
+        if (mdata[eventIndex].Command != 0x90) {
           MidiMessage m = mdata[eventIndex];
-          synth.ProcessMidiMessage(m.channel, m.command, m.data1, m.data2);
+          synth.ProcessMidiMessage(m.Channel, m.Command, m.Data1, m.Data2);
         }
         eventIndex++;
       }

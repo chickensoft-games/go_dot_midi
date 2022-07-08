@@ -17,7 +17,7 @@ namespace AudioSynthesis.Sequencer {
 
     public MidiInputSequencer(Synthesizer synth) => Synth = synth;
     public void AddMidiEvent(MidiMessage midiMsg) {
-      midiMsg.delta = 0;
+      midiMsg.Delta = 0;
       Synth.MidiEventQueue.Enqueue(midiMsg);
       Synth.MidiEventCounts[0]++;
     }

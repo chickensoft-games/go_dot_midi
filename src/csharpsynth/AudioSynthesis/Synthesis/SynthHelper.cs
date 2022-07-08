@@ -10,29 +10,29 @@
   public enum VoiceStateEnum { Stopped, Stopping, Playing }
 
   public struct MidiMessage {
-    public int delta;
-    public byte channel;
-    public byte command;
-    public byte data1;
-    public byte data2;
+    public int Delta;
+    public byte Channel;
+    public byte Command;
+    public byte Data1;
+    public byte Data2;
 
     public MidiMessage(byte channel, byte command, byte data1, byte data2)
         : this(0, channel, command, data1, data2) { }
     public MidiMessage(int delta, byte channel, byte command, byte data1, byte data2) {
-      this.delta = delta;
-      this.channel = channel;
-      this.command = command;
-      this.data1 = data1;
-      this.data2 = data2;
+      Delta = delta;
+      Channel = channel;
+      Command = command;
+      Data1 = data1;
+      Data2 = data2;
     }
     public override string ToString() {
-      if (command is >= 0x80 and <= 0xEF) {
-        return string.Format("Type: {0}, Channel: {1}, P1: {2}, P2: {3}", (MidiEventTypeEnum)(command & 0xF0), channel, data1, data2);
+      if (Command is >= 0x80 and <= 0xEF) {
+        return string.Format("Type: {0}, Channel: {1}, P1: {2}, P2: {3}", (MidiEventTypeEnum)(Command & 0xF0), Channel, Data1, Data2);
       }
-      else if (command is >= 0xF0 and <= 0xF7) {
+      else if (Command is >= 0xF0 and <= 0xF7) {
         return "System Common message";
       }
-      else if (command is >= 0xF8 and <= 0xFF) {
+      else if (Command is >= 0xF8 and <= 0xFF) {
         return "Realtime message";
       }
       else {
@@ -75,59 +75,59 @@
     public override string ToString() => string.Format("Left: {0:0.0}, Right: {1:0.0}", Left, Right);
   }
   public struct CCValue {
-    private byte coarseValue;
-    private byte fineValue;
-    private short combined;
+    private byte _coarseValue;
+    private byte _fineValue;
+    private short _combined;
 
     public byte Coarse {
-      get => coarseValue;
-      set { coarseValue = value; UpdateCombined(); }
+      get => _coarseValue;
+      set { _coarseValue = value; UpdateCombined(); }
     }
     public byte Fine {
-      get => fineValue;
-      set { fineValue = value; UpdateCombined(); }
+      get => _fineValue;
+      set { _fineValue = value; UpdateCombined(); }
     }
     public short Combined {
-      get => combined;
-      set { combined = value; UpdateCoarseFinePair(); }
+      get => _combined;
+      set { _combined = value; UpdateCoarseFinePair(); }
     }
 
     public CCValue(byte coarse, byte fine) {
-      coarseValue = coarse;
-      fineValue = fine;
-      combined = 0;
+      _coarseValue = coarse;
+      _fineValue = fine;
+      _combined = 0;
       UpdateCombined();
     }
-    public override string ToString() => string.Format("7BitValue: {0}, 14BitValue: {1}", coarseValue, combined);
+    public override string ToString() => string.Format("7BitValue: {0}, 14BitValue: {1}", _coarseValue, _combined);
     private void UpdateCombined() {
       if (BitConverter.IsLittleEndian) {
-        combined = (short)((coarseValue << 7) | fineValue);
+        _combined = (short)((_coarseValue << 7) | _fineValue);
       }
       else {
-        combined = (short)((fineValue << 7) | coarseValue);
+        _combined = (short)((_fineValue << 7) | _coarseValue);
       }
     }
     private void UpdateCoarseFinePair() {
       if (BitConverter.IsLittleEndian) {
-        coarseValue = (byte)(combined >> 7);
-        fineValue = (byte)(combined & 0x7F);
+        _coarseValue = (byte)(_combined >> 7);
+        _fineValue = (byte)(_combined & 0x7F);
       }
       else {
-        fineValue = (byte)(combined >> 7);
-        coarseValue = (byte)(combined & 0x7F);
+        _fineValue = (byte)(_combined >> 7);
+        _coarseValue = (byte)(_combined & 0x7F);
       }
     }
   }
   [StructLayout(LayoutKind.Explicit)]
   public struct UnionData {
     //double values
-    [FieldOffset(0)] public double double1;
+    [FieldOffset(0)] public double Double1;
     //float values
-    [FieldOffset(0)] public float float1;
-    [FieldOffset(4)] public float float2;
+    [FieldOffset(0)] public float Float1;
+    [FieldOffset(4)] public float Float2;
     //int values
-    [FieldOffset(0)] public int int1;
-    [FieldOffset(4)] public int int2;
+    [FieldOffset(0)] public int Int1;
+    [FieldOffset(4)] public int Int2;
   }
 
   //static helper methods
@@ -183,7 +183,7 @@
     public static double TimeFromSamples(int sampleRate, int samples) => samples / (double)sampleRate;
 
     public static double DBtoLinear(double dBvalue) => Math.Pow(10.0, dBvalue / 20.0);
-    public static double LineartoDB(double linearvalue) => 20.0 * Math.Log10(linearvalue);
+    public static double LinearToDB(double linearvalue) => 20.0 * Math.Log10(linearvalue);
     public static double CalculateRMS(float[] data, int start, int length) {
       double sum = 0;
       var end = start + length;

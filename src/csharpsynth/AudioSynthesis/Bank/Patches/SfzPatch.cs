@@ -52,7 +52,7 @@ namespace AudioSynthesis.Bank.Patches {
       voiceparams.Lfos[2].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, amp_lfo);
       //setup filter
       voiceparams.Filters[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, voiceparams.Note, fVel, fltr);
-      voiceparams.PData[0].double1 = voiceparams.Filters[0].Cutoff;
+      voiceparams.PData[0].Double1 = voiceparams.Filters[0].Cutoff;
       if (!voiceparams.Filters[0].Enabled) {//disable filter components if necessary
         voiceparams.Envelopes[1].Depth = 0f;
         voiceparams.Lfos[1].Depth = 0f;
@@ -105,7 +105,7 @@ namespace AudioSynthesis.Bank.Patches {
         //--Filter if enabled
         if (voiceparams.Filters[0].Enabled) {
           int cents = (int)(voiceparams.Envelopes[1].Value * voiceparams.Envelopes[1].Depth) + (int)(voiceparams.Lfos[1].Value * voiceparams.Lfos[1].Depth);
-          voiceparams.Filters[0].Cutoff = voiceparams.PData[0].double1 * SynthHelper.CentsToPitch(cents);
+          voiceparams.Filters[0].Cutoff = voiceparams.PData[0].Double1 * SynthHelper.CentsToPitch(cents);
           if (voiceparams.Filters[0].CoeffNeedsUpdating)
             voiceparams.Filters[0].ApplyFilterInterp(voiceparams.BlockBuffer, voiceparams.SynthParams.Synth.SampleRate);
           else
