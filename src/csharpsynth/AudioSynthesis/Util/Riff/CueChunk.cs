@@ -1,72 +1,38 @@
-﻿namespace AudioSynthesis.Util.Riff
-{
-    using System.IO;
-    using System.Collections.Generic;
-    using AudioSynthesis.Util;
+﻿namespace AudioSynthesis.Util.Riff {
+  using System.Collections.Generic;
+  using System.IO;
+  using AudioSynthesis.Util;
 
-    public class CueChunk : Chunk
-    {
-        //--Fields
-        private CuePoint[] cues;
-        //--Properties
-        public IList<CuePoint> CuePoints
-        {
-            get { return cues; }
-        }
-        //--Methods
-        public CueChunk(string id, int size, BinaryReader reader)
-            : base(id, size)
-        {
-            cues = new CuePoint[reader.ReadInt32()];
-            for (int x = 0; x < cues.Length; x++)
-            {
-                cues[x] = new CuePoint(reader);
-            }
-        }
-        //--Internal classes and structs
-        public class CuePoint
-        {
-            private int cueId;
-            private int cuePosition;
-            private string cueDataChunkId;
-            private int cueChunkStart;
-            private int cueBlockStart;
-            private int cueSampleOffset;
-
-            public int Id
-            {
-                get { return cueId; }
-            }
-            public int Position
-            {
-                get { return cuePosition; }
-            }
-            public string DataChunkId
-            {
-                get { return cueDataChunkId; }
-            }
-            public int ChunkStart
-            {
-                get { return cueChunkStart; }
-            }
-            public int BlockStart
-            {
-                get { return cueBlockStart; }
-            }
-            public int SampleOffset
-            {
-                get { return cueSampleOffset; }
-            }
-
-            public CuePoint(BinaryReader reader)
-            {
-                this.cueId = reader.ReadInt32();
-                this.cuePosition = reader.ReadInt32();
-                this.cueDataChunkId = new string(IOHelper.Read8BitChars(reader, 4));
-                this.cueChunkStart = reader.ReadInt32();
-                this.cueBlockStart = reader.ReadInt32();
-                this.cueSampleOffset = reader.ReadInt32();
-            }
-        }
+  public class CueChunk : Chunk {
+    //--Fields
+    private readonly CuePoint[] cues;
+    //--Properties
+    public IList<CuePoint> CuePoints => cues;
+    //--Methods
+    public CueChunk(string id, int size, BinaryReader reader)
+            : base(id, size) {
+      cues = new CuePoint[reader.ReadInt32()];
+      for (var x = 0; x < cues.Length; x++) {
+        cues[x] = new CuePoint(reader);
+      }
     }
+    //--Internal classes and structs
+    public class CuePoint {
+      public int Id { get; }
+      public int Position { get; }
+      public string DataChunkId { get; }
+      public int ChunkStart { get; }
+      public int BlockStart { get; }
+      public int SampleOffset { get; }
+
+      public CuePoint(BinaryReader reader) {
+        Id = reader.ReadInt32();
+        Position = reader.ReadInt32();
+        DataChunkId = new string(IOHelper.Read8BitChars(reader, 4));
+        ChunkStart = reader.ReadInt32();
+        BlockStart = reader.ReadInt32();
+        SampleOffset = reader.ReadInt32();
+      }
+    }
+  }
 }

@@ -1,22 +1,12 @@
-﻿namespace AudioSynthesis.Util.Riff
-{
-    using System.IO;
+﻿namespace AudioSynthesis.Util.Riff {
+  using System.IO;
 
-    public class FactChunk : Chunk
-    {
-        //--Fields
-        private int factSampleCount; //DWORD
-        //--Properties
-        public int SampleCount
-        {
-            get { return factSampleCount; }
-        }
+  public class FactChunk : Chunk {
+    //--Properties
+    public int SampleCount { get; }
 
-        //--Methods
-        public FactChunk(string id, int size, BinaryReader reader)
-            : base(id, size)
-        {
-            factSampleCount = reader.ReadInt32();
-        }
-    }
+    //--Methods
+    public FactChunk(string id, int size, BinaryReader reader)
+            : base(id, size) => SampleCount = reader.ReadInt32();
+  }
 }
