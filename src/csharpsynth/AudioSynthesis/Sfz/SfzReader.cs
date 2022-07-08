@@ -1,34 +1,26 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using AudioSynthesis.Bank.Components;
-using AudioSynthesis.Util;
-
+﻿
 namespace AudioSynthesis.Sfz {
+  using System.Collections.Generic;
+  using System.IO;
+  using System.Text;
+  using AudioSynthesis.Bank.Components;
+  using AudioSynthesis.Util;
   public class SfzReader {
-    private string name;
-    private SfzRegion[] regionList;
-
-    public string Name {
-      get { return name; }
-      set { name = value; }
-    }
-    public SfzRegion[] Regions {
-      get { return regionList; }
-    }
+    public string Name { get; set; }
+    public SfzRegion[] Regions { get; private set; } = new SfzRegion[] { };
 
     public SfzReader(Stream stream, string name) {
-      this.name = IOHelper.GetFileNameWithoutExtension(name);
+      Name = IOHelper.GetFileNameWithoutExtension(name);
       Load(stream);
     }
 
     private void Load(Stream reader) {
-      List<SfzRegion> regions = new List<SfzRegion>();
+      var regions = new List<SfzRegion>();
       using (reader) {
-        SfzRegion group = new SfzRegion(true);
-        SfzRegion global = new SfzRegion(true);
-        SfzRegion master = new SfzRegion(true);
-        string[] regionText = new string[2];
+        var group = new SfzRegion(true);
+        var global = new SfzRegion(true);
+        var master = new SfzRegion(true);
+        var regionText = new string[2];
         ReadNextString(reader, '<'); //skip everything before the first region
         while (ReadNextRegion(reader, regionText)) {
           switch (regionText[0].ToLower()) {
@@ -42,35 +34,39 @@ namespace AudioSynthesis.Sfz {
               ToRegion(regionText[1], group);
               break;
             case "region":
-              SfzRegion r = new SfzRegion(false);
+              var r = new SfzRegion(false);
               r.ApplyGlobal(global);
               r.ApplyGlobal(master);
               r.ApplyGlobal(group);
               ToRegion(regionText[1], r);
-              if (!r.Sample.Equals(string.Empty))
+              if (!r.Sample.Equals(string.Empty)) {
                 regions.Add(r);
+              }
+
               break;
             default:
               break;
           }
         }
       }
-      regionList = regions.ToArray();
+      Regions = regions.ToArray();
     }
     private string ReadNextString(Stream reader, char marker) {
-      StringBuilder sbuild = new StringBuilder();
-      int i = reader.ReadByte();
+      var sbuild = new StringBuilder();
+      var i = reader.ReadByte();
       while (true) {
-        if (i == -1 || i == marker)
+        if (i == -1 || i == marker) {
           break;
+        }
         else if (i == '/') {
           i = reader.ReadByte();
           if (i == '/') {
-            do { i = reader.ReadByte(); } while (i != '\n' && i != -1);
+            do { i = reader.ReadByte(); } while (i is not '\n' and not (-1));
             i = reader.ReadByte();
           }
-          else
+          else {
             sbuild.Append('/');
+          }
         }
         else {
           sbuild.Append((char)i);
@@ -85,15 +81,17 @@ namespace AudioSynthesis.Sfz {
       return !regionData[0].Equals(string.Empty) || !regionData[1].Equals(string.Empty);
     }
     private void ToRegion(string regionText, SfzRegion region) {
-      string[] param = new string[2];
-      int index = ReadNextParam(0, regionText, param);
+      var param = new string[2];
+      var index = ReadNextParam(0, regionText, param);
       while (index != -1) {
-        string command = param[0].ToLower();
-        string parameter = param[1].ToLower();
+        var command = param[0].ToLower();
+        var parameter = param[1].ToLower();
         switch (command) {
           case "sample":
-            if (IOHelper.GetExtension(parameter).Equals(string.Empty))
+            if (IOHelper.GetExtension(parameter).Equals(string.Empty)) {
               parameter += ".wav";
+            }
+
             region.Sample = parameter;
             break;
           case "lochan":
@@ -417,32 +415,40 @@ namespace AudioSynthesis.Sfz {
     private int ReadNextParam(int index, string regionText, string[] result) {
       int i1, i2;
       i1 = regionText.IndexOf('=', index);
-      if (i1 < 0 || i1 == regionText.Length - 1)
+      if (i1 < 0 || i1 == regionText.Length - 1) {
         return -1;
-      result[0] = regionText.Substring(index, i1 - index).Trim();
+      }
+
+      result[0] = regionText[index..i1].Trim();
       i2 = regionText.IndexOf('=', i1 + 1);
-      if (i2 < 0)
+      if (i2 < 0) {
         i2 = regionText.Length - 1;
+      }
       else {
-        while (char.IsWhiteSpace(regionText[i2]))
+        while (char.IsWhiteSpace(regionText[i2])) {
           i2--;
-        while (!char.IsWhiteSpace(regionText[i2]))
+        }
+
+        while (!char.IsWhiteSpace(regionText[i2])) {
           i2--;
+        }
       }
       i1++;
-      result[1] = regionText.Substring(i1, i2 - i1).Trim();
+      result[1] = regionText[i1..i2].Trim();
       return i2;
     }
     private byte NoteNameToValue(string name) {
-      int value = 0, i;
-      if (int.TryParse(name, out value))
+      int i;
+      if (int.TryParse(name, out var value)) {
         return (byte)value;
-      const string notes = "cdefgab";
+      }
+
+      const string NOTES = "cdefgab";
       int[] noteValues = { 0, 2, 4, 5, 7, 9, 11 };
       name = name.Trim().ToLower();
 
       for (i = 0; i < name.Length; i++) {
-        int index = notes.IndexOf(name[i]);
+        var index = NOTES.IndexOf(name[i]);
         if (index >= 0) {
           value = noteValues[index];
           i++;
@@ -462,18 +468,21 @@ namespace AudioSynthesis.Sfz {
         }
         i++;
       }
-      string digit = string.Empty;
+      var digit = string.Empty;
       while (i < name.Length) {
         if (char.IsDigit(name[i])) {
           digit += name[i];
           i++;
         }
-        else
+        else {
           break;
+        }
       }
-      if (digit.Equals(string.Empty))
+      if (digit.Equals(string.Empty)) {
         digit = "0";
-      return (byte)((int.Parse(digit) + 1) * 12 + value);
+      }
+
+      return (byte)(((int.Parse(digit) + 1) * 12) + value);
     }
   }
 }
