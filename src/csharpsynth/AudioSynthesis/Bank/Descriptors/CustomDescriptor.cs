@@ -5,36 +5,32 @@
   using AudioSynthesis.Util;
 
   public class CustomDescriptor : IDescriptor {
-    //--Fields
-    private string id;
-    private int size;
-    private object[] objs;
     //--Properties
-    public string ID { get { return id; } }
-    public int Size { get { return size; } }
-    public object[] Objects { get { return objs; } }
+    public string ID { get; }
+    public int Size { get; private set; }
+    public object[] Objects { get; private set; } = null!;
     //--Methods
     public CustomDescriptor(string id, int size, object[] objs) {
-      this.id = id;
-      this.size = size;
-      this.objs = objs;
+      ID = id;
+      Size = size;
+      Objects = objs;
     }
     public CustomDescriptor(string id, int size) {
-      this.id = id;
-      this.size = size;
+      ID = id;
+      Size = size;
     }
     public void Read(string[] description) {
-      Dictionary<string, object> desc = new Dictionary<string, object>();
-      size = 0;
-      for (int x = 0; x < description.Length; x++) {
-        int index = description[x].IndexOf('=');
+      var desc = new Dictionary<string, object>();
+      Size = 0;
+      for (var x = 0; x < description.Length; x++) {
+        var index = description[x].IndexOf('=');
         if (index >= 0 && index < description[x].Length) {
           int sizeInc;
-          string paramName = description[x].Substring(0, index).Trim().ToLower();
-          string paramValue = description[x].Substring(index + 1).Trim();
-          char type = paramValue[paramValue.Length - 1];
-          paramValue = paramValue.Substring(0, paramValue.Length - 1);
-          object obj = null;
+          var paramName = description[x][..index].Trim().ToLower();
+          var paramValue = description[x][(index + 1)..].Trim();
+          var type = paramValue[^1];
+          paramValue = paramValue[..^1];
+          object obj = null!;
           switch (type) {
             case 'i':
               obj = int.Parse(paramValue);
@@ -58,34 +54,40 @@
               break;
             case '&':
               obj = paramValue;
-              if (paramValue.Length > 255)
+              if (paramValue.Length > 255) {
                 sizeInc = 2 + 255;
-              else
+              }
+              else {
                 sizeInc = 2 + paramValue.Length;
+              }
+
               break;
             default:
               sizeInc = 0;
               break;
           }
           if (obj != null) {
-            if (desc.ContainsKey(paramName))
+            if (desc.ContainsKey(paramName)) {
               desc[paramName] = obj;
+            }
             else {
-              size += sizeInc;
+              Size += sizeInc;
               desc.Add(paramName, obj);
             }
           }
         }
       }
-      if (size % 2 == 1)
-        size++;
-      objs = new object[desc.Values.Count];
-      desc.Values.CopyTo(objs, 0);
+      if (Size % 2 == 1) {
+        Size++;
+      }
+
+      Objects = new object[desc.Values.Count];
+      desc.Values.CopyTo(Objects, 0);
     }
     public int Read(BinaryReader reader) {
-      List<object> objList = new List<object>();
-      int read = 0;
-      while (read < size) {
+      var objList = new List<object>();
+      var read = 0;
+      while (read < Size) {
         switch ((char)reader.ReadByte()) {
           case '\0':
             read++;
@@ -116,57 +118,59 @@
             read += strLen + 2;
             break;
           default:
-            throw new Exception("Invalid custom descriptor: " + id);
+            throw new Exception("Invalid custom descriptor: " + ID);
         }
       }
-      if (read > size)
-        throw new Exception("Invalid custom descriptor: " + id);
-      objs = objList.ToArray();
+      if (read > Size) {
+        throw new Exception("Invalid custom descriptor: " + ID);
+      }
+
+      Objects = objList.ToArray();
       return read;
     }
     public int Write(BinaryWriter writer) {
-      int written = 0;
-      for (int x = 0; x < objs.Length; x++) {
-        if (objs[x] is int) {
+      var written = 0;
+      for (var x = 0; x < Objects.Length; x++) {
+        if (Objects[x] is int @int) {
           writer.Write((byte)'i');
-          writer.Write((int)objs[x]);
+          writer.Write(@int);
           written += 5;
         }
-        else if (objs[x] is short) {
+        else if (Objects[x] is short int1) {
           writer.Write((byte)'s');
-          writer.Write((short)objs[x]);
+          writer.Write(int1);
           written += 3;
         }
-        else if (objs[x] is byte) {
+        else if (Objects[x] is byte @byte) {
           writer.Write((byte)'b');
-          writer.Write((byte)objs[x]);
+          writer.Write(@byte);
           written += 2;
         }
-        else if (objs[x] is double) {
+        else if (Objects[x] is double @double) {
           writer.Write((byte)'d');
-          writer.Write((double)objs[x]);
+          writer.Write(@double);
           written += 9;
         }
-        else if (objs[x] is float) {
+        else if (Objects[x] is float single) {
           writer.Write((byte)'f');
-          writer.Write((float)objs[x]);
+          writer.Write(single);
           written += 5;
         }
-        else if (objs[x] is string) {
+        else if (Objects[x] is string @string) {
           writer.Write((byte)'&');
-          string s = (string)objs[x];
+          var s = @string;
           writer.Write((byte)s.Length);
           IOHelper.Write8BitString(writer, s, s.Length);
           written += s.Length + 2;
         }
       }
-      if (written < size) {
+      if (written < Size) {
         do {
           writer.Write((byte)0);
           written++;
-        } while (written < size);
+        } while (written < Size);
       }
-      else if (written > size) {
+      else if (written > Size) {
         throw new Exception("More bytes were written than expected.");
       }
       return written;

@@ -152,15 +152,13 @@
       return SIZE;
     }
 
-    private static short GetGraphID(string value) {
-      return value switch {
-        "constant" or "straight" or "sustain" => 0,
-        "lin" or "linear" => 1,
-        "concave" => 2,
-        "convex" => 3,
-        _ => throw new Exception("Unsupported envelope mode: " + value),
-      };
-    }
+    private static short GetGraphID(string value) => value switch {
+      "constant" or "straight" or "sustain" => 0,
+      "lin" or "linear" => 1,
+      "concave" => 2,
+      "convex" => 3,
+      _ => throw new Exception("Unsupported envelope mode: " + value),
+    };
 
     private void ApplyDefault() {
       DelayTime = 0f;

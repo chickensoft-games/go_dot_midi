@@ -69,15 +69,13 @@
       return SIZE;
     }
 
-    private static FilterTypeEnum GetFilterType(string value) {
-      return value.ToLower() switch {
-        "lowpass" or "onepolelowpass" => FilterTypeEnum.OnePoleLowpass,
-        "biquadlowpass" => FilterTypeEnum.BiquadLowpass,
-        "biquadhighpass" => FilterTypeEnum.BiquadHighpass,
-        "none" => FilterTypeEnum.None,
-        _ => throw new Exception("Unknown filter type: " + value),
-      };
-    }
+    private static FilterTypeEnum GetFilterType(string value) => value.ToLower() switch {
+      "lowpass" or "onepolelowpass" => FilterTypeEnum.OnePoleLowpass,
+      "biquadlowpass" => FilterTypeEnum.BiquadLowpass,
+      "biquadhighpass" => FilterTypeEnum.BiquadHighpass,
+      "none" => FilterTypeEnum.None,
+      _ => throw new Exception("Unknown filter type: " + value),
+    };
     private void ApplyDefault() {
       FilterMethod = FilterTypeEnum.None;
       CutOff = -1;

@@ -11,7 +11,7 @@
 
     public LoopModeEnum LoopMethod;
     public WaveformEnum SamplerType;
-    public string AssetName;
+    public string AssetName = "";
     public double EndPhase;
     public double StartPhase;
     public double LoopEndPhase;
@@ -23,16 +23,14 @@
     public short VelTrack;
     public short Tune;
 
-    public GeneratorDescriptor() {
-      ApplyDefault();
-    }
+    public GeneratorDescriptor() => ApplyDefault();
     public void Read(string[] description) {
       ApplyDefault();
-      for (int x = 0; x < description.Length; x++) {
-        int index = description[x].IndexOf('=');
+      for (var x = 0; x < description.Length; x++) {
+        var index = description[x].IndexOf('=');
         if (index >= 0 && index < description[x].Length) {
-          string paramName = description[x].Substring(0, index).Trim().ToLower();
-          string paramValue = description[x].Substring(index + 1).Trim();
+          var paramName = description[x][..index].Trim().ToLower();
+          var paramValue = description[x][(index + 1)..].Trim();
           switch (paramName) {
             case "loopmode":
               LoopMethod = Generator.GetLoopModeFromString(paramValue.ToLower());
@@ -74,6 +72,8 @@
             case "tune":
               Tune = short.Parse(paramValue);
               break;
+            default:
+              break;
           }
         }
       }
@@ -110,24 +110,15 @@
       writer.Write(Tune);
       return SIZE;
     }
-    public Generator ToGenerator(AssetManager assets) {
-      switch (SamplerType) {
-        case WaveformEnum.SampleData:
-          return new SampleGenerator(this, assets);
-        case WaveformEnum.Saw:
-          return new SawGenerator(this);
-        case WaveformEnum.Sine:
-          return new SineGenerator(this);
-        case WaveformEnum.Square:
-          return new SquareGenerator(this);
-        case WaveformEnum.Triangle:
-          return new TriangleGenerator(this);
-        case WaveformEnum.WhiteNoise:
-          return new WhiteNoiseGenerator(this);
-        default:
-          throw new Exception(string.Format("Unsupported generator: {0}", SamplerType));
-      }
-    }
+    public Generator ToGenerator(AssetManager assets) => SamplerType switch {
+      WaveformEnum.SampleData => new SampleGenerator(this, assets),
+      WaveformEnum.Saw => new SawGenerator(this),
+      WaveformEnum.Sine => new SineGenerator(this),
+      WaveformEnum.Square => new SquareGenerator(this),
+      WaveformEnum.Triangle => new TriangleGenerator(this),
+      WaveformEnum.WhiteNoise => new WhiteNoiseGenerator(this),
+      _ => throw new Exception(string.Format("Unsupported generator: {0}", SamplerType)),
+    };
 
     private void ApplyDefault() {
       LoopMethod = LoopModeEnum.NoLoop;
