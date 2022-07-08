@@ -18,41 +18,35 @@ namespace AudioSynthesis.Bank.Patches {
    * GEN2 : A generator with a continuous loop type. The Carrier.
    * ENV2 : An envelope controlling the amplitude of GEN2.
    *
-   * Note: GEN 1 & 2 must also wrap mathmatically on its input like Sin() does
+   * Note: GEN 1 & 2 must also wrap mathematically on its input like Sin() does
    */
   public class Fm2Patch : Patch {
     public enum SyncMode { Soft, Hard };
-    private SyncMode sync;
-    private double mIndex, cIndex, feedBack;
-    private Generator cGen, mGen;
-    private EnvelopeDescriptor cEnv, mEnv;
-    private LfoDescriptor lfo;
 
-    public SyncMode SynchronizationMethod {
-      get { return sync; }
-    }
-    public double ModulationIndex {
-      get { return mIndex; }
-    }
-    public double CarrierIndex {
-      get { return cIndex; }
-    }
+    private double _feedBack;
+    private Generator _cGen = null!, _mGen = null!;
+    private EnvelopeDescriptor _cEnv = null!, _mEnv = null!;
+    private LfoDescriptor _lfo = null!;
+
+    public SyncMode SynchronizationMethod { get; private set; }
+    public double ModulationIndex { get; private set; }
+    public double CarrierIndex { get; private set; }
 
     public Fm2Patch(string name) : base(name) { }
     public override bool Start(VoiceParameters voiceparams) {
       //calculate velocity
-      float fVel = voiceparams.Velocity / 127f;
+      var fVel = voiceparams.Velocity / 127f;
       //reset counters
-      voiceparams.PData[0].Double1 = cGen.LoopStartPhase;
-      voiceparams.PData[1].Double1 = mGen.LoopStartPhase;
+      voiceparams.PData[0].Double1 = _cGen.LoopStartPhase;
+      voiceparams.PData[1].Double1 = _mGen.LoopStartPhase;
       voiceparams.PData[2].Double1 = 0.0;
       //reset envelopes
-      voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, cEnv);
-      voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, mEnv);
+      voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, _cEnv);
+      voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, fVel, _mEnv);
       //reset lfo (vibra)
-      voiceparams.Lfos[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, lfo);
+      voiceparams.Lfos[0].QuickSetup(voiceparams.SynthParams.Synth.SampleRate, _lfo);
       //calculate initial pitch
-      voiceparams.PitchOffset = (int)(100.0 * (voiceparams.SynthParams.MasterCoarseTune + (voiceparams.SynthParams.MasterFineTune.Combined - 8192.0) / 8192.0));
+      voiceparams.PitchOffset = (int)(100.0 * (voiceparams.SynthParams.MasterCoarseTune + ((voiceparams.SynthParams.MasterFineTune.Combined - 8192.0) / 8192.0)));
       //calc initial volume
       voiceparams.VolOffset = voiceparams.SynthParams.Volume.Combined / 16383f;
       voiceparams.VolOffset *= voiceparams.VolOffset * fVel * voiceparams.SynthParams.Synth.MixGain;
@@ -65,14 +59,14 @@ namespace AudioSynthesis.Bank.Patches {
     }
     public override void Process(VoiceParameters voiceparams, int startIndex, int endIndex) {
       //--Base pitch calculation
-      double carrierPitch = SynthHelper.CentsToPitch((voiceparams.Note - cGen.RootKey) * cGen.KeyTrack + cGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
-          * cGen.Period * cGen.Frequency * cIndex / voiceparams.SynthParams.Synth.SampleRate;
-      double modulatorPitch = SynthHelper.CentsToPitch((voiceparams.Note - mGen.RootKey) * mGen.KeyTrack + mGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
-          * mGen.Period * mGen.Frequency * mIndex / voiceparams.SynthParams.Synth.SampleRate;
+      var carrierPitch = SynthHelper.CentsToPitch(((voiceparams.Note - _cGen.RootKey) * _cGen.KeyTrack) + _cGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
+          * _cGen.Period * _cGen.Frequency * CarrierIndex / voiceparams.SynthParams.Synth.SampleRate;
+      var modulatorPitch = SynthHelper.CentsToPitch(((voiceparams.Note - _mGen.RootKey) * _mGen.KeyTrack) + _mGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.CurrentPitch)
+          * _mGen.Period * _mGen.Frequency * ModulationIndex / voiceparams.SynthParams.Synth.SampleRate;
       //--Base volume calculation
-      float baseVolume = voiceparams.VolOffset * voiceparams.SynthParams.CurrentVolume;
+      var baseVolume = voiceparams.VolOffset * voiceparams.SynthParams.CurrentVolume;
       //--Main Loop
-      for (int x = startIndex; x < endIndex; x += Synthesizer.DEFAULT_BLOCK_SIZE * voiceparams.SynthParams.Synth.AudioChannels) {
+      for (var x = startIndex; x < endIndex; x += Synthesizer.DEFAULT_BLOCK_SIZE * voiceparams.SynthParams.Synth.AudioChannels) {
         //--Calculate pitch modifications
         double pitchMod;
         if (voiceparams.SynthParams.ModRange.Combined != 0) {
@@ -85,41 +79,46 @@ namespace AudioSynthesis.Bank.Patches {
         //--Get amplitude values for carrier and modulator
         voiceparams.Envelopes[0].Increment(Synthesizer.DEFAULT_BLOCK_SIZE);
         voiceparams.Envelopes[1].Increment(Synthesizer.DEFAULT_BLOCK_SIZE);
-        float c_amp = baseVolume * voiceparams.Envelopes[0].Value;
-        float m_amp = voiceparams.Envelopes[1].Value;
+        var cAmp = baseVolume * voiceparams.Envelopes[0].Value;
+        var mAmp = voiceparams.Envelopes[1].Value;
         //--Interpolator for modulator amplitude
-        float linear_m_amp = (m_amp - voiceparams.PData[3].Float1) / Synthesizer.DEFAULT_BLOCK_SIZE;
+        var linear_m_amp = (mAmp - voiceparams.PData[3].Float1) / Synthesizer.DEFAULT_BLOCK_SIZE;
         //--Process block
-        for (int i = 0; i < voiceparams.BlockBuffer.Length; i++) {
+        for (var i = 0; i < voiceparams.BlockBuffer.Length; i++) {
           //calculate current modulator amplitude
           voiceparams.PData[3].Float1 += linear_m_amp;
           //calculate sample
-          voiceparams.BlockBuffer[i] = cGen.GetValue(voiceparams.PData[0].Double1 + voiceparams.PData[3].Float1 * mGen.GetValue(voiceparams.PData[1].Double1 + voiceparams.PData[2].Double1 * feedBack));
+          voiceparams.BlockBuffer[i] = _cGen.GetValue(voiceparams.PData[0].Double1 + (voiceparams.PData[3].Float1 * _mGen.GetValue(voiceparams.PData[1].Double1 + (voiceparams.PData[2].Double1 * _feedBack))));
           //store sample for feedback calculation
           voiceparams.PData[2].Double1 = voiceparams.BlockBuffer[i];
           //increment phase counters
           voiceparams.PData[0].Double1 += carrierPitch * pitchMod;
           voiceparams.PData[1].Double1 += modulatorPitch * pitchMod;
         }
-        voiceparams.PData[3].Float1 = m_amp;
+        voiceparams.PData[3].Float1 = mAmp;
         //--Mix block based on number of channels
-        if (voiceparams.SynthParams.Synth.AudioChannels == 2)
+        if (voiceparams.SynthParams.Synth.AudioChannels == 2) {
           voiceparams.MixMonoToStereoInterp(x,
-              c_amp * voiceparams.SynthParams.CurrentPan.Left,
-              c_amp * voiceparams.SynthParams.CurrentPan.Right);
-        else
-          voiceparams.MixMonoToMonoInterp(x, c_amp);
-        //--Bounds check
-        if (sync == SyncMode.Soft) {
-          if (voiceparams.PData[0].Double1 >= cGen.LoopEndPhase)
-            voiceparams.PData[0].Double1 = cGen.LoopStartPhase + (voiceparams.PData[0].Double1 - cGen.LoopEndPhase) % (cGen.LoopEndPhase - cGen.LoopStartPhase);
-          if (voiceparams.PData[1].Double1 >= mGen.LoopEndPhase)
-            voiceparams.PData[1].Double1 = mGen.LoopStartPhase + (voiceparams.PData[1].Double1 - mGen.LoopEndPhase) % (mGen.LoopEndPhase - mGen.LoopStartPhase);
+              cAmp * voiceparams.SynthParams.CurrentPan.Left,
+              cAmp * voiceparams.SynthParams.CurrentPan.Right);
         }
         else {
-          if (voiceparams.PData[0].Double1 >= cGen.LoopEndPhase) {
-            voiceparams.PData[0].Double1 = cGen.LoopStartPhase;
-            voiceparams.PData[1].Double1 = mGen.LoopStartPhase;
+          voiceparams.MixMonoToMonoInterp(x, cAmp);
+        }
+        //--Bounds check
+        if (SynchronizationMethod == SyncMode.Soft) {
+          if (voiceparams.PData[0].Double1 >= _cGen.LoopEndPhase) {
+            voiceparams.PData[0].Double1 = _cGen.LoopStartPhase + ((voiceparams.PData[0].Double1 - _cGen.LoopEndPhase) % (_cGen.LoopEndPhase - _cGen.LoopStartPhase));
+          }
+
+          if (voiceparams.PData[1].Double1 >= _mGen.LoopEndPhase) {
+            voiceparams.PData[1].Double1 = _mGen.LoopStartPhase + ((voiceparams.PData[1].Double1 - _mGen.LoopEndPhase) % (_mGen.LoopEndPhase - _mGen.LoopStartPhase));
+          }
+        }
+        else {
+          if (voiceparams.PData[0].Double1 >= _cGen.LoopEndPhase) {
+            voiceparams.PData[0].Double1 = _cGen.LoopStartPhase;
+            voiceparams.PData[1].Double1 = _mGen.LoopStartPhase;
           }
         }
         //--Check and end early if necessary
@@ -130,32 +129,27 @@ namespace AudioSynthesis.Bank.Patches {
       }
     }
     public override void Load(DescriptorList description, AssetManager assets) {
-      CustomDescriptor fmConfig = description.FindCustomDescriptor("fm2c");
-      cIndex = (double)fmConfig.Objects[0];
-      mIndex = (double)fmConfig.Objects[1];
-      feedBack = (double)fmConfig.Objects[2];
-      sync = GetSyncModeFromString((string)fmConfig.Objects[3]);
-      if (description.GenDescriptions[0].LoopMethod != LoopModeEnum.Continuous || description.GenDescriptions[1].LoopMethod != LoopModeEnum.Continuous)
+      var fmConfig = description.FindCustomDescriptor("fm2c");
+      CarrierIndex = (double)fmConfig.Objects[0];
+      ModulationIndex = (double)fmConfig.Objects[1];
+      _feedBack = (double)fmConfig.Objects[2];
+      SynchronizationMethod = GetSyncModeFromString((string)fmConfig.Objects[3]);
+      if (description.GenDescriptions[0].LoopMethod != LoopModeEnum.Continuous || description.GenDescriptions[1].LoopMethod != LoopModeEnum.Continuous) {
         throw new Exception("Fm2 patches must have continuous generators with wrapping bounds.");
-      cGen = description.GenDescriptions[0].ToGenerator(assets);
-      mGen = description.GenDescriptions[1].ToGenerator(assets);
-      cEnv = description.EnvelopeDescriptions[0];
-      mEnv = description.EnvelopeDescriptions[1];
-      lfo = description.LfoDescriptions[0];
-    }
-    public override string ToString() {
-      return string.Format("Fm2Patch: {0}, GeneratorCount: 2, SyncMode: {1}", _patchName, sync);
-    }
-
-    public static SyncMode GetSyncModeFromString(string value) {
-      switch (value) {
-        case "hard":
-          return SyncMode.Hard;
-        case "soft":
-          return SyncMode.Soft;
-        default:
-          throw new Exception("Invalid sync mode: " + value + ".");
       }
+
+      _cGen = description.GenDescriptions[0].ToGenerator(assets);
+      _mGen = description.GenDescriptions[1].ToGenerator(assets);
+      _cEnv = description.EnvelopeDescriptions[0];
+      _mEnv = description.EnvelopeDescriptions[1];
+      _lfo = description.LfoDescriptions[0];
     }
+    public override string ToString() => string.Format("Fm2Patch: {0}, GeneratorCount: 2, SyncMode: {1}", _patchName, SynchronizationMethod);
+
+    public static SyncMode GetSyncModeFromString(string value) => value switch {
+      "hard" => SyncMode.Hard,
+      "soft" => SyncMode.Soft,
+      _ => throw new Exception("Invalid sync mode: " + value + "."),
+    };
   }
 }

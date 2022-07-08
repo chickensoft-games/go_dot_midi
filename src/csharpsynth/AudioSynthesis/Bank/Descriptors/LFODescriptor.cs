@@ -12,18 +12,16 @@
     public float DelayTime;
     public float Frequency;
     public float Depth;
-    public Generator Generator;
+    public Generator Generator = null!;
 
-    public LfoDescriptor() {
-      ApplyDefault();
-    }
+    public LfoDescriptor() => ApplyDefault();
     public void Read(string[] description) {
       ApplyDefault();
-      for (int x = 0; x < description.Length; x++) {
-        int index = description[x].IndexOf('=');
+      for (var x = 0; x < description.Length; x++) {
+        var index = description[x].IndexOf('=');
         if (index >= 0 && index < description[x].Length) {
-          string paramName = description[x].Substring(0, index).Trim().ToLower();
-          string paramValue = description[x].Substring(index + 1).Trim();
+          var paramName = description[x][..index].Trim().ToLower();
+          var paramValue = description[x][(index + 1)..].Trim();
           switch (paramName) {
             case "delaytime":
               DelayTime = float.Parse(paramValue);
@@ -36,6 +34,8 @@
               break;
             case "type":
               Generator = GetGenerator(Generator.GetWaveformFromString(paramValue.ToLower()));
+              break;
+            default:
               break;
           }
         }
@@ -59,29 +59,31 @@
     }
 
     private static WaveformEnum GetWaveform(Generator gen) {
-      if (gen == Generator.DefaultSaw)
+      if (gen == Generator.DefaultSaw) {
         return WaveformEnum.Saw;
-      else if (gen == Generator.DefaultSine)
+      }
+      else if (gen == Generator.DefaultSine) {
         return WaveformEnum.Sine;
-      else if (gen == Generator.DefaultSquare)
+      }
+      else if (gen == Generator.DefaultSquare) {
         return WaveformEnum.Square;
-      else if (gen == Generator.DefaultTriangle)
+      }
+      else if (gen == Generator.DefaultTriangle) {
         return WaveformEnum.Triangle;
-      else
+      }
+      else {
         throw new Exception("Invalid lfo waveform.");
-    }
-    private static Generator GetGenerator(WaveformEnum waveform) {
-      switch (waveform) {
-        case WaveformEnum.Saw:
-          return Generator.DefaultSaw;
-        case WaveformEnum.Square:
-          return Generator.DefaultSquare;
-        case WaveformEnum.Triangle:
-          return Generator.DefaultTriangle;
-        default:
-          return Generator.DefaultSine;
       }
     }
+    private static Generator GetGenerator(WaveformEnum waveform) => waveform switch {
+      WaveformEnum.Saw => Generator.DefaultSaw,
+      WaveformEnum.Square => Generator.DefaultSquare,
+      WaveformEnum.Triangle => Generator.DefaultTriangle,
+      WaveformEnum.Sine => Generator.DefaultSine,
+      WaveformEnum.SampleData => Generator.DefaultSine,
+      WaveformEnum.WhiteNoise => Generator.DefaultSine,
+      _ => Generator.DefaultSine,
+    };
     private void ApplyDefault() {
       DelayTime = 0f;
       Frequency = (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
