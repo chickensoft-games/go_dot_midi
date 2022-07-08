@@ -9,164 +9,156 @@
  *  Used for situations where the whole midi is available in file format locally or over a network stream.
  *  Loads the midi and calculates the timing before hand so when sequencing no BPM calculation is needed.
  */
-using System;
-using System.IO;
-using AudioSynthesis.Midi;
-using AudioSynthesis.Midi.Event;
-using AudioSynthesis.Synthesis;
 
 namespace AudioSynthesis.Sequencer {
+  using System;
+  using System.IO;
+  using AudioSynthesis.Midi;
+  using AudioSynthesis.Midi.Event;
+  using AudioSynthesis.Synthesis;
   public class MidiFileSequencer {
-    //--Variables
-    private Synthesizer synth;
-    private MidiMessage[] mdata;
-    private bool[] blockList;
-    private bool playing = false;
-    private double playbackrate = 1.0; // 1/8 to 8
-    private int totalTime;
-    private int sampleTime;
-    private int eventIndex;
+    private MidiMessage[] _mdata = null!;
+    private readonly bool[] _blockList;
+    private double _playbackRate = 1.0; // 1/8 to 8
+    private int _eventIndex;
 
     //--Public Properties
-    public Synthesizer Synth {
-      get { return synth; }
-      set { synth = value; }
-    }
-    public bool IsPlaying {
-      get { return playing; }
-    }
-    public bool IsMidiLoaded {
-      get { return mdata != null; }
-    }
-    public int CurrentTime {
-      get { return sampleTime; }
-    }
-    public int EndTime {
-      get { return totalTime; }
-    }
+    public Synthesizer Synth { get; set; }
+    public bool IsPlaying { get; private set; } = false;
+    public bool IsMidiLoaded => _mdata != null;
+    public int CurrentTime { get; private set; }
+    public int EndTime { get; private set; }
     public double PlaySpeed {
-      get { return playbackrate; }
-      set { playbackrate = SynthHelper.Clamp(value, .125, 8.0); }
+      get => _playbackRate;
+      set => _playbackRate = SynthHelper.Clamp(value, .125, 8.0);
     }
 
     //--Public Methods
     public MidiFileSequencer(Synthesizer synth) {
-      this.synth = synth;
-      blockList = new bool[Synthesizer.DEFAULT_CHANNEL_COUNT];
+      Synth = synth;
+      _blockList = new bool[Synthesizer.DEFAULT_CHANNEL_COUNT];
     }
     public bool LoadMidi(Stream midiFileStream) {
-      if (playing == true)
+      if (IsPlaying) {
         return false;
+      }
+
       LoadMidiFile(new MidiFile(midiFileStream));
       return true;
     }
     public bool LoadMidi(MidiFile midiFile) {
-      if (playing == true)
+      if (IsPlaying) {
         return false;
+      }
+
       LoadMidiFile(midiFile);
       return true;
     }
     public bool UnloadMidi() {
-      if (playing == true)
+      if (IsPlaying) {
         return false;
-      mdata = null;
+      }
+
+      _mdata = null!;
       return true;
     }
     public void Play() {
-      if (playing == true || mdata == null)
+      if (IsPlaying || _mdata == null) {
         return;
-      playing = true;
+      }
+
+      IsPlaying = true;
     }
     public void Stop() {
-      playing = false;
-      sampleTime = 0;
-      eventIndex = 0;
+      IsPlaying = false;
+      CurrentTime = 0;
+      _eventIndex = 0;
     }
-    public bool IsChannelMuted(int channel) {
-      return blockList[channel];
-    }
+    public bool IsChannelMuted(int channel) => _blockList[channel];
     public void MuteAllChannels() {
-      for (int x = 0; x < blockList.Length; x++)
-        blockList[x] = true;
-    }
-    public void UnMuteAllChannels() {
-      Array.Clear(blockList, 0, blockList.Length);
-    }
-    public void SetMute(int channel, bool muteValue) {
-      blockList[channel] = muteValue;
-    }
-    public void Seek(TimeSpan time) {
-      int targetSampleTime = (int)(synth.SampleRate * time.TotalSeconds);
-      if (targetSampleTime > sampleTime) {//process forward
-        SilentProcess(targetSampleTime - sampleTime);
+      for (var x = 0; x < _blockList.Length; x++) {
+        _blockList[x] = true;
       }
-      else if (targetSampleTime < sampleTime) {//we have to restart the midi to make sure we get the right state: instruments, volume, pan, etc
-        sampleTime = 0;
-        eventIndex = 0;
-        synth.NoteOffAll(true);
-        synth.ResetPrograms();
-        synth.ResetSynthControls();
+    }
+    public void UnMuteAllChannels() => Array.Clear(_blockList, 0, _blockList.Length);
+    public void SetMute(int channel, bool muteValue) => _blockList[channel] = muteValue;
+    public void Seek(TimeSpan time) {
+      var targetSampleTime = (int)(Synth.SampleRate * time.TotalSeconds);
+      if (targetSampleTime > CurrentTime) {//process forward
+        SilentProcess(targetSampleTime - CurrentTime);
+      }
+      else if (targetSampleTime < CurrentTime) {//we have to restart the midi to make sure we get the right state: instruments, volume, pan, etc
+        CurrentTime = 0;
+        _eventIndex = 0;
+        Synth.NoteOffAll(true);
+        Synth.ResetPrograms();
+        Synth.ResetSynthControls();
         SilentProcess(targetSampleTime);
       }
     }
     public void FillMidiEventQueue() {
-      if (!playing || synth.MidiEventQueue.Count != 0)
-        return;
-      if (sampleTime >= totalTime) {
-        sampleTime = 0;
-        eventIndex = 0;
-        playing = false;
-        synth.NoteOffAll(true);
-        synth.ResetPrograms();
-        synth.ResetSynthControls();
+      if (!IsPlaying || Synth.MidiEventQueue.Count != 0) {
         return;
       }
-      int newMSize = (int)(synth.MicroBufferSize * playbackrate);
-      for (int x = 0; x < synth.MidiEventCounts.Length; x++) {
-        sampleTime += newMSize;
-        while (eventIndex < mdata.Length && mdata[eventIndex].Delta < sampleTime) {
-          if (mdata[eventIndex].Command != 0x90 || blockList[mdata[eventIndex].Channel] == false) {
-            synth.MidiEventQueue.Enqueue(mdata[eventIndex]);
-            synth.MidiEventCounts[x]++;
+
+      if (CurrentTime >= EndTime) {
+        CurrentTime = 0;
+        _eventIndex = 0;
+        IsPlaying = false;
+        Synth.NoteOffAll(true);
+        Synth.ResetPrograms();
+        Synth.ResetSynthControls();
+        return;
+      }
+      var newMSize = (int)(Synth.MicroBufferSize * _playbackRate);
+      for (var x = 0; x < Synth.MidiEventCounts.Length; x++) {
+        CurrentTime += newMSize;
+        while (_eventIndex < _mdata.Length && _mdata[_eventIndex].Delta < CurrentTime) {
+          if (_mdata[_eventIndex].Command != 0x90 || _blockList[_mdata[_eventIndex].Channel] == false) {
+            Synth.MidiEventQueue.Enqueue(_mdata[_eventIndex]);
+            Synth.MidiEventCounts[x]++;
           }
-          eventIndex++;
+          _eventIndex++;
         }
       }
     }
     //--Private Methods
     private void LoadMidiFile(MidiFile midiFile) {
       //Converts midi to sample based format for easy sequencing
-      double BPM = 120.0;
+      var bpm = 120.0;
       //Combine all tracks into 1 track that is organized from lowest to highest absolute time
-      if (midiFile.Tracks.Length > 1 || midiFile.Tracks[0].EndTime == 0)
+      if (midiFile.Tracks.Length > 1 || midiFile.Tracks[0].EndTime == 0) {
         midiFile.CombineTracks();
-      mdata = new MidiMessage[midiFile.Tracks[0].MidiEvents.Length];
+      }
+
+      _mdata = new MidiMessage[midiFile.Tracks[0].MidiEvents.Length];
       //Convert delta time to sample time
-      eventIndex = 0;
-      sampleTime = 0;
+      _eventIndex = 0;
+      CurrentTime = 0;
       //Calculate sample based time using double counter and round down to nearest integer sample.
-      double absDelta = 0.0;
-      for (int x = 0; x < mdata.Length; x++) {
-        MidiEvent mEvent = midiFile.Tracks[0].MidiEvents[x];
-        mdata[x] = new MidiMessage((byte)mEvent.Channel, (byte)mEvent.Command, (byte)mEvent.Data1, (byte)mEvent.Data2);
-        absDelta += synth.SampleRate * mEvent.DeltaTime * (60.0 / (BPM * midiFile.Division));
-        mdata[x].Delta = (int)absDelta;
+      var absDelta = 0.0;
+      for (var x = 0; x < _mdata.Length; x++) {
+        var mEvent = midiFile.Tracks[0].MidiEvents[x];
+        _mdata[x] = new MidiMessage((byte)mEvent.Channel, (byte)mEvent.Command, (byte)mEvent.Data1, (byte)mEvent.Data2);
+        absDelta += Synth.SampleRate * mEvent.DeltaTime * (60.0 / (bpm * midiFile.Division));
+        _mdata[x].Delta = (int)absDelta;
         //Update tempo
-        if (mEvent.Command == 0xFF && mEvent.Data1 == 0x51)
-          BPM = Math.Round(MidiHelper.MicroSecondsPerMinute / (double)((MetaNumberEvent)mEvent).Value, 2);
+        if (mEvent.Command == 0xFF && mEvent.Data1 == 0x51) {
+          bpm = Math.Round(MidiHelper.MicroSecondsPerMinute / (double)((MetaNumberEvent)mEvent).Value, 2);
+        }
       }
       //Set total time to proper value
-      totalTime = mdata[mdata.Length - 1].Delta;
+      EndTime = _mdata[^1].Delta;
     }
     private void SilentProcess(int amount) {
-      while (eventIndex < mdata.Length && mdata[eventIndex].Delta < (sampleTime + amount)) {
-        if (mdata[eventIndex].Command != 0x90) {
-          MidiMessage m = mdata[eventIndex];
-          synth.ProcessMidiMessage(m.Channel, m.Command, m.Data1, m.Data2);
+      while (_eventIndex < _mdata.Length && _mdata[_eventIndex].Delta < (CurrentTime + amount)) {
+        if (_mdata[_eventIndex].Command != 0x90) {
+          var m = _mdata[_eventIndex];
+          Synth.ProcessMidiMessage(m.Channel, m.Command, m.Data1, m.Data2);
         }
-        eventIndex++;
+        _eventIndex++;
       }
-      sampleTime += amount;
+      CurrentTime += amount;
     }
   }
 }

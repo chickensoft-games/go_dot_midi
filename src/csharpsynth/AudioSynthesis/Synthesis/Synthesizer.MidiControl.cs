@@ -25,8 +25,8 @@ namespace AudioSynthesis.Synthesis {
       }
       // A NoteOn can trigger multiple voices via layers
       int layerCount;
-      if (inst is MultiPatch) {
-        layerCount = ((MultiPatch)inst).FindPatches(channel, note, velocity, _layerList);
+      if (inst is MultiPatch patch) {
+        layerCount = patch.FindPatches(channel, note, velocity, _layerList);
       }
       else {
         layerCount = 1;
