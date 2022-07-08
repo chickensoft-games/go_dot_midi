@@ -1,43 +1,36 @@
-﻿using System;
-using System.IO;
-using AudioSynthesis.Sf2.Chunks;
-using AudioSynthesis.Util;
+﻿namespace AudioSynthesis.Sf2 {
+  using System;
+  using System.IO;
+  using AudioSynthesis.Sf2.Chunks;
+  using AudioSynthesis.Util;
 
-namespace AudioSynthesis.Sf2 {
   public class SoundFontPresets {
-    private SampleHeader[] sHeaders;
-    private PresetHeader[] pHeaders;
-    private Instrument[] insts;
-
-    public SampleHeader[] SampleHeaders {
-      get { return sHeaders; }
-    }
-    public PresetHeader[] PresetHeaders {
-      get { return pHeaders; }
-    }
-    public Instrument[] Instruments {
-      get { return insts; }
-    }
+    public SampleHeader[] SampleHeaders { get; } = null!;
+    public PresetHeader[] PresetHeaders { get; }
+    public Instrument[] Instruments { get; }
 
     public SoundFontPresets(BinaryReader reader) {
-      string id = new string(IOHelper.Read8BitChars(reader, 4));
-      int size = reader.ReadInt32();
-      if (!id.ToLower().Equals("list"))
+      var id = new string(IOHelper.Read8BitChars(reader, 4));
+      var size = reader.ReadInt32();
+      if (!id.ToLower().Equals("list")) {
         throw new Exception("Invalid soundfont. Could not find pdta LIST chunk.");
-      long readTo = reader.BaseStream.Position + size;
+      }
+
+      var readTo = reader.BaseStream.Position + size;
       id = new string(IOHelper.Read8BitChars(reader, 4));
-      if (!id.ToLower().Equals("pdta"))
+      if (!id.ToLower().Equals("pdta")) {
         throw new Exception("Invalid soundfont. The LIST chunk is not of type pdta.");
+      }
 
-      Modulator[] presetModulators = null;
-      Generator[] presetGenerators = null;
-      Modulator[] instrumentModulators = null;
-      Generator[] instrumentGenerators = null;
+      Modulator[] presetModulators = null!;
+      Generator[] presetGenerators = null!;
+      Modulator[] instrumentModulators = null!;
+      Generator[] instrumentGenerators = null!;
 
-      ZoneChunk pbag = null;
-      ZoneChunk ibag = null;
-      PresetHeaderChunk phdr = null;
-      InstrumentChunk inst = null;
+      ZoneChunk pbag = null!;
+      ZoneChunk ibag = null!;
+      PresetHeaderChunk phdr = null!;
+      InstrumentChunk inst = null!;
 
       while (reader.BaseStream.Position < readTo) {
         id = new string(IOHelper.Read8BitChars(reader, 4));
@@ -69,16 +62,16 @@ namespace AudioSynthesis.Sf2 {
             instrumentGenerators = new GeneratorChunk(id, size, reader).Generators;
             break;
           case "shdr":
-            sHeaders = new SampleHeaderChunk(id, size, reader).SampleHeaders;
+            SampleHeaders = new SampleHeaderChunk(id, size, reader).SampleHeaders;
             break;
           default:
             throw new Exception("Invalid soundfont. Unrecognized sub chunk: " + id);
         }
       }
-      Zone[] pZones = pbag.ToZones(presetModulators, presetGenerators);
-      pHeaders = phdr.ToPresets(pZones);
-      Zone[] iZones = ibag.ToZones(instrumentModulators, instrumentGenerators);
-      insts = inst.ToInstruments(iZones);
+      var pZones = pbag.ToZones(presetModulators, presetGenerators);
+      PresetHeaders = phdr.ToPresets(pZones);
+      var iZones = ibag.ToZones(instrumentModulators, instrumentGenerators);
+      Instruments = inst.ToInstruments(iZones);
     }
   }
 }
