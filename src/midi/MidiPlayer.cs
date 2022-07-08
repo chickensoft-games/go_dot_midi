@@ -5,6 +5,7 @@ using AudioSynthesis.Bank;
 using AudioSynthesis.Midi;
 using AudioSynthesis.Sequencer;
 using AudioSynthesis.Synthesis;
+using AudioSynthesis.Wave;
 using Godot;
 
 /// <summary>
@@ -36,7 +37,7 @@ public class MidiPlayer : AudioStreamPlayer {
   protected AudioStreamGeneratorPlayback _playback = null!;
   protected bool _started = false;
 
-  protected float[] _buffer = new float[] { };
+  protected float[][] _buffer = new float[][] { };
   protected int _bufferHead = 0;
 
   public override void _Ready() {
@@ -78,16 +79,21 @@ public class MidiPlayer : AudioStreamPlayer {
     var initFrames = _playback.GetFramesAvailable();
     var deinterleaved = new float[][] { };
 
+    GD.Print("Need to buffer " + initFrames.ToString() + " frames");
+
     for (var frame = 0; frame < initFrames; frame++) {
       if (_bufferHead >= _buffer.Length) {
         _sequencer.FillMidiEventQueue();
         _synthesizer.GetNext();
-        _buffer = _synthesizer.WorkingBuffer;
+        _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
         _bufferHead = 0;
       }
-      var length = Mathf.Min(_buffer.Length - _bufferHead, initFrames - frame);
+      var length = Mathf.Min(_buffer[0].Length - _bufferHead, initFrames - frame);
+      GD.Print("Buffering " + length.ToString() + " frames");
+      for (var i = 0; i < length; i++) {
+        _playback.PushFrame(new Vector2(_buffer[0][i], _buffer[1][i]));
+      }
 
-      _playback.PushFrame(new Vector2(_buffer[_bufferHead + frame], _buffer[_bufferHead + frame]));
       _bufferHead += length;
       initFrames -= 1;
     }
