@@ -1,36 +1,8 @@
-﻿namespace AudioSynthesis.Sf2
-{
-    public class Instrument
-    {
-        private string name;
-        private Zone[] zones;
+﻿namespace AudioSynthesis.Sf2 {
+  public class Instrument {
+    public string? Name { get; set; }
+    public Zone[]? Zones { get; set; }
 
-        public string Name
-        {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
-        }
-        public Zone[] Zones
-        {
-            get
-            {
-                return zones;
-            }
-            set
-            {
-                zones = value;
-            }
-        }
-
-        public override string ToString()
-        {
-            return this.name;
-        }
-    }
+    public override string ToString() => Name;
+  }
 }

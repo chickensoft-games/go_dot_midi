@@ -1,59 +1,45 @@
-﻿using System.IO;
-using AudioSynthesis.Midi;
+﻿namespace AudioSynthesis.Sf2 {
+  using System.IO;
+  using AudioSynthesis.Midi;
 
-namespace AudioSynthesis.Sf2
-{
-    public class ModulatorType
-    {
-        private PolarityEnum polarity;
-        private DirectionEnum direction;
-        private bool midiContinuousController;
-        private SourceTypeEnum sourceType;
-        private ushort controllerSource;
+  public class ModulatorType {
+    private readonly bool midiContinuousController;
+    private readonly ushort controllerSource;
 
-        public PolarityEnum Polarity
-        {
-            get { return polarity; }
-            set { polarity = value; }
-        }
-        public DirectionEnum Direction
-        {
-            get { return direction; }
-            set { direction = value; }
-        }
-        public SourceTypeEnum SourceType
-        {
-            get { return sourceType; }
-            set { sourceType = value; }
-        }
+    public PolarityEnum Polarity { get; set; }
+    public DirectionEnum Direction { get; set; }
+    public SourceTypeEnum SourceType { get; set; }
 
-        public ModulatorType(BinaryReader reader)
-        {
-            ushort raw = reader.ReadUInt16();
+    public ModulatorType(BinaryReader reader) {
+      var raw = reader.ReadUInt16();
 
-            if ((raw & 0x0200) == 0x0200)
-                polarity = PolarityEnum.Bipolar;
-            else
-                polarity = PolarityEnum.Unipolar;
-            if ((raw & 0x0100) == 0x0100)
-                direction = DirectionEnum.MaxToMin;
-            else
-                direction = DirectionEnum.MinToMax;
-            midiContinuousController = ((raw & 0x0080) == 0x0080);
-            sourceType = (SourceTypeEnum)((raw & (0xFC00)) >> 10);
-            controllerSource = (ushort)(raw & 0x007F);
-        }
-        public bool isMidiContinousController()
-        {
-            return midiContinuousController;
-        }
+      if ((raw & 0x0200) == 0x0200) {
+        Polarity = PolarityEnum.Bipolar;
+      }
+      else {
+        Polarity = PolarityEnum.Unipolar;
+      }
 
-        public override string ToString()
-        {
-            if (midiContinuousController)
-                return string.Format("{0} : {1} : {2} : CC {3}", polarity, direction, sourceType, (ControllerTypeEnum)controllerSource);
-            else
-                return string.Format("{0} : {1} : {2} : {3}", polarity, direction, sourceType, (ControllerSourceEnum)controllerSource);
-        }
+      if ((raw & 0x0100) == 0x0100) {
+        Direction = DirectionEnum.MaxToMin;
+      }
+      else {
+        Direction = DirectionEnum.MinToMax;
+      }
+
+      midiContinuousController = (raw & 0x0080) == 0x0080;
+      SourceType = (SourceTypeEnum)((raw & (0xFC00)) >> 10);
+      controllerSource = (ushort)(raw & 0x007F);
     }
+    public bool isMidiContinousController() => midiContinuousController;
+
+    public override string ToString() {
+      if (midiContinuousController) {
+        return string.Format("{0} : {1} : {2} : CC {3}", Polarity, Direction, SourceType, (ControllerTypeEnum)controllerSource);
+      }
+      else {
+        return string.Format("{0} : {1} : {2} : {3}", Polarity, Direction, SourceType, (ControllerSourceEnum)controllerSource);
+      }
+    }
+  }
 }
