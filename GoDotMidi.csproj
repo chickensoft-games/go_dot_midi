@@ -9,7 +9,7 @@
     <!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
 
     <Title>GoDotMidi</Title>
-    <Description>Play midi files in Godot from C#.</Description>
+    <Description>Play midi files in Godot from C# — based on Unity Midi, which itself uses the excellent CSharpSynth project.</Description>
     <Copyright>© 2022 Chickensoft Games</Copyright>
     <Company>Chickensoft</Company>
 
