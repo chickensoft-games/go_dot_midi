@@ -11,3 +11,4 @@ script = ExtResource( 1 )
 [node name="MidiPlayer" parent="." instance=ExtResource( 2 )]
 stream = SubResource( 1 )
 autoplay = true
+MidiFilePath = "assets/pirate.mid"
