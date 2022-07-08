@@ -69,7 +69,7 @@ public class MidiPlayer : AudioStreamPlayer {
     var initFrames = _playback.GetFramesAvailable();
     var deinterleaved = new float[][] { };
 
-    GD.Print("Need to buffer " + initFrames.ToString() + " frames");
+    // GD.Print("Need to buffer " + initFrames.ToString() + " frames");
 
     for (var frame = 0; frame < initFrames; frame++) {
       if (_bufferHead >= _buffer.Length) {
@@ -79,7 +79,7 @@ public class MidiPlayer : AudioStreamPlayer {
         _bufferHead = 0;
       }
       var length = Mathf.Min(_buffer[0].Length - _bufferHead, initFrames - frame);
-      GD.Print("Buffering " + length.ToString() + " frames");
+      // GD.Print("Buffering " + length.ToString() + " frames");
       for (var i = 0; i < length; i++) {
         _playback.PushFrame(new Vector2(_buffer[0][i], _buffer[1][i]));
       }
