@@ -16,16 +16,15 @@
     public MidiTrack[] Tracks { get; private set; } = new MidiTrack[0];
 
     public MidiFile(Stream stream) {
-      using (BinaryReader reader = new BinaryReader(stream)) {
-        LoadStream(reader);
-      }
+      using var reader = new BinaryReader(stream);
+      LoadStream(reader);
     }
     public void CombineTracks() {
       //create a new track of the appropriate size
-      MidiTrack finalTrack = MergeTracks();
-      MidiEvent[][] absevents = new MidiEvent[Tracks.Length][];
+      var finalTrack = MergeTracks();
+      var absevents = new MidiEvent[Tracks.Length][];
       //we have to convert delta times to absolute delta times
-      for (int x = 0; x < absevents.Length; x++) {
+      for (var x = 0; x < absevents.Length; x++) {
         absevents[x] = new MidiEvent[Tracks[x].MidiEvents.Length];
         for (int x2 = 0, totalDeltaTime = 0; x2 < absevents[x].Length; x2++) {//create copies
           absevents[x][x2] = Tracks[x].MidiEvents[x2];
@@ -34,28 +33,29 @@
         }
       }
       //sort by absolute delta time also makes sure events occur in order of track and when they are recieved.
-      int eventcount = 0;
-      int delta = 0;
-      int nextdelta = int.MaxValue;
-      int[] counters = new int[absevents.Length];
+      var eventcount = 0;
+      var delta = 0;
+      var nextdelta = int.MaxValue;
+      var counters = new int[absevents.Length];
       while (eventcount < finalTrack.MidiEvents.Length) {
-        for (int x = 0; x < absevents.Length; x++) {
+        for (var x = 0; x < absevents.Length; x++) {
           while (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime == delta) {
             finalTrack.MidiEvents[eventcount] = absevents[x][counters[x]];
             eventcount++;
             counters[x]++;
           }
-          if (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime < nextdelta)
+          if (counters[x] < absevents[x].Length && absevents[x][counters[x]].DeltaTime < nextdelta) {
             nextdelta = absevents[x][counters[x]].DeltaTime;
+          }
         }
         delta = nextdelta;
         nextdelta = int.MaxValue;
       }
       //set total time
-      finalTrack.EndTime = finalTrack.MidiEvents[finalTrack.MidiEvents.Length - 1].DeltaTime;
+      finalTrack.EndTime = finalTrack.MidiEvents[^1].DeltaTime;
       //put back into regular delta time
       for (int x = 0, deltadiff = 0; x < finalTrack.MidiEvents.Length; x++) {
-        int oldtime = finalTrack.MidiEvents[x].DeltaTime;
+        var oldtime = finalTrack.MidiEvents[x].DeltaTime;
         finalTrack.MidiEvents[x].DeltaTime -= deltadiff;
         deltadiff = oldtime;
       }
@@ -64,9 +64,9 @@
     }
 
     private MidiTrack MergeTracks() {
-      int eventCount = 0;
-      int notesPlayed = 0;
-      int activeChannels = 0;
+      var eventCount = 0;
+      var notesPlayed = 0;
+      var activeChannels = 0;
       var programsUsed = new List<byte>();
       var drumprogramsUsed = new List<byte>();
       //Loop to get track info
@@ -74,45 +74,52 @@
         eventCount += Tracks[x].MidiEvents.Length;
         notesPlayed += Tracks[x].NoteOnCount;
 
-        foreach (byte p in Tracks[x].Instruments) {
+        foreach (var p in Tracks[x].Instruments) {
           if (!programsUsed.Contains(p)) {
             programsUsed.Add(p);
           }
         }
-        foreach (byte p in Tracks[x].DrumInstruments) {
+        foreach (var p in Tracks[x].DrumInstruments) {
           if (!drumprogramsUsed.Contains(p)) {
             drumprogramsUsed.Add(p);
           }
         }
         activeChannels |= Tracks[x].ActiveChannels;
       }
-      MidiTrack track = new MidiTrack(programsUsed.ToArray(), drumprogramsUsed.ToArray(), new MidiEvent[eventCount]);
-      track.NoteOnCount = notesPlayed;
-      track.ActiveChannels = activeChannels;
+      var track = new MidiTrack(programsUsed.ToArray(), drumprogramsUsed.ToArray(), new MidiEvent[eventCount]) {
+        NoteOnCount = notesPlayed,
+        ActiveChannels = activeChannels
+      };
       return track;
     }
     private void LoadStream(BinaryReader reader) {
-      if (!FindHead(reader, 500))
+      if (!FindHead(reader, 500)) {
         throw new Exception("Invalid midi file : MThd chunk could not be found.");
+      }
+
       ReadHeader(reader);
       try {
-        for (int x = 0; x < Tracks.Length; x++) {
+        for (var x = 0; x < Tracks.Length; x++) {
           Tracks[x] = ReadTrack(reader);
         }
       }
       catch (EndOfStreamException ex) {
         System.Diagnostics.Debug.WriteLine(ex.Message + "\nWarning: the midi file may not have one or more invalid tracks.");
-        byte[] emptyByte = new byte[0];
-        MidiEvent[] emptyEvents = new MidiEvent[0];
-        for (int x = 0; x < Tracks.Length; x++) {
-          if (Tracks[x] == null)
+        var emptyByte = new byte[0];
+        var emptyEvents = new MidiEvent[0];
+        for (var x = 0; x < Tracks.Length; x++) {
+          if (Tracks[x] == null) {
             Tracks[x] = new MidiTrack(emptyByte, emptyByte, emptyEvents);
+          }
         }
       }
     }
     private void ReadHeader(BinaryReader reader) {
       if (BigEndianHelper.ReadInt32(reader) != 6) //midi header should be 6 bytes long
+{
         throw new Exception("Midi header is invalid.");
+      }
+
       MidiFormat = (TrackFormat)BigEndianHelper.ReadInt16(reader);
       Tracks = new MidiTrack[BigEndianHelper.ReadInt16(reader)];
       int div = BigEndianHelper.ReadInt16(reader);
@@ -121,87 +128,97 @@
     }
 
     private static MidiTrack ReadTrack(BinaryReader reader) {
-      List<byte> instList = new List<byte>();
-      List<byte> drumList = new List<byte>();
-      List<MidiEvent> eventList = new List<MidiEvent>();
-      int channelList = 0;
-      int noteOnCount = 0;
-      int totalTime = 0;
+      var instList = new List<byte>();
+      var drumList = new List<byte>();
+      var eventList = new List<MidiEvent>();
+      var channelList = 0;
+      var noteOnCount = 0;
+      var totalTime = 0;
       while (!new string(IOHelper.Read8BitChars(reader, 4)).Equals("MTrk")) {
-        int length = BigEndianHelper.ReadInt32(reader);
+        var length = BigEndianHelper.ReadInt32(reader);
         while (length > 0) {
           length--;
           reader.ReadByte();
         }
       }
-      long endPosition = BigEndianHelper.ReadInt32(reader) + reader.BaseStream.Position;
+      var endPosition = BigEndianHelper.ReadInt32(reader) + reader.BaseStream.Position;
       byte prevStatus = 0;
       while (reader.BaseStream.Position < endPosition) {
-        int delta = ReadVariableLength(reader);
+        var delta = ReadVariableLength(reader);
         totalTime += delta;
-        byte status = reader.ReadByte();
-        if (status >= 0x80 && status <= 0xEF) {//voice message
+        var status = reader.ReadByte();
+        if (status is >= 0x80 and <= 0xEF) {//voice message
           prevStatus = status;
           eventList.Add(ReadVoiceMessage(reader, delta, status, reader.ReadByte()));
-          TrackVoiceStats(eventList[eventList.Count - 1], instList, drumList, ref channelList, ref noteOnCount);
+          TrackVoiceStats(eventList[^1], instList, drumList, ref channelList, ref noteOnCount);
         }
-        else if (status >= 0xF0 && status <= 0xF7) {//system common message
+        else if (status is >= 0xF0 and <= 0xF7) {//system common message
           prevStatus = 0;
           eventList.Add(ReadSystemCommonMessage(reader, delta, status));
         }
-        else if (status >= 0xF8 && status <= 0xFF) {//realtime message
+        else if (status is >= 0xF8 and <= 0xFF) {//realtime message
           eventList.Add(ReadRealTimeMessage(reader, delta, status));
         }
         else {//data bytes
           if (prevStatus == 0) {//if no running status continue to next status byte
-            while ((status & 0x80) != 0x80)
+            while ((status & 0x80) != 0x80) {
               status = reader.ReadByte();
-            if (status >= 0x80 && status <= 0xEF) {//voice message
+            }
+
+            if (status is >= 0x80 and <= 0xEF) {//voice message
               prevStatus = status;
               eventList.Add(ReadVoiceMessage(reader, delta, status, reader.ReadByte()));
-              TrackVoiceStats(eventList[eventList.Count - 1], instList, drumList, ref channelList, ref noteOnCount);
+              TrackVoiceStats(eventList[^1], instList, drumList, ref channelList, ref noteOnCount);
             }
-            else if (status >= 0xF0 && status <= 0xF7) {//system common message
+            else if (status is >= 0xF0 and <= 0xF7) {//system common message
               eventList.Add(ReadSystemCommonMessage(reader, delta, status));
             }
-            else if (status >= 0xF8 && status <= 0xFF) {//realtime message
+            else if (status is >= 0xF8 and <= 0xFF) {//realtime message
               eventList.Add(ReadRealTimeMessage(reader, delta, status));
             }
           }
           else {//otherwise apply running status
             eventList.Add(ReadVoiceMessage(reader, delta, prevStatus, status));
-            TrackVoiceStats(eventList[eventList.Count - 1], instList, drumList, ref channelList, ref noteOnCount);
+            TrackVoiceStats(eventList[^1], instList, drumList, ref channelList, ref noteOnCount);
           }
         }
       }
-      if (reader.BaseStream.Position != endPosition)
+      if (reader.BaseStream.Position != endPosition) {
         throw new Exception("The track length was invalid for the current MTrk chunk.");
-      if (((channelList >> MidiHelper.DrumChannel) & 1) == 1) {
-        if (!drumList.Contains(0))
+      }
+
+      if (((channelList >> MidiHelper.DRUM_CHANNEL) & 1) == 1) {
+        if (!drumList.Contains(0)) {
           drumList.Add(0);
+        }
       }
       else {
-        if (!instList.Contains(0))
+        if (!instList.Contains(0)) {
           instList.Add(0);
+        }
       }
-      MidiTrack track = new MidiTrack(instList.ToArray(), drumList.ToArray(), eventList.ToArray());
-      track.NoteOnCount = noteOnCount;
-      track.EndTime = totalTime;
-      track.ActiveChannels = channelList;
+      var track = new MidiTrack(instList.ToArray(), drumList.ToArray(), eventList.ToArray()) {
+        NoteOnCount = noteOnCount,
+        EndTime = totalTime,
+        ActiveChannels = channelList
+      };
       return track;
     }
     private static MidiEvent ReadMetaMessage(BinaryReader reader, int delta, byte status) {
-      byte metaStatus = reader.ReadByte();
+      var metaStatus = reader.ReadByte();
       switch (metaStatus) {
         case 0x0://sequence number
             {
             int count = reader.ReadByte();
-            if (count == 0)
+            if (count == 0) {
               return new MetaNumberEvent(delta, status, metaStatus, -1); //current track
-            else if (count == 2)
+            }
+            else if (count == 2) {
               return new MetaNumberEvent(delta, status, metaStatus, reader.ReadInt16());
-            else
+            }
+            else {
               throw new Exception("Invalid sequence number event.");
+            }
           }
         case 0x1://text
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
@@ -222,57 +239,68 @@
         case 0x9://portname
           return new MetaTextEvent(delta, status, metaStatus, ReadString(reader));
         case 0x20://midichannel
-          if (reader.ReadByte() != 1)
+          if (reader.ReadByte() != 1) {
             throw new Exception("Invalid midi channel event. Expected size of 1.");
+          }
+
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
         case 0x21://midiport
-          if (reader.ReadByte() != 1)
+          if (reader.ReadByte() != 1) {
             throw new Exception("Invalid midi port event. Expected size of 1.");
+          }
+
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
         case 0x2F://endoftrack
           return new MetaEvent(delta, status, metaStatus, reader.ReadByte());
         case 0x51://tempo
-          if (reader.ReadByte() != 3)
+          if (reader.ReadByte() != 3) {
             throw new Exception("Invalid tempo event. Expected size of 3.");
+          }
+
           return new MetaNumberEvent(delta, status, metaStatus, (reader.ReadByte() << 16) | (reader.ReadByte() << 8) | reader.ReadByte());
         case 0x54://smpte
-          if (reader.ReadByte() != 5)
+          if (reader.ReadByte() != 5) {
             throw new Exception("Invalid smpte event. Expected size of 5.");
+          }
+
           return new MetaTextEvent(delta, status, metaStatus, reader.ReadByte() + ":" + reader.ReadByte() + ":" + reader.ReadByte() + ":" + reader.ReadByte() + ":" + reader.ReadByte());
         case 0x58://time sig
-          if (reader.ReadByte() != 4)
+          if (reader.ReadByte() != 4) {
             throw new Exception("Invalid time signature event. Expected size of 4.");
+          }
+
           return new MetaTextEvent(delta, status, metaStatus, reader.ReadByte() + ":" + reader.ReadByte() + ":" + reader.ReadByte() + ":" + reader.ReadByte());
         case 0x59://key sig
-          if (reader.ReadByte() != 2)
+          if (reader.ReadByte() != 2) {
             throw new Exception("Invalid key signature event. Expected size of 2.");
+          }
+
           return new MetaTextEvent(delta, status, metaStatus, reader.ReadByte() + ":" + reader.ReadByte());
         case 0x7F://seq specific
           return new MetaDataEvent(delta, status, metaStatus, reader.ReadBytes(ReadVariableLength(reader)));
+        default:
+          break;
       }
       throw new Exception("Not a valid meta message Status: " + status + " Meta: " + metaStatus);
     }
 
-    private static MidiEvent ReadRealTimeMessage(BinaryReader reader, int delta, byte status) {
-      switch (status) {
-        case 0xF8://midi clock
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xF9://midi tick
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xFA://midi start
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xFB://midi continue
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xFC://midi stop
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xFE://active sense
-          return new RealTimeEvent(delta, status, 0, 0);
-        case 0xFF://meta message
-          return ReadMetaMessage(reader, delta, status);
-        default:
-          throw new Exception("The real time message was invalid or unsupported : " + status);
-      }
-    }
+    private static MidiEvent ReadRealTimeMessage(BinaryReader reader, int delta, byte status) => status switch {
+      //midi clock
+      0xF8 => new RealTimeEvent(delta, status, 0, 0),
+      //midi tick
+      0xF9 => new RealTimeEvent(delta, status, 0, 0),
+      //midi start
+      0xFA => new RealTimeEvent(delta, status, 0, 0),
+      //midi continue
+      0xFB => new RealTimeEvent(delta, status, 0, 0),
+      //midi stop
+      0xFC => new RealTimeEvent(delta, status, 0, 0),
+      //active sense
+      0xFE => new RealTimeEvent(delta, status, 0, 0),
+      //meta message
+      0xFF => ReadMetaMessage(reader, delta, status),
+      _ => throw new Exception("The real time message was invalid or unsupported : " + status),
+    };
 
     private static MidiEvent ReadSystemCommonMessage(BinaryReader reader, int delta, byte status) {
       switch (status) {
@@ -280,12 +308,15 @@
         case 0xF0://sysEx
             {
             short maker = reader.ReadByte();
-            if (maker == 0x0)
+            if (maker == 0x0) {
               maker = reader.ReadInt16();
-            else if (maker == 0xF7)
-              return null;
-            List<byte> data = new List<byte>();
-            byte b = reader.ReadByte();
+            }
+            else if (maker == 0xF7) {
+              return null!;
+            }
+
+            var data = new List<byte>();
+            var b = reader.ReadByte();
             while (b != 0xF7) {
               data.Add(b);
               b = reader.ReadByte();
@@ -310,9 +341,12 @@
         case 0x80: //NoteOff
           return new MidiEvent(delta, status, data1, reader.ReadByte());
         case 0x90: //NoteOn
-          byte velocity = reader.ReadByte();
+          var velocity = reader.ReadByte();
           if (velocity == 0) //actually a note off event
+{
             status = (byte)((status & 0x0F) | 0x80);
+          }
+
           return new MidiEvent(delta, status, data1, velocity);
         case 0xA0: //AfterTouch
           return new MidiEvent(delta, status, data1, reader.ReadByte());
@@ -337,8 +371,8 @@
       }
       else if (midiEvent.Command == 0xC0) //prog change
       {
-        byte prog = (byte)midiEvent.Data1;
-        if (midiEvent.Channel == MidiHelper.DrumChannel && !drumList.Contains(prog)) {
+        var prog = (byte)midiEvent.Data1;
+        if (midiEvent.Channel == MidiHelper.DRUM_CHANNEL && !drumList.Contains(prog)) {
           drumList.Add(prog);
         }
         else if (!instList.Contains(prog)) {
@@ -352,14 +386,14 @@
       int next;
       do {
         next = reader.ReadByte();
-        value = value << 7;
-        value = value | (next & 0x7F);
+        value <<= 7;
+        value |= (next & 0x7F);
       } while ((next & 0x80) == 0x80);
       return value;
     }
 
     private static string ReadString(BinaryReader reader) {
-      int length = ReadVariableLength(reader);
+      var length = ReadVariableLength(reader);
       return Encoding.UTF8.GetString(reader.ReadBytes(length), 0, length);
     }
 
@@ -371,22 +405,31 @@
             match = 1;
             break;
           case 'T':
-            if (match == 1)
+            if (match == 1) {
               match = 2;
-            else
+            }
+            else {
               match = 0;
+            }
+
             break;
           case 'h':
-            if (match == 2)
+            if (match == 2) {
               match = 3;
-            else
+            }
+            else {
               match = 0;
+            }
+
             break;
           case 'd':
-            if (match == 3)
+            if (match == 3) {
               return true;
-            else
+            }
+            else {
               match = 0;
+            }
+
             break;
           default:
             break;

@@ -144,7 +144,7 @@ namespace AudioSynthesis.Sequencer {
         _mdata[x].Delta = (int)absDelta;
         //Update tempo
         if (mEvent.Command == 0xFF && mEvent.Data1 == 0x51) {
-          bpm = Math.Round(MidiHelper.MicroSecondsPerMinute / (double)((MetaNumberEvent)mEvent).Value, 2);
+          bpm = Math.Round(MidiHelper.MICRO_SECONDS_PER_MINUTE / (double)((MetaNumberEvent)mEvent).Value, 2);
         }
       }
       //Set total time to proper value

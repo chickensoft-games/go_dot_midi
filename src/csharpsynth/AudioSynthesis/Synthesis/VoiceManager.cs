@@ -160,7 +160,7 @@ namespace AudioSynthesis.Synthesis {
           score -= 50;
         }
 
-        if (node.Value.VoiceParams.Channel == Midi.MidiHelper.DrumChannel) {
+        if (node.Value.VoiceParams.Channel == Midi.MidiHelper.DRUM_CHANNEL) {
           score -= 20;
         }
 

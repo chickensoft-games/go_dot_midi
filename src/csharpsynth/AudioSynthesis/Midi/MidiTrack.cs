@@ -17,7 +17,7 @@
       EndTime = 0;
       ActiveChannels = 0;
     }
-    public bool isChannelActive(int channel) => ((ActiveChannels >> channel) & 1) == 1;
+    public bool IsChannelActive(int channel) => ((ActiveChannels >> channel) & 1) == 1;
     public override string ToString() => "MessageCount: " + MidiEvents.Length + ", TotalTime: " + EndTime;
   }
 }

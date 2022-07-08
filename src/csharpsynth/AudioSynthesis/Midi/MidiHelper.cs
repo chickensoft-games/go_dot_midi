@@ -107,9 +107,9 @@
   //static helper methods and constants
   public static class MidiHelper {
     //--Constants
-    public const int MicroSecondsPerMinute = 60000000; //microseconds in a minute
-    public const int MinChannel = 0;
-    public const int MaxChannel = 15;
-    public const int DrumChannel = 9;
+    public const int MICRO_SECONDS_PER_MINUTE = 60000000; //microseconds in a minute
+    public const int MIN_CHANNEL = 0;
+    public const int MAX_CHANNEL = 15;
+    public const int DRUM_CHANNEL = 9;
   }
 }

@@ -190,7 +190,7 @@ namespace AudioSynthesis.Synthesis {
           #region Controller Switch
           switch (data1) {
             case 0x00: //Bank select coarse
-              if (channel == MidiHelper.DrumChannel) {
+              if (channel == MidiHelper.DRUM_CHANNEL) {
                 data2 += PatchBank.DrumBank;
               }
 
@@ -198,7 +198,7 @@ namespace AudioSynthesis.Synthesis {
                 _synthChannels[channel].BankSelect = (byte)data2;
               }
               else {
-                _synthChannels[channel].BankSelect = (channel == MidiHelper.DrumChannel) ? (byte)PatchBank.DrumBank : (byte)0;
+                _synthChannels[channel].BankSelect = (channel == MidiHelper.DRUM_CHANNEL) ? (byte)PatchBank.DrumBank : (byte)0;
               }
 
               break;
