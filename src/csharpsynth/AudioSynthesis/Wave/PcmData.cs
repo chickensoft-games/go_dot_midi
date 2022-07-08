@@ -2,24 +2,24 @@
   using System;
 
   public abstract class PcmData {
-    protected byte[] data;
-    protected byte bytes;
-    protected int length;
+    protected byte[] _data;
+    protected byte _bytes;
+    protected int _length;
 
-    public int Length => length;
-    public int BytesPerSample => bytes;
-    public int BitsPerSample => bytes * 8;
+    public int Length => _length;
+    public int BytesPerSample => _bytes;
+    public int BitsPerSample => _bytes * 8;
 
     protected PcmData(int bits, byte[] pcmData, bool isDataInLittleEndianFormat) {
-      bytes = (byte)(bits / 8);
-      if (pcmData.Length % bytes != 0) {
+      _bytes = (byte)(bits / 8);
+      if (pcmData.Length % _bytes != 0) {
         throw new Exception("Invalid PCM format. The PCM data was an invalid size.");
       }
 
-      data = pcmData;
-      length = data.Length / bytes;
+      _data = pcmData;
+      _length = _data.Length / _bytes;
       if (BitConverter.IsLittleEndian != isDataInLittleEndianFormat) {
-        WaveHelper.SwapEndianess(data, bits);
+        WaveHelper.SwapEndianess(_data, bits);
       }
     }
     public abstract float this[int index] { get; }
@@ -34,24 +34,24 @@
   }
   public class PcmData8Bit : PcmData {
     public PcmData8Bit(int bits, byte[] pcmData, bool isDataInLittleEndianFormat) : base(bits, pcmData, isDataInLittleEndianFormat) { }
-    public override float this[int index] => (data[index] / 255f * 2f) - 1f;
+    public override float this[int index] => (_data[index] / 255f * 2f) - 1f;
   }
   public class PcmData16Bit : PcmData {
     public PcmData16Bit(int bits, byte[] pcmData, bool isDataInLittleEndianFormat) : base(bits, pcmData, isDataInLittleEndianFormat) { }
     public override float this[int index] {
-      get { index *= 2; return (((data[index] | (data[index + 1] << 8)) << 16) >> 16) / 32768f; }
+      get { index *= 2; return (((_data[index] | (_data[index + 1] << 8)) << 16) >> 16) / 32768f; }
     }
   }
   public class PcmData24Bit : PcmData {
     public PcmData24Bit(int bits, byte[] pcmData, bool isDataInLittleEndianFormat) : base(bits, pcmData, isDataInLittleEndianFormat) { }
     public override float this[int index] {
-      get { index *= 3; return (((data[index] | (data[index + 1] << 8) | (data[index + 2] << 16)) << 12) >> 12) / 8388608f; }
+      get { index *= 3; return (((_data[index] | (_data[index + 1] << 8) | (_data[index + 2] << 16)) << 12) >> 12) / 8388608f; }
     }
   }
   public class PcmData32Bit : PcmData {
     public PcmData32Bit(int bits, byte[] pcmData, bool isDataInLittleEndianFormat) : base(bits, pcmData, isDataInLittleEndianFormat) { }
     public override float this[int index] {
-      get { index *= 4; return (data[index] | (data[index + 1] << 8) | (data[index + 2] << 16) | (data[index + 3] << 24)) / 2147483648f; }
+      get { index *= 4; return (_data[index] | (_data[index + 1] << 8) | (_data[index + 2] << 16) | (_data[index + 3] << 24)) / 2147483648f; }
     }
   }
 
