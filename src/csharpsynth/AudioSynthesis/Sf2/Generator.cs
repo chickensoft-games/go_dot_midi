@@ -2,31 +2,31 @@
   using System.IO;
 
   public class Generator {
-    private ushort rawAmount;
+    private ushort _rawAmount;
 
     public Generator(BinaryReader reader) {
       GeneratorType = (GeneratorEnum)reader.ReadUInt16();
-      rawAmount = reader.ReadUInt16();
+      _rawAmount = reader.ReadUInt16();
     }
     public GeneratorEnum GeneratorType { get; set; }
     public short AmountInt16 {
-      get => (short)rawAmount;
-      set => rawAmount = (ushort)value;
+      get => (short)_rawAmount;
+      set => _rawAmount = (ushort)value;
     }
     public byte LowByteAmount {
-      get => (byte)(rawAmount & 0x00FF);
+      get => (byte)(_rawAmount & 0x00FF);
       set {
-        rawAmount &= 0xFF00;
-        rawAmount += value;
+        _rawAmount &= 0xFF00;
+        _rawAmount += value;
       }
     }
     public byte HighByteAmount {
-      get => (byte)((rawAmount & 0xFF00) >> 8);
+      get => (byte)((_rawAmount & 0xFF00) >> 8);
       set {
-        rawAmount &= 0x00FF;
-        rawAmount += (ushort)(value << 8);
+        _rawAmount &= 0x00FF;
+        _rawAmount += (ushort)(value << 8);
       }
     }
-    public override string ToString() => string.Format("Generator {0} {1}", GeneratorType, rawAmount);
+    public override string ToString() => string.Format("Generator {0} {1}", GeneratorType, _rawAmount);
   }
 }

@@ -2,19 +2,19 @@
   using System.IO;
 
   public class Modulator {
-    private readonly ModulatorType sourceModulationData;
-    private readonly GeneratorEnum destinationGenerator;
-    private readonly short amount;
-    private readonly ModulatorType sourceModulationAmount;
-    private readonly TransformEnum sourceTransform;
+    private readonly ModulatorType _sourceModulationData;
+    private readonly GeneratorEnum _destinationGenerator;
+    private readonly short _amount;
+    private readonly ModulatorType _sourceModulationAmount;
+    private readonly TransformEnum _sourceTransform;
 
     public Modulator(BinaryReader reader) {
-      sourceModulationData = new ModulatorType(reader);
-      destinationGenerator = (GeneratorEnum)reader.ReadUInt16();
-      amount = reader.ReadInt16();
-      sourceModulationAmount = new ModulatorType(reader);
-      sourceTransform = (TransformEnum)reader.ReadUInt16();
+      _sourceModulationData = new ModulatorType(reader);
+      _destinationGenerator = (GeneratorEnum)reader.ReadUInt16();
+      _amount = reader.ReadInt16();
+      _sourceModulationAmount = new ModulatorType(reader);
+      _sourceTransform = (TransformEnum)reader.ReadUInt16();
     }
-    public override string ToString() => string.Format("Modulator {0} : Amount: {1}", sourceModulationData, amount);
+    public override string ToString() => string.Format("Modulator {0} : Amount: {1}", _sourceModulationData, _amount);
   }
 }

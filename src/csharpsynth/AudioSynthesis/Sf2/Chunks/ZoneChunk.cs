@@ -1,46 +1,50 @@
-﻿using System;
-using System.IO;
-using AudioSynthesis.Util.Riff;
+﻿namespace AudioSynthesis.Sf2.Chunks {
+  using System;
+  using System.IO;
+  using AudioSynthesis.Util.Riff;
 
-namespace AudioSynthesis.Sf2.Chunks {
   public class ZoneChunk : Chunk {
     private class RawZoneData {
-      public ushort generatorIndex;
-      public ushort modulatorIndex;
-      public ushort generatorCount;
-      public ushort modulatorCount;
+      public ushort GeneratorIndex;
+      public ushort ModulatorIndex;
+      public ushort GeneratorCount;
+      public ushort ModulatorCount;
     }
 
-    private RawZoneData[] zoneData;
+    private readonly RawZoneData[] _zoneData;
 
     public ZoneChunk(string id, int size, BinaryReader reader)
         : base(id, size) {
-      if (size % 4 != 0)
+      if (size % 4 != 0) {
         throw new Exception("Invalid SoundFont. The presetzone chunk was invalid.");
-      zoneData = new RawZoneData[size / 4];
-      RawZoneData lastZone = null;
-      for (int x = 0; x < zoneData.Length; x++) {
-        RawZoneData z = new RawZoneData();
-        z.generatorIndex = reader.ReadUInt16();
-        z.modulatorIndex = reader.ReadUInt16();
+      }
+
+      _zoneData = new RawZoneData[size / 4];
+      RawZoneData lastZone = null!;
+      for (var x = 0; x < _zoneData.Length; x++) {
+        var z = new RawZoneData {
+          GeneratorIndex = reader.ReadUInt16(),
+          ModulatorIndex = reader.ReadUInt16()
+        };
         if (lastZone != null) {
-          lastZone.generatorCount = (ushort)(z.generatorIndex - lastZone.generatorIndex);
-          lastZone.modulatorCount = (ushort)(z.modulatorIndex - lastZone.modulatorIndex);
+          lastZone.GeneratorCount = (ushort)(z.GeneratorIndex - lastZone.GeneratorIndex);
+          lastZone.ModulatorCount = (ushort)(z.ModulatorIndex - lastZone.ModulatorIndex);
         }
-        zoneData[x] = z;
+        _zoneData[x] = z;
         lastZone = z;
       }
     }
 
     public Zone[] ToZones(Modulator[] modulators, Generator[] generators) {
-      Zone[] zones = new Zone[zoneData.Length - 1];
-      for (int x = 0; x < zones.Length; x++) {
-        RawZoneData rawZone = zoneData[x];
-        Zone zone = new Zone();
-        zone.Generators = new Generator[rawZone.generatorCount];
-        Array.Copy(generators, rawZone.generatorIndex, zone.Generators, 0, rawZone.generatorCount);
-        zone.Modulators = new Modulator[rawZone.modulatorCount];
-        Array.Copy(modulators, rawZone.modulatorIndex, zone.Modulators, 0, rawZone.modulatorCount);
+      var zones = new Zone[_zoneData.Length - 1];
+      for (var x = 0; x < zones.Length; x++) {
+        var rawZone = _zoneData[x];
+        var zone = new Zone {
+          Generators = new Generator[rawZone.GeneratorCount]
+        };
+        Array.Copy(generators, rawZone.GeneratorIndex, zone.Generators, 0, rawZone.GeneratorCount);
+        zone.Modulators = new Modulator[rawZone.ModulatorCount];
+        Array.Copy(modulators, rawZone.ModulatorIndex, zone.Modulators, 0, rawZone.ModulatorCount);
         zones[x] = zone;
       }
       return zones;

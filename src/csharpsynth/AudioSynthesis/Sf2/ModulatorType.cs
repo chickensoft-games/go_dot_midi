@@ -3,8 +3,8 @@
   using AudioSynthesis.Midi;
 
   public class ModulatorType {
-    private readonly bool midiContinuousController;
-    private readonly ushort controllerSource;
+    private readonly bool _midiContinuousController;
+    private readonly ushort _controllerSource;
 
     public PolarityEnum Polarity { get; set; }
     public DirectionEnum Direction { get; set; }
@@ -27,18 +27,18 @@
         Direction = DirectionEnum.MinToMax;
       }
 
-      midiContinuousController = (raw & 0x0080) == 0x0080;
+      _midiContinuousController = (raw & 0x0080) == 0x0080;
       SourceType = (SourceTypeEnum)((raw & (0xFC00)) >> 10);
-      controllerSource = (ushort)(raw & 0x007F);
+      _controllerSource = (ushort)(raw & 0x007F);
     }
-    public bool isMidiContinousController() => midiContinuousController;
+    public bool IsMidiContinuousController() => _midiContinuousController;
 
     public override string ToString() {
-      if (midiContinuousController) {
-        return string.Format("{0} : {1} : {2} : CC {3}", Polarity, Direction, SourceType, (ControllerTypeEnum)controllerSource);
+      if (_midiContinuousController) {
+        return string.Format("{0} : {1} : {2} : CC {3}", Polarity, Direction, SourceType, (ControllerTypeEnum)_controllerSource);
       }
       else {
-        return string.Format("{0} : {1} : {2} : {3}", Polarity, Direction, SourceType, (ControllerSourceEnum)controllerSource);
+        return string.Format("{0} : {1} : {2} : {3}", Polarity, Direction, SourceType, (ControllerSourceEnum)_controllerSource);
       }
     }
   }
