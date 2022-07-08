@@ -1,27 +1,23 @@
-﻿using System;
-using System.IO;
-using AudioSynthesis.Util.Riff;
+﻿namespace AudioSynthesis.Sf2.Chunks {
+  using System;
+  using System.IO;
+  using AudioSynthesis.Util.Riff;
 
-namespace AudioSynthesis.Sf2.Chunks
-{
-    public class ModulatorChunk : Chunk
-    {
-        private Modulator[] modulators;
+  public class ModulatorChunk : Chunk {
+    public Modulator[] Modulators { get; }
 
-        public Modulator[] Modulators
-        {
-            get { return modulators; }
-        }
+    public ModulatorChunk(string id, int size, BinaryReader reader)
+            : base(id, size) {
+      if (size % 10 != 0) {
+        throw new Exception("Invalid SoundFont. The presetzone chunk was invalid.");
+      }
 
-        public ModulatorChunk(string id, int size, BinaryReader reader)
-            : base(id, size)
-        {
-            if (size % 10 != 0)
-                throw new Exception("Invalid SoundFont. The presetzone chunk was invalid.");
-            modulators = new Modulator[(size / 10) - 1];
-            for (int x = 0; x < modulators.Length; x++)
-                modulators[x] = new Modulator(reader);
-            new Modulator(reader); //terminal record
-        }
+      Modulators = new Modulator[(size / 10) - 1];
+      for (var x = 0; x < Modulators.Length; x++) {
+        Modulators[x] = new Modulator(reader);
+      }
+
+      new Modulator(reader); //terminal record
     }
+  }
 }

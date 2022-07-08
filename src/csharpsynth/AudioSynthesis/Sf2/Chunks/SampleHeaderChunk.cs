@@ -1,30 +1,22 @@
-﻿using System;
-using System.IO;
-using AudioSynthesis.Util.Riff;
+﻿namespace AudioSynthesis.Sf2.Chunks {
+  using System;
+  using System.IO;
+  using AudioSynthesis.Util.Riff;
 
-namespace AudioSynthesis.Sf2.Chunks
-{
-    public class SampleHeaderChunk : Chunk
-    {
-        private SampleHeader[] sampleHeaders;
+  public class SampleHeaderChunk : Chunk {
+    public SampleHeader[] SampleHeaders { get; set; }
 
-        public SampleHeader[] SampleHeaders
-        {
-            get { return sampleHeaders; }
-            set { sampleHeaders = value; }
-        }
+    public SampleHeaderChunk(string id, int size, BinaryReader reader)
+            : base(id, size) {
+      if (size % 46 != 0) {
+        throw new Exception("Invalid SoundFont. The sample header chunk was invalid.");
+      }
 
-        public SampleHeaderChunk(string id, int size, BinaryReader reader)
-            : base(id, size)
-        {
-            if (size % 46 != 0)
-                throw new Exception("Invalid SoundFont. The sample header chunk was invalid.");
-            sampleHeaders = new SampleHeader[(size / 46) - 1];
-            for (int x = 0; x < sampleHeaders.Length; x++)
-            {
-                sampleHeaders[x] = new SampleHeader(reader);
-            }
-            new SampleHeader(reader); //read terminal record
-        }
+      SampleHeaders = new SampleHeader[(size / 46) - 1];
+      for (var x = 0; x < SampleHeaders.Length; x++) {
+        SampleHeaders[x] = new SampleHeader(reader);
+      }
+      new SampleHeader(reader); //read terminal record
     }
+  }
 }
