@@ -50,14 +50,15 @@
       switch (FilterMethod) {
         case FilterTypeEnum.BiquadHighpass:
         case FilterTypeEnum.BiquadLowpass:
-          m3 = sample - a1 * m1 - a2 * m2;
-          sample = b2 * (m3 + m2) + b1 * m1;
+          m3 = sample - (a1 * m1) - (a2 * m2);
+          sample = (b2 * (m3 + m2)) + (b1 * m1);
           m2 = m1;
           m1 = m3;
           return sample;
         case FilterTypeEnum.OnePoleLowpass:
           m1 += a1 * (sample - m1);
           return m1;
+        case FilterTypeEnum.None:
         default:
           return 0f;
       }
