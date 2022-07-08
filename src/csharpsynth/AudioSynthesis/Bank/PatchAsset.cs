@@ -1,35 +1,22 @@
-﻿using System;
-using AudioSynthesis.Bank.Patches;
+﻿namespace AudioSynthesis.Bank {
+  using System;
+  using AudioSynthesis.Bank.Patches;
 
-namespace AudioSynthesis.Bank
-{
-    public class PatchAsset
-    {
-        private string assetName;
-        private Patch patch;
+  public class PatchAsset {
+    public string Name { get; }
+    public Patch Patch { get; }
 
-        public string Name
-        {
-            get { return assetName; }
-        }
-        public Patch Patch
-        {
-            get { return patch; }
-        }
-
-        public PatchAsset(string name, Patch patch)
-        {
-            if (name == null)
-                throw new ArgumentNullException("An asset must be given a valid name.");
-            this.assetName = name;
-            this.patch = patch;
-        }
-        public override string ToString()
-        {
-            if (patch == null)
-                return "null";
-            return patch.ToString();
-        }
-
+    public PatchAsset(string name, Patch patch) {
+      Name = name ?? throw new ArgumentNullException("An asset must be given a valid name.");
+      Patch = patch;
     }
+    public override string ToString() {
+      if (Patch == null) {
+        return "null";
+      }
+
+      return Patch.ToString();
+    }
+
+  }
 }
