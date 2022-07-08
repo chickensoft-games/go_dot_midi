@@ -15,6 +15,7 @@
     "deinterleaved",
     "Denorm",
     "Deps",
+    "Endianess",
     "Fasterflect",
     "globaltool",
     "Highpass",
