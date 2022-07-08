@@ -113,8 +113,8 @@ namespace AudioSynthesis.Bank.Patches {
     }
     public override void Load(DescriptorList description, AssetManager assets) => throw new Exception("Sf2 does not load from patch descriptions.");
     public void Load(Sf2Region region, AssetManager assets) {
-      exGroup = region.Generators[(int)GeneratorEnum.ExclusiveClass];
-      exTarget = exGroup;
+      _exGroup = region.Generators[(int)GeneratorEnum.ExclusiveClass];
+      _exTarget = _exGroup;
       _iniFilterFc = region.Generators[(int)GeneratorEnum.InitialFilterCutoffFrequency];
       _filterQ = SynthHelper.DBtoLinear(region.Generators[(int)GeneratorEnum.InitialFilterQ] / 10.0);
       _initialAttn = -region.Generators[(int)GeneratorEnum.InitialAttenuation] / 10f;

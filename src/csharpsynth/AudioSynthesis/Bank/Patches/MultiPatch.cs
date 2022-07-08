@@ -102,7 +102,7 @@ namespace AudioSynthesis.Bank.Patches {
       intervalList = new PatchInterval[description.CustomDescriptions.Length];
       for (int x = 0; x < intervalList.Length; x++) {
         if (!description.CustomDescriptions[x].ID.ToLower().Equals("mpat"))
-          throw new Exception(string.Format("The patch: {0} has an invalid descriptor with id {1}", this.patchName, description.CustomDescriptions[x].ID));
+          throw new Exception(string.Format("The patch: {0} has an invalid descriptor with id {1}", this._patchName, description.CustomDescriptions[x].ID));
         string patchName = (string)description.CustomDescriptions[x].Objects[0];
         PatchAsset pAsset = assets.FindPatch(patchName);
         if (pAsset == null)
@@ -151,14 +151,14 @@ namespace AudioSynthesis.Bank.Patches {
           hiVel = (byte)(regions[x].Generators[(int)GeneratorEnum.VelocityRange] & 0xFF);
           loVel = (byte)((regions[x].Generators[(int)GeneratorEnum.VelocityRange] >> 8) & 0xFF);
         }
-        Sf2Patch sf2 = new Sf2Patch(patchName + "_" + x);
+        Sf2Patch sf2 = new Sf2Patch(_patchName + "_" + x);
         sf2.Load(regions[x], assets);
         intervalList[x] = new PatchInterval(sf2, 0, 15, loKey, hiKey, loVel, hiVel);
       }
       DetermineIntervalType();
     }
     public override string ToString() {
-      return string.Format("MultiPatch: {0}, IntervalCount: {1}, IntervalType: {2}", patchName, intervalList.Length, iType);
+      return string.Format("MultiPatch: {0}, IntervalCount: {1}, IntervalType: {2}", _patchName, intervalList.Length, iType);
     }
 
     private void DetermineIntervalType() {//see if checks on channel and velocity intervals are necessary

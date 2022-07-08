@@ -144,8 +144,8 @@
     public override void Load(DescriptorList description, AssetManager assets) {
       //read in sfz params
       var sfzConfig = description.FindCustomDescriptor("sfzi");
-      exTarget = (int)sfzConfig.Objects[0];
-      exGroup = (int)sfzConfig.Objects[1];
+      _exTarget = (int)sfzConfig.Objects[0];
+      _exGroup = (int)sfzConfig.Objects[1];
       _sfzVolume = (float)sfzConfig.Objects[2];
       _sfzPan = new PanComponent((float)sfzConfig.Objects[3], PanFormulaEnum.Neg3dBCenter);
       _ampKeyTrack = (float)sfzConfig.Objects[4];

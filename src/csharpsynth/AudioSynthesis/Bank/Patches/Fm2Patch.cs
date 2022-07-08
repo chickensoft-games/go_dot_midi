@@ -144,7 +144,7 @@ namespace AudioSynthesis.Bank.Patches {
       lfo = description.LfoDescriptions[0];
     }
     public override string ToString() {
-      return string.Format("Fm2Patch: {0}, GeneratorCount: 2, SyncMode: {1}", patchName, sync);
+      return string.Format("Fm2Patch: {0}, GeneratorCount: 2, SyncMode: {1}", _patchName, sync);
     }
 
     public static SyncMode GetSyncModeFromString(string value) {

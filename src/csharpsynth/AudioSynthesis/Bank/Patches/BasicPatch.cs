@@ -85,7 +85,7 @@ namespace AudioSynthesis.Bank.Patches {
       lfo = description.LfoDescriptions[0];
     }
     public override string ToString() {
-      return string.Format("BasicPatch: {0}, GeneratorCount: 1", patchName);
+      return string.Format("BasicPatch: {0}, GeneratorCount: 1", _patchName);
     }
   }
 }
