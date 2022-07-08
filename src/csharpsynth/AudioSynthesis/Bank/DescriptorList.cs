@@ -174,111 +174,111 @@
     private void LoadSfzEnvelopes(SfzRegion region) {
       EnvelopeDescriptions = new EnvelopeDescriptor[3];
       EnvelopeDescriptions[0] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[0].DelayTime = region.pitchEGDelay;
-      EnvelopeDescriptions[0].AttackTime = region.pitchEGAttack;
-      EnvelopeDescriptions[0].HoldTime = region.pitchEGHold;
-      EnvelopeDescriptions[0].DecayTime = region.pitchEGDecay;
-      EnvelopeDescriptions[0].SustainLevel = region.pitchEGSustain / 100f;
-      EnvelopeDescriptions[0].ReleaseTime = region.pitchEGRelease;
-      EnvelopeDescriptions[0].StartLevel = region.pitchEGStart / 100f;
-      EnvelopeDescriptions[0].Depth = region.pitchEGDepth;
-      EnvelopeDescriptions[0].Vel2Delay = region.pitchEGVel2Delay;
-      EnvelopeDescriptions[0].Vel2Attack = region.pitchEGVel2Attack;
-      EnvelopeDescriptions[0].Vel2Hold = region.pitchEGVel2Hold;
-      EnvelopeDescriptions[0].Vel2Decay = region.pitchEGVel2Decay;
-      EnvelopeDescriptions[0].Vel2Sustain = region.pitchEGVel2Sustain;
-      EnvelopeDescriptions[0].Vel2Release = region.pitchEGVel2Release;
-      EnvelopeDescriptions[0].Vel2Depth = region.pitchEGVel2Depth;
+      EnvelopeDescriptions[0].DelayTime = region.PitchEGDelay;
+      EnvelopeDescriptions[0].AttackTime = region.PitchEGAttack;
+      EnvelopeDescriptions[0].HoldTime = region.PitchEGHold;
+      EnvelopeDescriptions[0].DecayTime = region.PitchEGDecay;
+      EnvelopeDescriptions[0].SustainLevel = region.PitchEGSustain / 100f;
+      EnvelopeDescriptions[0].ReleaseTime = region.PitchEGRelease;
+      EnvelopeDescriptions[0].StartLevel = region.PitchEGStart / 100f;
+      EnvelopeDescriptions[0].Depth = region.PitchEGDepth;
+      EnvelopeDescriptions[0].Vel2Delay = region.PitchEGVel2Delay;
+      EnvelopeDescriptions[0].Vel2Attack = region.PitchEGVel2Attack;
+      EnvelopeDescriptions[0].Vel2Hold = region.PitchEGVel2Hold;
+      EnvelopeDescriptions[0].Vel2Decay = region.PitchEGVel2Decay;
+      EnvelopeDescriptions[0].Vel2Sustain = region.PitchEGVel2Sustain;
+      EnvelopeDescriptions[0].Vel2Release = region.PitchEGVel2Release;
+      EnvelopeDescriptions[0].Vel2Depth = region.PitchEGVel2Depth;
       EnvelopeDescriptions[1] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[1].DelayTime = region.filterEGDelay;
-      EnvelopeDescriptions[1].AttackTime = region.filterEGAttack;
-      EnvelopeDescriptions[1].HoldTime = region.filterEGHold;
-      EnvelopeDescriptions[1].DecayTime = region.filterEGDecay;
-      EnvelopeDescriptions[1].SustainLevel = region.filterEGSustain / 100f;
-      EnvelopeDescriptions[1].ReleaseTime = region.filterEGRelease;
-      EnvelopeDescriptions[1].StartLevel = region.filterEGStart / 100f;
-      EnvelopeDescriptions[1].Depth = region.filterEGDepth;
-      EnvelopeDescriptions[1].Vel2Delay = region.filterEGVel2Delay;
-      EnvelopeDescriptions[1].Vel2Attack = region.filterEGVel2Attack;
-      EnvelopeDescriptions[1].Vel2Hold = region.filterEGVel2Hold;
-      EnvelopeDescriptions[1].Vel2Decay = region.filterEGVel2Decay;
-      EnvelopeDescriptions[1].Vel2Sustain = region.filterEGVel2Sustain;
-      EnvelopeDescriptions[1].Vel2Release = region.filterEGVel2Release;
-      EnvelopeDescriptions[1].Vel2Depth = region.filterEGVel2Depth;
+      EnvelopeDescriptions[1].DelayTime = region.FilterEGDelay;
+      EnvelopeDescriptions[1].AttackTime = region.FilterEGAttack;
+      EnvelopeDescriptions[1].HoldTime = region.FilterEGHold;
+      EnvelopeDescriptions[1].DecayTime = region.FilterEGDecay;
+      EnvelopeDescriptions[1].SustainLevel = region.FilterEGSustain / 100f;
+      EnvelopeDescriptions[1].ReleaseTime = region.FilterEGRelease;
+      EnvelopeDescriptions[1].StartLevel = region.FilterEGStart / 100f;
+      EnvelopeDescriptions[1].Depth = region.FilterEGDepth;
+      EnvelopeDescriptions[1].Vel2Delay = region.FilterEGVel2Delay;
+      EnvelopeDescriptions[1].Vel2Attack = region.FilterEGVel2Attack;
+      EnvelopeDescriptions[1].Vel2Hold = region.FilterEGVel2Hold;
+      EnvelopeDescriptions[1].Vel2Decay = region.FilterEGVel2Decay;
+      EnvelopeDescriptions[1].Vel2Sustain = region.FilterEGVel2Sustain;
+      EnvelopeDescriptions[1].Vel2Release = region.FilterEGVel2Release;
+      EnvelopeDescriptions[1].Vel2Depth = region.FilterEGVel2Depth;
       EnvelopeDescriptions[2] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[2].DelayTime = region.ampEGDelay;
-      EnvelopeDescriptions[2].AttackTime = region.ampEGAttack;
-      EnvelopeDescriptions[2].HoldTime = region.ampEGHold;
-      EnvelopeDescriptions[2].DecayTime = region.ampEGDecay;
-      EnvelopeDescriptions[2].SustainLevel = region.ampEGSustain / 100f;
-      EnvelopeDescriptions[2].ReleaseTime = region.ampEGRelease;
-      EnvelopeDescriptions[2].StartLevel = region.ampEGStart / 100f;
+      EnvelopeDescriptions[2].DelayTime = region.AmpEGDelay;
+      EnvelopeDescriptions[2].AttackTime = region.AmpEGAttack;
+      EnvelopeDescriptions[2].HoldTime = region.AmpEGHold;
+      EnvelopeDescriptions[2].DecayTime = region.AmpEGDecay;
+      EnvelopeDescriptions[2].SustainLevel = region.AmpEGSustain / 100f;
+      EnvelopeDescriptions[2].ReleaseTime = region.AmpEGRelease;
+      EnvelopeDescriptions[2].StartLevel = region.AmpEGStart / 100f;
       EnvelopeDescriptions[2].Depth = 1f;
-      EnvelopeDescriptions[2].Vel2Delay = region.ampEGVel2Delay;
-      EnvelopeDescriptions[2].Vel2Attack = region.ampEGVel2Attack;
-      EnvelopeDescriptions[2].Vel2Hold = region.ampEGVel2Hold;
-      EnvelopeDescriptions[2].Vel2Decay = region.ampEGVel2Decay;
-      EnvelopeDescriptions[2].Vel2Sustain = region.ampEGVel2Sustain;
-      EnvelopeDescriptions[2].Vel2Release = region.ampEGVel2Release;
+      EnvelopeDescriptions[2].Vel2Delay = region.AmpEGVel2Delay;
+      EnvelopeDescriptions[2].Vel2Attack = region.AmpEGVel2Attack;
+      EnvelopeDescriptions[2].Vel2Hold = region.AmpEGVel2Hold;
+      EnvelopeDescriptions[2].Vel2Decay = region.AmpEGVel2Decay;
+      EnvelopeDescriptions[2].Vel2Sustain = region.AmpEGVel2Sustain;
+      EnvelopeDescriptions[2].Vel2Release = region.AmpEGVel2Release;
       EnvelopeDescriptions[2].Vel2Depth = 0f;
     }
     private void LoadSfzFilters(SfzRegion region) {
       FilterDescriptions = new FilterDescriptor[1];
       FilterDescriptions[0] = new FilterDescriptor();
-      FilterDescriptions[0].FilterMethod = region.filterType;
-      FilterDescriptions[0].CutOff = region.cutOff;
-      FilterDescriptions[0].KeyTrack = region.filterKeyTrack;
-      FilterDescriptions[0].Resonance = (float)SynthHelper.DBtoLinear(region.resonance);
-      FilterDescriptions[0].RootKey = region.filterKeyCenter;
-      FilterDescriptions[0].VelTrack = region.filterVelTrack;
+      FilterDescriptions[0].FilterMethod = region.FilterType;
+      FilterDescriptions[0].CutOff = region.CutOff;
+      FilterDescriptions[0].KeyTrack = region.FilterKeyTrack;
+      FilterDescriptions[0].Resonance = (float)SynthHelper.DBtoLinear(region.Resonance);
+      FilterDescriptions[0].RootKey = region.FilterKeyCenter;
+      FilterDescriptions[0].VelTrack = region.FilterVelTrack;
     }
     private void LoadSfzLfos(SfzRegion region) {
       LfoDescriptions = new LfoDescriptor[3];
       LfoDescriptions[0] = new LfoDescriptor();
-      LfoDescriptions[0].DelayTime = region.pitchLfoDelay; //make sure pitch lfo is enabled for midi mod event
-      LfoDescriptions[0].Frequency = region.pitchLfoFrequency > 0 ? region.pitchLfoFrequency : (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
-      LfoDescriptions[0].Depth = region.pitchLfoDepth;
+      LfoDescriptions[0].DelayTime = region.PitchLfoDelay; //make sure pitch lfo is enabled for midi mod event
+      LfoDescriptions[0].Frequency = region.PitchLfoFrequency > 0 ? region.PitchLfoFrequency : (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
+      LfoDescriptions[0].Depth = region.PitchLfoDepth;
       LfoDescriptions[1] = new LfoDescriptor();
-      LfoDescriptions[1].DelayTime = region.filterLfoDelay;
-      LfoDescriptions[1].Frequency = region.filterLfoFrequency;
-      LfoDescriptions[1].Depth = region.filterLfoDepth;
+      LfoDescriptions[1].DelayTime = region.FilterLfoDelay;
+      LfoDescriptions[1].Frequency = region.FilterLfoFrequency;
+      LfoDescriptions[1].Depth = region.FilterLfoDepth;
       LfoDescriptions[2] = new LfoDescriptor();
-      LfoDescriptions[2].DelayTime = region.ampLfoDelay;
-      LfoDescriptions[2].Frequency = region.ampLfoFrequency;
-      LfoDescriptions[2].Depth = (float)SynthHelper.DBtoLinear(region.ampLfoDepth);
+      LfoDescriptions[2].DelayTime = region.AmpLfoDelay;
+      LfoDescriptions[2].Frequency = region.AmpLfoFrequency;
+      LfoDescriptions[2].Depth = (float)SynthHelper.DBtoLinear(region.AmpLfoDepth);
     }
     private void LoadSfzGens(SfzRegion region) {
       GenDescriptions = new GeneratorDescriptor[1];
       GenDescriptions[0] = new GeneratorDescriptor();
       GenDescriptions[0].SamplerType = Components.WaveformEnum.SampleData;
-      GenDescriptions[0].AssetName = region.sample;
+      GenDescriptions[0].AssetName = region.Sample;
       //deal with end point
-      if (region.end == -1) //-1 is silent region, so set end to 0 and let the generator figure it out later
+      if (region.End == -1) //-1 is silent region, so set end to 0 and let the generator figure it out later
         GenDescriptions[0].EndPhase = 0;
-      else if (region.end == 0) //set end out of range and let the descriptor default it to the proper end value
+      else if (region.End == 0) //set end out of range and let the descriptor default it to the proper end value
         GenDescriptions[0].EndPhase = -1;
       else //add one to the value because its inclusive
-        GenDescriptions[0].EndPhase = region.end + 1;
-      GenDescriptions[0].KeyTrack = region.pitchKeyTrack;
+        GenDescriptions[0].EndPhase = region.End + 1;
+      GenDescriptions[0].KeyTrack = region.PitchKeyTrack;
       //deal with loop end
-      if (region.loopEnd < 0)
+      if (region.LoopEnd < 0)
         GenDescriptions[0].LoopEndPhase = -1;
       else
-        GenDescriptions[0].LoopEndPhase = region.loopEnd + 1;
-      GenDescriptions[0].LoopMethod = region.loopMode;
-      if (region.loopStart < 0)
+        GenDescriptions[0].LoopEndPhase = region.LoopEnd + 1;
+      GenDescriptions[0].LoopMethod = region.LoopMode;
+      if (region.LoopStart < 0)
         GenDescriptions[0].LoopStartPhase = -1;
       else
-        GenDescriptions[0].LoopStartPhase = region.loopStart;
-      GenDescriptions[0].Offset = region.offset;
-      GenDescriptions[0].Rootkey = region.pitchKeyCenter;
-      GenDescriptions[0].Tune = (short)(region.tune + region.transpose * 100);
-      GenDescriptions[0].VelTrack = region.pitchVelTrack;
+        GenDescriptions[0].LoopStartPhase = region.LoopStart;
+      GenDescriptions[0].Offset = region.Offset;
+      GenDescriptions[0].Rootkey = region.PitchKeyCenter;
+      GenDescriptions[0].Tune = (short)(region.Tune + region.Transpose * 100);
+      GenDescriptions[0].VelTrack = region.PitchVelTrack;
     }
     private void LoadSfzCustom(SfzRegion region) {
       CustomDescriptions = new CustomDescriptor[1];
       CustomDescriptions[0] = new CustomDescriptor("sfzi", 32,
-          new object[] { region.offBy, region.group, region.volume, region.pan / 100f, region.ampKeyTrack, region.ampKeyCenter, region.ampVelTrack / 100f });
+          new object[] { region.OffBy, region.Group, region.Volume, region.Pan / 100f, region.AmpKeyTrack, region.AmpKeyCenter, region.AmpVelTrack / 100f });
     }
 
     private static string ReadNextTag(StreamReader reader, List<string> descList) {

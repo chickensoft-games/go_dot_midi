@@ -47,7 +47,7 @@ namespace AudioSynthesis.Sfz {
               r.ApplyGlobal(master);
               r.ApplyGlobal(group);
               ToRegion(regionText[1], r);
-              if (!r.sample.Equals(string.Empty))
+              if (!r.Sample.Equals(string.Empty))
                 regions.Add(r);
               break;
             default:
@@ -94,319 +94,319 @@ namespace AudioSynthesis.Sfz {
           case "sample":
             if (IOHelper.GetExtension(parameter).Equals(string.Empty))
               parameter += ".wav";
-            region.sample = parameter;
+            region.Sample = parameter;
             break;
           case "lochan":
-            region.loChan = (byte)(int.Parse(parameter) - 1);
+            region.LoChan = (byte)(int.Parse(parameter) - 1);
             break;
           case "hichan":
-            region.hiChan = (byte)(int.Parse(parameter) - 1);
+            region.HiChan = (byte)(int.Parse(parameter) - 1);
             break;
           case "lokey":
-            region.loKey = NoteNameToValue(parameter);
+            region.LoKey = NoteNameToValue(parameter);
             break;
           case "hikey":
-            region.hiKey = NoteNameToValue(parameter);
+            region.HiKey = NoteNameToValue(parameter);
             break;
           case "key":
-            region.loKey = NoteNameToValue(parameter);
-            region.hiKey = region.loKey;
-            region.pitchKeyCenter = region.loKey;
+            region.LoKey = NoteNameToValue(parameter);
+            region.HiKey = region.LoKey;
+            region.PitchKeyCenter = region.LoKey;
             break;
           case "lovel":
-            region.loVel = byte.Parse(parameter);
+            region.LoVel = byte.Parse(parameter);
             break;
           case "hivel":
-            region.hiVel = byte.Parse(parameter);
+            region.HiVel = byte.Parse(parameter);
             break;
           case "lobend":
-            region.loBend = short.Parse(parameter);
+            region.LoBend = short.Parse(parameter);
             break;
           case "hibend":
-            region.hiBend = short.Parse(parameter);
+            region.HiBend = short.Parse(parameter);
             break;
           case "lochanaft":
-            region.loChanAft = byte.Parse(parameter);
+            region.LoChanAft = byte.Parse(parameter);
             break;
           case "hichanaft":
-            region.hiChanAft = byte.Parse(parameter);
+            region.HiChanAft = byte.Parse(parameter);
             break;
           case "lopolyaft":
-            region.loPolyAft = byte.Parse(parameter);
+            region.LoPolyAft = byte.Parse(parameter);
             break;
           case "hipolyaft":
-            region.hiPolyAft = byte.Parse(parameter);
+            region.HiPolyAft = byte.Parse(parameter);
             break;
           case "group":
-            region.group = int.Parse(parameter);
+            region.Group = int.Parse(parameter);
             break;
           case "off_by":
-            region.offBy = int.Parse(parameter);
+            region.OffBy = int.Parse(parameter);
             break;
           case "off_mode":
-            region.offMode = parameter.Equals("fast") ? SfzRegion.OffModeEnum.Fast : SfzRegion.OffModeEnum.Normal;
+            region.OffMode = parameter.Equals("fast") ? SfzRegion.OffModeEnum.Fast : SfzRegion.OffModeEnum.Normal;
             break;
           case "delay":
-            region.delay = float.Parse(parameter);
+            region.Delay = float.Parse(parameter);
             break;
           case "offset":
-            region.offset = int.Parse(parameter);
+            region.Offset = int.Parse(parameter);
             break;
           case "end":
-            region.end = int.Parse(parameter);
+            region.End = int.Parse(parameter);
             break;
           case "count":
-            region.count = int.Parse(parameter);
-            region.loopMode = LoopModeEnum.OneShot;
+            region.Count = int.Parse(parameter);
+            region.LoopMode = LoopModeEnum.OneShot;
             break;
           case "loop_mode":
             switch (parameter) {
               case "no_loop":
-                region.loopMode = LoopModeEnum.NoLoop;
+                region.LoopMode = LoopModeEnum.NoLoop;
                 break;
               case "one_shot":
-                region.loopMode = LoopModeEnum.OneShot;
+                region.LoopMode = LoopModeEnum.OneShot;
                 break;
               case "loop_continuous":
-                region.loopMode = LoopModeEnum.Continuous;
+                region.LoopMode = LoopModeEnum.Continuous;
                 break;
               case "loop_sustain":
-                region.loopMode = LoopModeEnum.LoopUntilNoteOff;
+                region.LoopMode = LoopModeEnum.LoopUntilNoteOff;
                 break;
               default:
                 break;
             }
             break;
           case "loop_start":
-            region.loopStart = int.Parse(parameter);
+            region.LoopStart = int.Parse(parameter);
             break;
           case "loop_end":
-            region.loopEnd = int.Parse(parameter);
+            region.LoopEnd = int.Parse(parameter);
             break;
           case "transpose":
-            region.transpose = short.Parse(parameter);
+            region.Transpose = short.Parse(parameter);
             break;
           case "tune":
-            region.tune = short.Parse(parameter);
+            region.Tune = short.Parse(parameter);
             break;
           case "pitch_keycenter":
-            region.pitchKeyCenter = NoteNameToValue(parameter);
+            region.PitchKeyCenter = NoteNameToValue(parameter);
             break;
           case "pitch_keytrack":
-            region.pitchKeyTrack = short.Parse(parameter);
+            region.PitchKeyTrack = short.Parse(parameter);
             break;
           case "pitch_veltrack":
-            region.pitchVelTrack = short.Parse(parameter);
+            region.PitchVelTrack = short.Parse(parameter);
             break;
           case "pitcheg_delay":
-            region.pitchEGDelay = float.Parse(parameter);
+            region.PitchEGDelay = float.Parse(parameter);
             break;
           case "pitcheg_start":
-            region.pitchEGStart = float.Parse(parameter);
+            region.PitchEGStart = float.Parse(parameter);
             break;
           case "pitcheg_attack":
-            region.pitchEGAttack = float.Parse(parameter);
+            region.PitchEGAttack = float.Parse(parameter);
             break;
           case "pitcheg_hold":
-            region.pitchEGHold = float.Parse(parameter);
+            region.PitchEGHold = float.Parse(parameter);
             break;
           case "pitcheg_decay":
-            region.pitchEGDecay = float.Parse(parameter);
+            region.PitchEGDecay = float.Parse(parameter);
             break;
           case "pitcheg_sustain":
-            region.pitchEGSustain = float.Parse(parameter);
+            region.PitchEGSustain = float.Parse(parameter);
             break;
           case "pitcheg_release":
-            region.pitchEGRelease = float.Parse(parameter);
+            region.PitchEGRelease = float.Parse(parameter);
             break;
           case "pitcheg_depth":
-            region.pitchEGDepth = short.Parse(parameter);
+            region.PitchEGDepth = short.Parse(parameter);
             break;
           case "pitcheg_vel2delay":
-            region.pitchEGVel2Delay = float.Parse(parameter);
+            region.PitchEGVel2Delay = float.Parse(parameter);
             break;
           case "pitcheg_vel2attack":
-            region.pitchEGVel2Attack = float.Parse(parameter);
+            region.PitchEGVel2Attack = float.Parse(parameter);
             break;
           case "pitcheg_vel2hold":
-            region.pitchEGVel2Hold = float.Parse(parameter);
+            region.PitchEGVel2Hold = float.Parse(parameter);
             break;
           case "pitcheg_vel2decay":
-            region.pitchEGVel2Decay = float.Parse(parameter);
+            region.PitchEGVel2Decay = float.Parse(parameter);
             break;
           case "pitcheg_vel2sustain":
-            region.pitchEGVel2Sustain = float.Parse(parameter);
+            region.PitchEGVel2Sustain = float.Parse(parameter);
             break;
           case "pitcheg_vel2release":
-            region.pitchEGVel2Release = float.Parse(parameter);
+            region.PitchEGVel2Release = float.Parse(parameter);
             break;
           case "pitcheg_vel2depth":
-            region.pitchEGVel2Depth = short.Parse(parameter);
+            region.PitchEGVel2Depth = short.Parse(parameter);
             break;
           case "pitchlfo_delay":
-            region.pitchLfoDelay = float.Parse(parameter);
+            region.PitchLfoDelay = float.Parse(parameter);
             break;
           case "pitchlfo_freq":
-            region.pitchLfoFrequency = float.Parse(parameter);
+            region.PitchLfoFrequency = float.Parse(parameter);
             break;
           case "pitchlfo_depth":
-            region.pitchLfoDepth = short.Parse(parameter);
+            region.PitchLfoDepth = short.Parse(parameter);
             break;
           case "fil_type":
             switch (parameter) {
               case "lpf_1p":
-                region.filterType = FilterTypeEnum.OnePoleLowpass;
+                region.FilterType = FilterTypeEnum.OnePoleLowpass;
                 break;
               case "hpf_1p":
-                region.filterType = FilterTypeEnum.None;//unsupported
+                region.FilterType = FilterTypeEnum.None;//unsupported
                 break;
               case "lpf_2p":
-                region.filterType = FilterTypeEnum.BiquadLowpass;
+                region.FilterType = FilterTypeEnum.BiquadLowpass;
                 break;
               case "hpf_2p":
-                region.filterType = FilterTypeEnum.BiquadHighpass;
+                region.FilterType = FilterTypeEnum.BiquadHighpass;
                 break;
               case "bpf_2p":
-                region.filterType = FilterTypeEnum.None;//unsupported
+                region.FilterType = FilterTypeEnum.None;//unsupported
                 break;
               case "brf_2p":
-                region.filterType = FilterTypeEnum.None;//unsupported
+                region.FilterType = FilterTypeEnum.None;//unsupported
                 break;
               default:
                 break;
             }
             break;
           case "cutoff":
-            region.cutOff = float.Parse(parameter);
+            region.CutOff = float.Parse(parameter);
             break;
           case "resonance":
-            region.resonance = float.Parse(parameter);
+            region.Resonance = float.Parse(parameter);
             break;
           case "fil_keytrack":
-            region.filterKeyTrack = short.Parse(parameter);
+            region.FilterKeyTrack = short.Parse(parameter);
             break;
           case "fil_keycenter":
-            region.filterKeyCenter = byte.Parse(parameter);
+            region.FilterKeyCenter = byte.Parse(parameter);
             break;
           case "fil_veltrack":
-            region.filterVelTrack = short.Parse(parameter);
+            region.FilterVelTrack = short.Parse(parameter);
             break;
           case "fileg_delay":
-            region.filterEGDelay = float.Parse(parameter);
+            region.FilterEGDelay = float.Parse(parameter);
             break;
           case "fileg_start":
-            region.filterEGStart = float.Parse(parameter);
+            region.FilterEGStart = float.Parse(parameter);
             break;
           case "fileg_attack":
-            region.filterEGAttack = float.Parse(parameter);
+            region.FilterEGAttack = float.Parse(parameter);
             break;
           case "fileg_hold":
-            region.filterEGHold = float.Parse(parameter);
+            region.FilterEGHold = float.Parse(parameter);
             break;
           case "fileg_decay":
-            region.filterEGDecay = float.Parse(parameter);
+            region.FilterEGDecay = float.Parse(parameter);
             break;
           case "fileg_sustain":
-            region.filterEGSustain = float.Parse(parameter);
+            region.FilterEGSustain = float.Parse(parameter);
             break;
           case "fileg_release":
-            region.filterEGRelease = float.Parse(parameter);
+            region.FilterEGRelease = float.Parse(parameter);
             break;
           case "fileg_depth":
-            region.filterEGDepth = short.Parse(parameter);
+            region.FilterEGDepth = short.Parse(parameter);
             break;
           case "fileg_vel2delay":
-            region.filterEGVel2Delay = float.Parse(parameter);
+            region.FilterEGVel2Delay = float.Parse(parameter);
             break;
           case "fileg_vel2attack":
-            region.filterEGVel2Attack = float.Parse(parameter);
+            region.FilterEGVel2Attack = float.Parse(parameter);
             break;
           case "fileg_vel2hold":
-            region.filterEGVel2Hold = float.Parse(parameter);
+            region.FilterEGVel2Hold = float.Parse(parameter);
             break;
           case "fileg_vel2decay":
-            region.filterEGVel2Decay = float.Parse(parameter);
+            region.FilterEGVel2Decay = float.Parse(parameter);
             break;
           case "fileg_vel2sustain":
-            region.filterEGVel2Sustain = float.Parse(parameter);
+            region.FilterEGVel2Sustain = float.Parse(parameter);
             break;
           case "fileg_vel2release":
-            region.filterEGVel2Release = float.Parse(parameter);
+            region.FilterEGVel2Release = float.Parse(parameter);
             break;
           case "fileg_vel2depth":
-            region.filterEGVel2Depth = short.Parse(parameter);
+            region.FilterEGVel2Depth = short.Parse(parameter);
             break;
           case "fillfo_delay":
-            region.filterLfoDelay = float.Parse(parameter);
+            region.FilterLfoDelay = float.Parse(parameter);
             break;
           case "fillfo_freq":
-            region.filterLfoFrequency = float.Parse(parameter);
+            region.FilterLfoFrequency = float.Parse(parameter);
             break;
           case "fillfo_depth":
-            region.filterLfoDepth = float.Parse(parameter);
+            region.FilterLfoDepth = float.Parse(parameter);
             break;
           case "volume":
-            region.volume = float.Parse(parameter);
+            region.Volume = float.Parse(parameter);
             break;
           case "pan":
-            region.pan = float.Parse(parameter);
+            region.Pan = float.Parse(parameter);
             break;
           case "amp_keytrack":
-            region.ampKeyTrack = float.Parse(parameter);
+            region.AmpKeyTrack = float.Parse(parameter);
             break;
           case "amp_keycenter":
-            region.ampKeyCenter = byte.Parse(parameter);
+            region.AmpKeyCenter = byte.Parse(parameter);
             break;
           case "amp_veltrack":
-            region.ampVelTrack = float.Parse(parameter);
+            region.AmpVelTrack = float.Parse(parameter);
             break;
           case "ampeg_delay":
-            region.ampEGDelay = float.Parse(parameter);
+            region.AmpEGDelay = float.Parse(parameter);
             break;
           case "ampeg_start":
-            region.ampEGStart = float.Parse(parameter);
+            region.AmpEGStart = float.Parse(parameter);
             break;
           case "ampeg_attack":
-            region.ampEGAttack = float.Parse(parameter);
+            region.AmpEGAttack = float.Parse(parameter);
             break;
           case "ampeg_hold":
-            region.ampEGHold = float.Parse(parameter);
+            region.AmpEGHold = float.Parse(parameter);
             break;
           case "ampeg_decay":
-            region.ampEGDecay = float.Parse(parameter);
+            region.AmpEGDecay = float.Parse(parameter);
             break;
           case "ampeg_sustain":
-            region.ampEGSustain = float.Parse(parameter);
+            region.AmpEGSustain = float.Parse(parameter);
             break;
           case "ampeg_release":
-            region.ampEGRelease = float.Parse(parameter);
+            region.AmpEGRelease = float.Parse(parameter);
             break;
           case "ampeg_vel2delay":
-            region.ampEGVel2Delay = float.Parse(parameter);
+            region.AmpEGVel2Delay = float.Parse(parameter);
             break;
           case "ampeg_vel2attack":
-            region.ampEGVel2Attack = float.Parse(parameter);
+            region.AmpEGVel2Attack = float.Parse(parameter);
             break;
           case "ampeg_vel2hold":
-            region.ampEGVel2Hold = float.Parse(parameter);
+            region.AmpEGVel2Hold = float.Parse(parameter);
             break;
           case "ampeg_vel2decay":
-            region.ampEGVel2Decay = float.Parse(parameter);
+            region.AmpEGVel2Decay = float.Parse(parameter);
             break;
           case "ampeg_vel2sustain":
-            region.ampEGVel2Sustain = float.Parse(parameter);
+            region.AmpEGVel2Sustain = float.Parse(parameter);
             break;
           case "ampeg_vel2release":
-            region.ampEGVel2Release = float.Parse(parameter);
+            region.AmpEGVel2Release = float.Parse(parameter);
             break;
           case "amplfo_delay":
-            region.ampLfoDelay = float.Parse(parameter);
+            region.AmpLfoDelay = float.Parse(parameter);
             break;
           case "amplfo_freq":
-            region.ampLfoFrequency = float.Parse(parameter);
+            region.AmpLfoFrequency = float.Parse(parameter);
             break;
           case "amplfo_depth":
-            region.ampLfoDepth = float.Parse(parameter);
+            region.AmpLfoDepth = float.Parse(parameter);
             break;
           default:
             break;

@@ -5,403 +5,582 @@
     public enum OffModeEnum { Fast, Normal }
 
     //Sample Definition
-    public string sample = string.Empty;
+    public string Sample = string.Empty;
     //Input Controls
-    public byte loChan = 0;
-    public byte hiChan = 15;
-    public byte loKey = 0;
-    public byte hiKey = 127;
-    public byte loVel = 0;
-    public byte hiVel = 127;
-    public short loBend = -8192;
-    public short hiBend = 8192;
-    public byte loChanAft = 0;
-    public byte hiChanAft = 127;
-    public byte loPolyAft = 0;
-    public byte hiPolyAft = 127;
-    public int group = 0;
-    public int offBy = 0;
-    public OffModeEnum offMode = OffModeEnum.Fast;
+    public byte LoChan = 0;
+    public byte HiChan = 15;
+    public byte LoKey = 0;
+    public byte HiKey = 127;
+    public byte LoVel = 0;
+    public byte HiVel = 127;
+    public short LoBend = -8192;
+    public short HiBend = 8192;
+    public byte LoChanAft = 0;
+    public byte HiChanAft = 127;
+    public byte LoPolyAft = 0;
+    public byte HiPolyAft = 127;
+    public int Group = 0;
+    public int OffBy = 0;
+    public OffModeEnum OffMode = OffModeEnum.Fast;
     //Sample Player
-    public float delay = 0;
-    public int offset = 0;
-    public int end = 0;
-    public int count = 0;
-    public LoopModeEnum loopMode = LoopModeEnum.NoLoop;
-    public int loopStart = -1;
-    public int loopEnd = -1;
+    public float Delay = 0;
+    public int Offset = 0;
+    public int End = 0;
+    public int Count = 0;
+    public LoopModeEnum LoopMode = LoopModeEnum.NoLoop;
+    public int LoopStart = -1;
+    public int LoopEnd = -1;
     //Pitch
-    public short transpose = 0;
-    public short tune = 0;
-    public short pitchKeyCenter = 60;
-    public short pitchKeyTrack = 100;
-    public short pitchVelTrack = 0;
+    public short Transpose = 0;
+    public short Tune = 0;
+    public short PitchKeyCenter = 60;
+    public short PitchKeyTrack = 100;
+    public short PitchVelTrack = 0;
     //Pitch EG
-    public float pitchEGDelay = 0;
-    public float pitchEGStart = 0;
-    public float pitchEGAttack = 0;
-    public float pitchEGHold = 0;
-    public float pitchEGDecay = 0;
-    public float pitchEGSustain = 100f;
-    public float pitchEGRelease = 0;
-    public short pitchEGDepth = 0;
-    public float pitchEGVel2Delay = 0;
-    public float pitchEGVel2Attack = 0;
-    public float pitchEGVel2Hold = 0;
-    public float pitchEGVel2Decay = 0;
-    public float pitchEGVel2Sustain = 0;
-    public float pitchEGVel2Release = 0;
-    public short pitchEGVel2Depth = 0;
+    public float PitchEGDelay = 0;
+    public float PitchEGStart = 0;
+    public float PitchEGAttack = 0;
+    public float PitchEGHold = 0;
+    public float PitchEGDecay = 0;
+    public float PitchEGSustain = 100f;
+    public float PitchEGRelease = 0;
+    public short PitchEGDepth = 0;
+    public float PitchEGVel2Delay = 0;
+    public float PitchEGVel2Attack = 0;
+    public float PitchEGVel2Hold = 0;
+    public float PitchEGVel2Decay = 0;
+    public float PitchEGVel2Sustain = 0;
+    public float PitchEGVel2Release = 0;
+    public short PitchEGVel2Depth = 0;
     //Pitch Lfo
-    public float pitchLfoDelay = 0;
-    public float pitchLfoFrequency = 0;
-    public short pitchLfoDepth = 0;
+    public float PitchLfoDelay = 0;
+    public float PitchLfoFrequency = 0;
+    public short PitchLfoDepth = 0;
     //Filter
-    public FilterTypeEnum filterType = FilterTypeEnum.BiquadLowpass;
-    public float cutOff = -1;
-    public float resonance = 0;
-    public short filterKeyTrack = 0;
-    public byte filterKeyCenter = 60;
-    public short filterVelTrack = 0;
+    public FilterTypeEnum FilterType = FilterTypeEnum.BiquadLowpass;
+    public float CutOff = -1;
+    public float Resonance = 0;
+    public short FilterKeyTrack = 0;
+    public byte FilterKeyCenter = 60;
+    public short FilterVelTrack = 0;
     //Filter EG
-    public float filterEGDelay = 0;
-    public float filterEGStart = 0;
-    public float filterEGAttack = 0;
-    public float filterEGHold = 0;
-    public float filterEGDecay = 0;
-    public float filterEGSustain = 100f;
-    public float filterEGRelease = 0;
-    public short filterEGDepth = 0;
-    public float filterEGVel2Delay = 0;
-    public float filterEGVel2Attack = 0;
-    public float filterEGVel2Hold = 0;
-    public float filterEGVel2Decay = 0;
-    public float filterEGVel2Sustain = 0;
-    public float filterEGVel2Release = 0;
-    public short filterEGVel2Depth = 0;
+    public float FilterEGDelay = 0;
+    public float FilterEGStart = 0;
+    public float FilterEGAttack = 0;
+    public float FilterEGHold = 0;
+    public float FilterEGDecay = 0;
+    public float FilterEGSustain = 100f;
+    public float FilterEGRelease = 0;
+    public short FilterEGDepth = 0;
+    public float FilterEGVel2Delay = 0;
+    public float FilterEGVel2Attack = 0;
+    public float FilterEGVel2Hold = 0;
+    public float FilterEGVel2Decay = 0;
+    public float FilterEGVel2Sustain = 0;
+    public float FilterEGVel2Release = 0;
+    public short FilterEGVel2Depth = 0;
     //Filter Lfo
-    public float filterLfoDelay = 0;
-    public float filterLfoFrequency = 0;
-    public float filterLfoDepth = 0;
+    public float FilterLfoDelay = 0;
+    public float FilterLfoFrequency = 0;
+    public float FilterLfoDepth = 0;
     //Amplifier
-    public float volume = 0;
-    public float pan = 0;
-    public float ampKeyTrack = 0;
-    public byte ampKeyCenter = 60;
-    public float ampVelTrack = 1;
+    public float Volume = 0;
+    public float Pan = 0;
+    public float AmpKeyTrack = 0;
+    public byte AmpKeyCenter = 60;
+    public float AmpVelTrack = 1;
     //Amplifier EG
-    public float ampEGDelay = 0;
-    public float ampEGStart = 0;
-    public float ampEGAttack = 0;
-    public float ampEGHold = 0;
-    public float ampEGDecay = 0;
-    public float ampEGSustain = 100f;
-    public float ampEGRelease = 0;
-    public float ampEGVel2Delay = 0;
-    public float ampEGVel2Attack = 0;
-    public float ampEGVel2Hold = 0;
-    public float ampEGVel2Decay = 0;
-    public float ampEGVel2Sustain = 0;
-    public float ampEGVel2Release = 0;
+    public float AmpEGDelay = 0;
+    public float AmpEGStart = 0;
+    public float AmpEGAttack = 0;
+    public float AmpEGHold = 0;
+    public float AmpEGDecay = 0;
+    public float AmpEGSustain = 100f;
+    public float AmpEGRelease = 0;
+    public float AmpEGVel2Delay = 0;
+    public float AmpEGVel2Attack = 0;
+    public float AmpEGVel2Hold = 0;
+    public float AmpEGVel2Decay = 0;
+    public float AmpEGVel2Sustain = 0;
+    public float AmpEGVel2Release = 0;
     //Amplifier Lfo
-    public float ampLfoDelay = 0;
-    public float ampLfoFrequency = 0;
-    public float ampLfoDepth = 0;
+    public float AmpLfoDelay = 0;
+    public float AmpLfoFrequency = 0;
+    public float AmpLfoDepth = 0;
 
     public SfzRegion(bool isGlobal) {
       if (isGlobal) {
         //Sample Definition
-        sample = null;
+        Sample = null!;
         //Input Controls
-        loChan = 255;
-        hiChan = 255;
-        loKey = 255;
-        hiKey = 255;
-        loVel = 255;
-        hiVel = 255;
-        loBend = short.MaxValue;
-        hiBend = short.MaxValue;
-        loChanAft = 255;
-        hiChanAft = 255;
-        loPolyAft = 255;
-        hiPolyAft = 255;
-        group = int.MaxValue;
-        offBy = int.MaxValue;
-        offMode = (OffModeEnum)int.MaxValue;
+        LoChan = 255;
+        HiChan = 255;
+        LoKey = 255;
+        HiKey = 255;
+        LoVel = 255;
+        HiVel = 255;
+        LoBend = short.MaxValue;
+        HiBend = short.MaxValue;
+        LoChanAft = 255;
+        HiChanAft = 255;
+        LoPolyAft = 255;
+        HiPolyAft = 255;
+        Group = int.MaxValue;
+        OffBy = int.MaxValue;
+        OffMode = (OffModeEnum)int.MaxValue;
         //Sample Player
-        delay = float.MaxValue;
-        offset = int.MaxValue;
-        end = int.MaxValue;
-        count = int.MaxValue;
-        loopMode = (LoopModeEnum)int.MaxValue;
-        loopStart = int.MaxValue;
-        loopEnd = int.MaxValue;
+        Delay = float.MaxValue;
+        Offset = int.MaxValue;
+        End = int.MaxValue;
+        Count = int.MaxValue;
+        LoopMode = (LoopModeEnum)int.MaxValue;
+        LoopStart = int.MaxValue;
+        LoopEnd = int.MaxValue;
         //Pitch
-        transpose = short.MaxValue;
-        tune = short.MaxValue;
-        pitchKeyCenter = short.MaxValue;
-        pitchKeyTrack = short.MaxValue;
-        pitchVelTrack = short.MaxValue;
+        Transpose = short.MaxValue;
+        Tune = short.MaxValue;
+        PitchKeyCenter = short.MaxValue;
+        PitchKeyTrack = short.MaxValue;
+        PitchVelTrack = short.MaxValue;
         //Pitch EG
-        pitchEGDelay = float.MaxValue;
-        pitchEGStart = float.MaxValue;
-        pitchEGAttack = float.MaxValue;
-        pitchEGHold = float.MaxValue;
-        pitchEGDecay = float.MaxValue;
-        pitchEGSustain = float.MaxValue;
-        pitchEGRelease = float.MaxValue;
-        pitchEGDepth = short.MaxValue;
-        pitchEGVel2Delay = float.MaxValue;
-        pitchEGVel2Attack = float.MaxValue;
-        pitchEGVel2Hold = float.MaxValue;
-        pitchEGVel2Decay = float.MaxValue;
-        pitchEGVel2Sustain = float.MaxValue;
-        pitchEGVel2Release = float.MaxValue;
-        pitchEGVel2Depth = short.MaxValue;
+        PitchEGDelay = float.MaxValue;
+        PitchEGStart = float.MaxValue;
+        PitchEGAttack = float.MaxValue;
+        PitchEGHold = float.MaxValue;
+        PitchEGDecay = float.MaxValue;
+        PitchEGSustain = float.MaxValue;
+        PitchEGRelease = float.MaxValue;
+        PitchEGDepth = short.MaxValue;
+        PitchEGVel2Delay = float.MaxValue;
+        PitchEGVel2Attack = float.MaxValue;
+        PitchEGVel2Hold = float.MaxValue;
+        PitchEGVel2Decay = float.MaxValue;
+        PitchEGVel2Sustain = float.MaxValue;
+        PitchEGVel2Release = float.MaxValue;
+        PitchEGVel2Depth = short.MaxValue;
         //Pitch Lfo
-        pitchLfoDelay = float.MaxValue;
-        pitchLfoFrequency = float.MaxValue;
-        pitchLfoDepth = short.MaxValue;
+        PitchLfoDelay = float.MaxValue;
+        PitchLfoFrequency = float.MaxValue;
+        PitchLfoDepth = short.MaxValue;
         //Filter
-        filterType = FilterTypeEnum.None;
-        cutOff = float.MaxValue;
-        resonance = float.MaxValue;
-        filterKeyTrack = short.MaxValue;
-        filterKeyCenter = 255;
-        filterVelTrack = short.MaxValue;
+        FilterType = FilterTypeEnum.None;
+        CutOff = float.MaxValue;
+        Resonance = float.MaxValue;
+        FilterKeyTrack = short.MaxValue;
+        FilterKeyCenter = 255;
+        FilterVelTrack = short.MaxValue;
         //Filter EG
-        filterEGDelay = float.MaxValue;
-        filterEGStart = float.MaxValue;
-        filterEGAttack = float.MaxValue;
-        filterEGHold = float.MaxValue;
-        filterEGDecay = float.MaxValue;
-        filterEGSustain = float.MaxValue;
-        filterEGRelease = float.MaxValue;
-        filterEGDepth = short.MaxValue;
-        filterEGVel2Delay = float.MaxValue;
-        filterEGVel2Attack = float.MaxValue;
-        filterEGVel2Hold = float.MaxValue;
-        filterEGVel2Decay = float.MaxValue;
-        filterEGVel2Sustain = float.MaxValue;
-        filterEGVel2Release = float.MaxValue;
-        filterEGVel2Depth = short.MaxValue;
+        FilterEGDelay = float.MaxValue;
+        FilterEGStart = float.MaxValue;
+        FilterEGAttack = float.MaxValue;
+        FilterEGHold = float.MaxValue;
+        FilterEGDecay = float.MaxValue;
+        FilterEGSustain = float.MaxValue;
+        FilterEGRelease = float.MaxValue;
+        FilterEGDepth = short.MaxValue;
+        FilterEGVel2Delay = float.MaxValue;
+        FilterEGVel2Attack = float.MaxValue;
+        FilterEGVel2Hold = float.MaxValue;
+        FilterEGVel2Decay = float.MaxValue;
+        FilterEGVel2Sustain = float.MaxValue;
+        FilterEGVel2Release = float.MaxValue;
+        FilterEGVel2Depth = short.MaxValue;
         //Filter Lfo
-        filterLfoDelay = float.MaxValue;
-        filterLfoFrequency = float.MaxValue;
-        filterLfoDepth = float.MaxValue;
+        FilterLfoDelay = float.MaxValue;
+        FilterLfoFrequency = float.MaxValue;
+        FilterLfoDepth = float.MaxValue;
         //Amplifier
-        volume = float.MaxValue;
-        pan = float.MaxValue;
-        ampKeyTrack = float.MaxValue;
-        ampKeyCenter = 255;
-        ampVelTrack = float.MaxValue;
+        Volume = float.MaxValue;
+        Pan = float.MaxValue;
+        AmpKeyTrack = float.MaxValue;
+        AmpKeyCenter = 255;
+        AmpVelTrack = float.MaxValue;
         //Amplifier EG
-        ampEGDelay = float.MaxValue;
-        ampEGStart = float.MaxValue;
-        ampEGAttack = float.MaxValue;
-        ampEGHold = float.MaxValue;
-        ampEGDecay = float.MaxValue;
-        ampEGSustain = float.MaxValue;
-        ampEGRelease = float.MaxValue;
-        ampEGVel2Delay = float.MaxValue;
-        ampEGVel2Attack = float.MaxValue;
-        ampEGVel2Hold = float.MaxValue;
-        ampEGVel2Decay = float.MaxValue;
-        ampEGVel2Sustain = float.MaxValue;
-        ampEGVel2Release = float.MaxValue;
+        AmpEGDelay = float.MaxValue;
+        AmpEGStart = float.MaxValue;
+        AmpEGAttack = float.MaxValue;
+        AmpEGHold = float.MaxValue;
+        AmpEGDecay = float.MaxValue;
+        AmpEGSustain = float.MaxValue;
+        AmpEGRelease = float.MaxValue;
+        AmpEGVel2Delay = float.MaxValue;
+        AmpEGVel2Attack = float.MaxValue;
+        AmpEGVel2Hold = float.MaxValue;
+        AmpEGVel2Decay = float.MaxValue;
+        AmpEGVel2Sustain = float.MaxValue;
+        AmpEGVel2Release = float.MaxValue;
         //Amplifier Lfo
-        ampLfoDelay = float.MaxValue;
-        ampLfoFrequency = float.MaxValue;
-        ampLfoDepth = float.MaxValue;
+        AmpLfoDelay = float.MaxValue;
+        AmpLfoFrequency = float.MaxValue;
+        AmpLfoDepth = float.MaxValue;
       }
     }
     public void ApplyGlobal(SfzRegion globalRegion) {
-      if (globalRegion.sample != null)
-        this.sample = globalRegion.sample;
-      if (globalRegion.loChan != 255)
-        this.loChan = globalRegion.loChan;
-      if (globalRegion.hiChan != 255)
-        this.hiChan = globalRegion.hiChan;
-      if (globalRegion.loKey != 255)
-        this.loKey = globalRegion.loKey;
-      if (globalRegion.hiKey != 255)
-        this.hiKey = globalRegion.hiKey;
-      if (globalRegion.loVel != 255)
-        this.loVel = globalRegion.loVel;
-      if (globalRegion.hiVel != 255)
-        this.hiVel = globalRegion.hiVel;
-      if (globalRegion.loBend != short.MaxValue)
-        this.loBend = globalRegion.loBend;
-      if (globalRegion.hiBend != short.MaxValue)
-        this.hiBend = globalRegion.hiBend;
-      if (globalRegion.loChanAft != 255)
-        this.loChanAft = globalRegion.loChanAft;
-      if (globalRegion.hiChanAft != 255)
-        this.hiChanAft = globalRegion.hiChanAft;
-      if (globalRegion.loPolyAft != 255)
-        this.loPolyAft = globalRegion.loPolyAft;
-      if (globalRegion.hiPolyAft != 255)
-        this.hiPolyAft = globalRegion.hiPolyAft;
-      if (globalRegion.group != int.MaxValue)
-        this.group = globalRegion.group;
-      if (globalRegion.offBy != int.MaxValue)
-        this.offBy = globalRegion.offBy;
-      if ((int)globalRegion.offMode != int.MaxValue)
-        this.offMode = globalRegion.offMode;
-      if (globalRegion.delay != float.MaxValue)
-        this.delay = globalRegion.delay;
-      if (globalRegion.offset != int.MaxValue)
-        this.offset = globalRegion.offset;
-      if (globalRegion.end != int.MaxValue)
-        this.end = globalRegion.end;
-      if (globalRegion.count != int.MaxValue)
-        this.count = globalRegion.count;
-      if ((int)globalRegion.loopMode != int.MaxValue)
-        this.loopMode = globalRegion.loopMode;
-      if (globalRegion.loopStart != int.MaxValue)
-        this.loopStart = globalRegion.loopStart;
-      if (globalRegion.loopEnd != int.MaxValue)
-        this.loopEnd = globalRegion.loopEnd;
-      if (globalRegion.transpose != short.MaxValue)
-        this.transpose = globalRegion.transpose;
-      if (globalRegion.tune != short.MaxValue)
-        this.tune = globalRegion.tune;
-      if (globalRegion.pitchKeyCenter != short.MaxValue)
-        this.pitchKeyCenter = globalRegion.pitchKeyCenter;
-      if (globalRegion.pitchKeyTrack != short.MaxValue)
-        this.pitchKeyTrack = globalRegion.pitchKeyTrack;
-      if (globalRegion.pitchVelTrack != short.MaxValue)
-        this.pitchVelTrack = globalRegion.pitchVelTrack;
-      if (globalRegion.pitchEGDelay != float.MaxValue)
-        this.pitchEGDelay = globalRegion.pitchEGDelay;
-      if (globalRegion.pitchEGStart != float.MaxValue)
-        this.pitchEGStart = globalRegion.pitchEGStart;
-      if (globalRegion.pitchEGAttack != float.MaxValue)
-        this.pitchEGAttack = globalRegion.pitchEGAttack;
-      if (globalRegion.pitchEGHold != float.MaxValue)
-        this.pitchEGHold = globalRegion.pitchEGHold;
-      if (globalRegion.pitchEGDecay != float.MaxValue)
-        this.pitchEGDecay = globalRegion.pitchEGDecay;
-      if (globalRegion.pitchEGSustain != float.MaxValue)
-        this.pitchEGSustain = globalRegion.pitchEGSustain;
-      if (globalRegion.pitchEGRelease != float.MaxValue)
-        this.pitchEGRelease = globalRegion.pitchEGRelease;
-      if (globalRegion.pitchEGDepth != short.MaxValue)
-        this.pitchEGDepth = globalRegion.pitchEGDepth;
-      if (globalRegion.pitchEGVel2Delay != float.MaxValue)
-        this.pitchEGVel2Delay = globalRegion.pitchEGVel2Delay;
-      if (globalRegion.pitchEGVel2Attack != float.MaxValue)
-        this.pitchEGVel2Attack = globalRegion.pitchEGVel2Attack;
-      if (globalRegion.pitchEGVel2Hold != float.MaxValue)
-        this.pitchEGVel2Hold = globalRegion.pitchEGVel2Hold;
-      if (globalRegion.pitchEGVel2Decay != float.MaxValue)
-        this.pitchEGVel2Decay = globalRegion.pitchEGVel2Decay;
-      if (globalRegion.pitchEGVel2Sustain != float.MaxValue)
-        this.pitchEGVel2Sustain = globalRegion.pitchEGVel2Sustain;
-      if (globalRegion.pitchEGVel2Release != float.MaxValue)
-        this.pitchEGVel2Release = globalRegion.pitchEGVel2Release;
-      if (globalRegion.pitchEGVel2Depth != short.MaxValue)
-        this.pitchEGVel2Depth = globalRegion.pitchEGVel2Depth;
-      if (globalRegion.pitchLfoDelay != float.MaxValue)
-        this.pitchLfoDelay = globalRegion.pitchLfoDelay;
-      if (globalRegion.pitchLfoFrequency != float.MaxValue)
-        this.pitchLfoFrequency = globalRegion.pitchLfoFrequency;
-      if (globalRegion.pitchLfoDepth != short.MaxValue)
-        this.pitchLfoDepth = globalRegion.pitchLfoDepth;
-      if (globalRegion.filterType != FilterTypeEnum.None)
-        this.filterType = globalRegion.filterType;
-      if (globalRegion.cutOff != float.MaxValue)
-        this.cutOff = globalRegion.cutOff;
-      if (globalRegion.resonance != float.MaxValue)
-        this.resonance = globalRegion.resonance;
-      if (globalRegion.filterKeyTrack != short.MaxValue)
-        this.filterKeyTrack = globalRegion.filterKeyTrack;
-      if (globalRegion.filterKeyCenter != 255)
-        this.filterKeyCenter = globalRegion.filterKeyCenter;
-      if (globalRegion.filterVelTrack != short.MaxValue)
-        this.filterVelTrack = globalRegion.filterVelTrack;
-      if (globalRegion.filterEGDelay != float.MaxValue)
-        this.filterEGDelay = globalRegion.filterEGDelay;
-      if (globalRegion.filterEGStart != float.MaxValue)
-        this.filterEGStart = globalRegion.filterEGStart;
-      if (globalRegion.filterEGAttack != float.MaxValue)
-        this.filterEGAttack = globalRegion.filterEGAttack;
-      if (globalRegion.filterEGHold != float.MaxValue)
-        this.filterEGHold = globalRegion.filterEGHold;
-      if (globalRegion.filterEGDecay != float.MaxValue)
-        this.filterEGDecay = globalRegion.filterEGDecay;
-      if (globalRegion.filterEGSustain != float.MaxValue)
-        this.filterEGSustain = globalRegion.filterEGSustain;
-      if (globalRegion.filterEGRelease != float.MaxValue)
-        this.filterEGRelease = globalRegion.filterEGRelease;
-      if (globalRegion.filterEGDepth != short.MaxValue)
-        this.filterEGDepth = globalRegion.filterEGDepth;
-      if (globalRegion.filterEGVel2Delay != float.MaxValue)
-        this.filterEGVel2Delay = globalRegion.filterEGVel2Delay;
-      if (globalRegion.filterEGVel2Attack != float.MaxValue)
-        this.filterEGVel2Attack = globalRegion.filterEGVel2Attack;
-      if (globalRegion.filterEGVel2Hold != float.MaxValue)
-        this.filterEGVel2Hold = globalRegion.filterEGVel2Hold;
-      if (globalRegion.filterEGVel2Decay != float.MaxValue)
-        this.filterEGVel2Decay = globalRegion.filterEGVel2Decay;
-      if (globalRegion.filterEGVel2Sustain != float.MaxValue)
-        this.filterEGVel2Sustain = globalRegion.filterEGVel2Sustain;
-      if (globalRegion.filterEGVel2Release != float.MaxValue)
-        this.filterEGVel2Release = globalRegion.filterEGVel2Release;
-      if (globalRegion.filterEGVel2Depth != short.MaxValue)
-        this.filterEGVel2Depth = globalRegion.filterEGVel2Depth;
-      if (globalRegion.filterLfoDelay != float.MaxValue)
-        this.filterLfoDelay = globalRegion.filterLfoDelay;
-      if (globalRegion.filterLfoFrequency != float.MaxValue)
-        this.filterLfoFrequency = globalRegion.filterLfoFrequency;
-      if (globalRegion.filterLfoDepth != float.MaxValue)
-        this.filterLfoDepth = globalRegion.filterLfoDepth;
-      if (globalRegion.volume != float.MaxValue)
-        this.volume = globalRegion.volume;
-      if (globalRegion.pan != float.MaxValue)
-        this.pan = globalRegion.pan;
-      if (globalRegion.ampKeyTrack != float.MaxValue)
-        this.ampKeyTrack = globalRegion.ampKeyTrack;
-      if (globalRegion.ampKeyCenter != 255)
-        this.ampKeyCenter = globalRegion.ampKeyCenter;
-      if (globalRegion.ampVelTrack != float.MaxValue)
-        this.ampVelTrack = globalRegion.ampVelTrack;
-      if (globalRegion.ampEGDelay != float.MaxValue)
-        this.ampEGDelay = globalRegion.ampEGDelay;
-      if (globalRegion.ampEGStart != float.MaxValue)
-        this.ampEGStart = globalRegion.ampEGStart;
-      if (globalRegion.ampEGAttack != float.MaxValue)
-        this.ampEGAttack = globalRegion.ampEGAttack;
-      if (globalRegion.ampEGHold != float.MaxValue)
-        this.ampEGHold = globalRegion.ampEGHold;
-      if (globalRegion.ampEGDecay != float.MaxValue)
-        this.ampEGDecay = globalRegion.ampEGDecay;
-      if (globalRegion.ampEGSustain != float.MaxValue)
-        this.ampEGSustain = globalRegion.ampEGSustain;
-      if (globalRegion.ampEGRelease != float.MaxValue)
-        this.ampEGRelease = globalRegion.ampEGRelease;
-      if (globalRegion.ampEGVel2Delay != float.MaxValue)
-        this.ampEGVel2Delay = globalRegion.ampEGVel2Delay;
-      if (globalRegion.ampEGVel2Attack != float.MaxValue)
-        this.ampEGVel2Attack = globalRegion.ampEGVel2Attack;
-      if (globalRegion.ampEGVel2Hold != float.MaxValue)
-        this.ampEGVel2Hold = globalRegion.ampEGVel2Hold;
-      if (globalRegion.ampEGVel2Decay != float.MaxValue)
-        this.ampEGVel2Decay = globalRegion.ampEGVel2Decay;
-      if (globalRegion.ampEGVel2Sustain != float.MaxValue)
-        this.ampEGVel2Sustain = globalRegion.ampEGVel2Sustain;
-      if (globalRegion.ampEGVel2Release != float.MaxValue)
-        this.ampEGVel2Release = globalRegion.ampEGVel2Release;
-      if (globalRegion.ampLfoDelay != float.MaxValue)
-        this.ampLfoDelay = globalRegion.ampLfoDelay;
-      if (globalRegion.ampLfoFrequency != float.MaxValue)
-        this.ampLfoFrequency = globalRegion.ampLfoFrequency;
-      if (globalRegion.ampLfoDepth != float.MaxValue)
-        this.ampLfoDepth = globalRegion.ampLfoDepth;
+      if (globalRegion.Sample != null) {
+        Sample = globalRegion.Sample;
+      }
+
+      if (globalRegion.LoChan != 255) {
+        LoChan = globalRegion.LoChan;
+      }
+
+      if (globalRegion.HiChan != 255) {
+        HiChan = globalRegion.HiChan;
+      }
+
+      if (globalRegion.LoKey != 255) {
+        LoKey = globalRegion.LoKey;
+      }
+
+      if (globalRegion.HiKey != 255) {
+        HiKey = globalRegion.HiKey;
+      }
+
+      if (globalRegion.LoVel != 255) {
+        LoVel = globalRegion.LoVel;
+      }
+
+      if (globalRegion.HiVel != 255) {
+        HiVel = globalRegion.HiVel;
+      }
+
+      if (globalRegion.LoBend != short.MaxValue) {
+        LoBend = globalRegion.LoBend;
+      }
+
+      if (globalRegion.HiBend != short.MaxValue) {
+        HiBend = globalRegion.HiBend;
+      }
+
+      if (globalRegion.LoChanAft != 255) {
+        LoChanAft = globalRegion.LoChanAft;
+      }
+
+      if (globalRegion.HiChanAft != 255) {
+        HiChanAft = globalRegion.HiChanAft;
+      }
+
+      if (globalRegion.LoPolyAft != 255) {
+        LoPolyAft = globalRegion.LoPolyAft;
+      }
+
+      if (globalRegion.HiPolyAft != 255) {
+        HiPolyAft = globalRegion.HiPolyAft;
+      }
+
+      if (globalRegion.Group != int.MaxValue) {
+        Group = globalRegion.Group;
+      }
+
+      if (globalRegion.OffBy != int.MaxValue) {
+        OffBy = globalRegion.OffBy;
+      }
+
+      if ((int)globalRegion.OffMode != int.MaxValue) {
+        OffMode = globalRegion.OffMode;
+      }
+
+      if (globalRegion.Delay != float.MaxValue) {
+        Delay = globalRegion.Delay;
+      }
+
+      if (globalRegion.Offset != int.MaxValue) {
+        Offset = globalRegion.Offset;
+      }
+
+      if (globalRegion.End != int.MaxValue) {
+        End = globalRegion.End;
+      }
+
+      if (globalRegion.Count != int.MaxValue) {
+        Count = globalRegion.Count;
+      }
+
+      if ((int)globalRegion.LoopMode != int.MaxValue) {
+        LoopMode = globalRegion.LoopMode;
+      }
+
+      if (globalRegion.LoopStart != int.MaxValue) {
+        LoopStart = globalRegion.LoopStart;
+      }
+
+      if (globalRegion.LoopEnd != int.MaxValue) {
+        LoopEnd = globalRegion.LoopEnd;
+      }
+
+      if (globalRegion.Transpose != short.MaxValue) {
+        Transpose = globalRegion.Transpose;
+      }
+
+      if (globalRegion.Tune != short.MaxValue) {
+        Tune = globalRegion.Tune;
+      }
+
+      if (globalRegion.PitchKeyCenter != short.MaxValue) {
+        PitchKeyCenter = globalRegion.PitchKeyCenter;
+      }
+
+      if (globalRegion.PitchKeyTrack != short.MaxValue) {
+        PitchKeyTrack = globalRegion.PitchKeyTrack;
+      }
+
+      if (globalRegion.PitchVelTrack != short.MaxValue) {
+        PitchVelTrack = globalRegion.PitchVelTrack;
+      }
+
+      if (globalRegion.PitchEGDelay != float.MaxValue) {
+        PitchEGDelay = globalRegion.PitchEGDelay;
+      }
+
+      if (globalRegion.PitchEGStart != float.MaxValue) {
+        PitchEGStart = globalRegion.PitchEGStart;
+      }
+
+      if (globalRegion.PitchEGAttack != float.MaxValue) {
+        PitchEGAttack = globalRegion.PitchEGAttack;
+      }
+
+      if (globalRegion.PitchEGHold != float.MaxValue) {
+        PitchEGHold = globalRegion.PitchEGHold;
+      }
+
+      if (globalRegion.PitchEGDecay != float.MaxValue) {
+        PitchEGDecay = globalRegion.PitchEGDecay;
+      }
+
+      if (globalRegion.PitchEGSustain != float.MaxValue) {
+        PitchEGSustain = globalRegion.PitchEGSustain;
+      }
+
+      if (globalRegion.PitchEGRelease != float.MaxValue) {
+        PitchEGRelease = globalRegion.PitchEGRelease;
+      }
+
+      if (globalRegion.PitchEGDepth != short.MaxValue) {
+        PitchEGDepth = globalRegion.PitchEGDepth;
+      }
+
+      if (globalRegion.PitchEGVel2Delay != float.MaxValue) {
+        PitchEGVel2Delay = globalRegion.PitchEGVel2Delay;
+      }
+
+      if (globalRegion.PitchEGVel2Attack != float.MaxValue) {
+        PitchEGVel2Attack = globalRegion.PitchEGVel2Attack;
+      }
+
+      if (globalRegion.PitchEGVel2Hold != float.MaxValue) {
+        PitchEGVel2Hold = globalRegion.PitchEGVel2Hold;
+      }
+
+      if (globalRegion.PitchEGVel2Decay != float.MaxValue) {
+        PitchEGVel2Decay = globalRegion.PitchEGVel2Decay;
+      }
+
+      if (globalRegion.PitchEGVel2Sustain != float.MaxValue) {
+        PitchEGVel2Sustain = globalRegion.PitchEGVel2Sustain;
+      }
+
+      if (globalRegion.PitchEGVel2Release != float.MaxValue) {
+        PitchEGVel2Release = globalRegion.PitchEGVel2Release;
+      }
+
+      if (globalRegion.PitchEGVel2Depth != short.MaxValue) {
+        PitchEGVel2Depth = globalRegion.PitchEGVel2Depth;
+      }
+
+      if (globalRegion.PitchLfoDelay != float.MaxValue) {
+        PitchLfoDelay = globalRegion.PitchLfoDelay;
+      }
+
+      if (globalRegion.PitchLfoFrequency != float.MaxValue) {
+        PitchLfoFrequency = globalRegion.PitchLfoFrequency;
+      }
+
+      if (globalRegion.PitchLfoDepth != short.MaxValue) {
+        PitchLfoDepth = globalRegion.PitchLfoDepth;
+      }
+
+      if (globalRegion.FilterType != FilterTypeEnum.None) {
+        FilterType = globalRegion.FilterType;
+      }
+
+      if (globalRegion.CutOff != float.MaxValue) {
+        CutOff = globalRegion.CutOff;
+      }
+
+      if (globalRegion.Resonance != float.MaxValue) {
+        Resonance = globalRegion.Resonance;
+      }
+
+      if (globalRegion.FilterKeyTrack != short.MaxValue) {
+        FilterKeyTrack = globalRegion.FilterKeyTrack;
+      }
+
+      if (globalRegion.FilterKeyCenter != 255) {
+        FilterKeyCenter = globalRegion.FilterKeyCenter;
+      }
+
+      if (globalRegion.FilterVelTrack != short.MaxValue) {
+        FilterVelTrack = globalRegion.FilterVelTrack;
+      }
+
+      if (globalRegion.FilterEGDelay != float.MaxValue) {
+        FilterEGDelay = globalRegion.FilterEGDelay;
+      }
+
+      if (globalRegion.FilterEGStart != float.MaxValue) {
+        FilterEGStart = globalRegion.FilterEGStart;
+      }
+
+      if (globalRegion.FilterEGAttack != float.MaxValue) {
+        FilterEGAttack = globalRegion.FilterEGAttack;
+      }
+
+      if (globalRegion.FilterEGHold != float.MaxValue) {
+        FilterEGHold = globalRegion.FilterEGHold;
+      }
+
+      if (globalRegion.FilterEGDecay != float.MaxValue) {
+        FilterEGDecay = globalRegion.FilterEGDecay;
+      }
+
+      if (globalRegion.FilterEGSustain != float.MaxValue) {
+        FilterEGSustain = globalRegion.FilterEGSustain;
+      }
+
+      if (globalRegion.FilterEGRelease != float.MaxValue) {
+        FilterEGRelease = globalRegion.FilterEGRelease;
+      }
+
+      if (globalRegion.FilterEGDepth != short.MaxValue) {
+        FilterEGDepth = globalRegion.FilterEGDepth;
+      }
+
+      if (globalRegion.FilterEGVel2Delay != float.MaxValue) {
+        FilterEGVel2Delay = globalRegion.FilterEGVel2Delay;
+      }
+
+      if (globalRegion.FilterEGVel2Attack != float.MaxValue) {
+        FilterEGVel2Attack = globalRegion.FilterEGVel2Attack;
+      }
+
+      if (globalRegion.FilterEGVel2Hold != float.MaxValue) {
+        FilterEGVel2Hold = globalRegion.FilterEGVel2Hold;
+      }
+
+      if (globalRegion.FilterEGVel2Decay != float.MaxValue) {
+        FilterEGVel2Decay = globalRegion.FilterEGVel2Decay;
+      }
+
+      if (globalRegion.FilterEGVel2Sustain != float.MaxValue) {
+        FilterEGVel2Sustain = globalRegion.FilterEGVel2Sustain;
+      }
+
+      if (globalRegion.FilterEGVel2Release != float.MaxValue) {
+        FilterEGVel2Release = globalRegion.FilterEGVel2Release;
+      }
+
+      if (globalRegion.FilterEGVel2Depth != short.MaxValue) {
+        FilterEGVel2Depth = globalRegion.FilterEGVel2Depth;
+      }
+
+      if (globalRegion.FilterLfoDelay != float.MaxValue) {
+        FilterLfoDelay = globalRegion.FilterLfoDelay;
+      }
+
+      if (globalRegion.FilterLfoFrequency != float.MaxValue) {
+        FilterLfoFrequency = globalRegion.FilterLfoFrequency;
+      }
+
+      if (globalRegion.FilterLfoDepth != float.MaxValue) {
+        FilterLfoDepth = globalRegion.FilterLfoDepth;
+      }
+
+      if (globalRegion.Volume != float.MaxValue) {
+        Volume = globalRegion.Volume;
+      }
+
+      if (globalRegion.Pan != float.MaxValue) {
+        Pan = globalRegion.Pan;
+      }
+
+      if (globalRegion.AmpKeyTrack != float.MaxValue) {
+        AmpKeyTrack = globalRegion.AmpKeyTrack;
+      }
+
+      if (globalRegion.AmpKeyCenter != 255) {
+        AmpKeyCenter = globalRegion.AmpKeyCenter;
+      }
+
+      if (globalRegion.AmpVelTrack != float.MaxValue) {
+        AmpVelTrack = globalRegion.AmpVelTrack;
+      }
+
+      if (globalRegion.AmpEGDelay != float.MaxValue) {
+        AmpEGDelay = globalRegion.AmpEGDelay;
+      }
+
+      if (globalRegion.AmpEGStart != float.MaxValue) {
+        AmpEGStart = globalRegion.AmpEGStart;
+      }
+
+      if (globalRegion.AmpEGAttack != float.MaxValue) {
+        AmpEGAttack = globalRegion.AmpEGAttack;
+      }
+
+      if (globalRegion.AmpEGHold != float.MaxValue) {
+        AmpEGHold = globalRegion.AmpEGHold;
+      }
+
+      if (globalRegion.AmpEGDecay != float.MaxValue) {
+        AmpEGDecay = globalRegion.AmpEGDecay;
+      }
+
+      if (globalRegion.AmpEGSustain != float.MaxValue) {
+        AmpEGSustain = globalRegion.AmpEGSustain;
+      }
+
+      if (globalRegion.AmpEGRelease != float.MaxValue) {
+        AmpEGRelease = globalRegion.AmpEGRelease;
+      }
+
+      if (globalRegion.AmpEGVel2Delay != float.MaxValue) {
+        AmpEGVel2Delay = globalRegion.AmpEGVel2Delay;
+      }
+
+      if (globalRegion.AmpEGVel2Attack != float.MaxValue) {
+        AmpEGVel2Attack = globalRegion.AmpEGVel2Attack;
+      }
+
+      if (globalRegion.AmpEGVel2Hold != float.MaxValue) {
+        AmpEGVel2Hold = globalRegion.AmpEGVel2Hold;
+      }
+
+      if (globalRegion.AmpEGVel2Decay != float.MaxValue) {
+        AmpEGVel2Decay = globalRegion.AmpEGVel2Decay;
+      }
+
+      if (globalRegion.AmpEGVel2Sustain != float.MaxValue) {
+        AmpEGVel2Sustain = globalRegion.AmpEGVel2Sustain;
+      }
+
+      if (globalRegion.AmpEGVel2Release != float.MaxValue) {
+        AmpEGVel2Release = globalRegion.AmpEGVel2Release;
+      }
+
+      if (globalRegion.AmpLfoDelay != float.MaxValue) {
+        AmpLfoDelay = globalRegion.AmpLfoDelay;
+      }
+
+      if (globalRegion.AmpLfoFrequency != float.MaxValue) {
+        AmpLfoFrequency = globalRegion.AmpLfoFrequency;
+      }
+
+      if (globalRegion.AmpLfoDepth != float.MaxValue) {
+        AmpLfoDepth = globalRegion.AmpLfoDepth;
+      }
     }
-    public override string ToString() {
-      return string.Format("{0}, Chan: {1}-{2}, Key: {3}-{4}", sample, loChan, hiChan, loKey, hiKey);
-    }
+    public override string ToString() => string.Format("{0}, Chan: {1}-{2}, Key: {3}-{4}", Sample, LoChan, HiChan, LoKey, HiKey);
 
   }
 }
