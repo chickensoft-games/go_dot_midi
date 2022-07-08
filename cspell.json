@@ -1,5 +1,7 @@
 {
   "words": [
+    "Adpcm",
+    "Alaw",
     "autoload",
     "autoloaded",
     "autoloads",
@@ -34,6 +36,7 @@
     "Mathf",
     "Melty",
     "midinote",
+    "Mulaw",
     "Newtonsoft",
     "noloop",
     "notnull",
@@ -44,13 +47,16 @@
     "reporttypes",
     "rootkey",
     "sampledata",
+    "sbuild",
     "Shouldly",
     "slen",
     "smpl",
+    "Smpte",
     "targetargs",
     "targetdir",
     "tscn",
     "typeparam",
+    "uvalue",
     "whitenoise"
   ]
 }

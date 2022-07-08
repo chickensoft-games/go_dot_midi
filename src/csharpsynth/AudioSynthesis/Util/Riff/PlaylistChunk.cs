@@ -4,16 +4,16 @@
 
   public class PlaylistChunk : Chunk {
     //--Fields
-    private readonly Segment[] segments;
+    private readonly Segment[] _segments;
     //--Properties
-    public IList<Segment> SegmentList => segments;
+    public IList<Segment> SegmentList => _segments;
     //--Methods
     public PlaylistChunk(string id, int size, BinaryReader reader)
             : base(id, size) {
       var segCount = reader.ReadInt32();
-      segments = new Segment[segCount];
-      for (var x = 0; x < segments.Length; x++) {
-        segments[x] = new Segment(reader);
+      _segments = new Segment[segCount];
+      for (var x = 0; x < _segments.Length; x++) {
+        _segments[x] = new Segment(reader);
       }
     }
     //--Internal classes and structs

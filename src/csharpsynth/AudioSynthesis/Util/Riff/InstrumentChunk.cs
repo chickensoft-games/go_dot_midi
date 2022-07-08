@@ -2,13 +2,13 @@
   using System.IO;
 
   public class InstrumentChunk : Chunk {
-    private readonly sbyte instFineTune;
-    private readonly sbyte instGain;
+    private readonly sbyte _instFineTune;
+    private readonly sbyte _instGain;
 
     //--Properties
     public byte Note { get; }
-    public int FineTuneCents => instFineTune;
-    public double Gain => instGain;
+    public int FineTuneCents => _instFineTune;
+    public double Gain => _instGain;
     public byte LowNote { get; }
     public byte HighNote { get; }
     public byte LowVelocity { get; }
@@ -17,8 +17,8 @@
     public InstrumentChunk(string id, int size, BinaryReader reader)
             : base(id, size) {
       Note = reader.ReadByte();
-      instFineTune = reader.ReadSByte();
-      instGain = reader.ReadSByte();
+      _instFineTune = reader.ReadSByte();
+      _instGain = reader.ReadSByte();
       LowNote = reader.ReadByte();
       HighNote = reader.ReadByte();
       LowVelocity = reader.ReadByte();
