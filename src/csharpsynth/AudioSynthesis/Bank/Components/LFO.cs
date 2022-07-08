@@ -3,10 +3,10 @@
   using AudioSynthesis.Bank.Descriptors;
 
   public class Lfo {
-    private double phase;
-    private double increment;
-    private int delayTime;
-    private Generator? generator;
+    private double _phase;
+    private double _increment;
+    private int _delayTime;
+    private Generator _generator = null!;
 
     public double Frequency { get; private set; }
     public LfoStateEnum CurrentState { get; private set; }
@@ -14,39 +14,39 @@
     public double Depth { get; set; }
 
     public void QuickSetup(int sampleRate, LfoDescriptor lfoInfo) {
-      generator = lfoInfo.Generator;
-      delayTime = (int)(sampleRate * lfoInfo.DelayTime);
+      _generator = lfoInfo.Generator;
+      _delayTime = (int)(sampleRate * lfoInfo.DelayTime);
       Frequency = lfoInfo.Frequency;
-      increment = generator.Period * Frequency / sampleRate;
+      _increment = _generator.Period * Frequency / sampleRate;
       Depth = lfoInfo.Depth;
       Reset();
     }
     public void Increment(int amount) {
       if (CurrentState == LfoStateEnum.Delay) {
-        phase -= amount;
-        if (phase <= 0.0) {
-          phase = generator.LoopStartPhase + (increment * -phase);
-          Value = generator.GetValue(phase);
+        _phase -= amount;
+        if (_phase <= 0.0) {
+          _phase = _generator.LoopStartPhase + (_increment * -_phase);
+          Value = _generator.GetValue(_phase);
           CurrentState = LfoStateEnum.Sustain;
         }
       }
       else {
-        phase += increment * amount;
-        if (phase >= generator.LoopEndPhase) {
-          phase = generator.LoopStartPhase + ((phase - generator.LoopEndPhase) % (generator.LoopEndPhase - generator.LoopStartPhase));
+        _phase += _increment * amount;
+        if (_phase >= _generator.LoopEndPhase) {
+          _phase = _generator.LoopStartPhase + ((_phase - _generator.LoopEndPhase) % (_generator.LoopEndPhase - _generator.LoopStartPhase));
         }
 
-        Value = generator.GetValue(phase);
+        Value = _generator.GetValue(_phase);
       }
     }
     public void Reset() {
       Value = 0;
-      if (delayTime > 0) {
-        phase = delayTime;
+      if (_delayTime > 0) {
+        _phase = _delayTime;
         CurrentState = LfoStateEnum.Delay;
       }
       else {
-        phase = generator.LoopStartPhase;
+        _phase = _generator.LoopStartPhase;
         CurrentState = LfoStateEnum.Sustain;
       }
     }

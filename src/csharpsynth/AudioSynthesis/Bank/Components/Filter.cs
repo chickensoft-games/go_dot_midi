@@ -4,22 +4,22 @@
   using AudioSynthesis.Synthesis;
 
   public class Filter {
-    private float a1, a2, b1, b2;
-    private float m1, m2, m3;
-    private double cutOff;
-    private double resonance;
+    private float _a1, _a2, _b1, _b2;
+    private float _m1, _m2, _m3;
+    private double _cutOff;
+    private double _resonance;
 
     public FilterTypeEnum FilterMethod { get; private set; }
     public double Cutoff {
-      get => cutOff;
+      get => _cutOff;
       set {
-        if (cutOff != value) { cutOff = value; CoeffNeedsUpdating = true; }
+        if (_cutOff != value) { _cutOff = value; CoeffNeedsUpdating = true; }
       }
     }
     public double Resonance {
-      get => resonance;
+      get => _resonance;
       set {
-        if (value != resonance) { resonance = value; CoeffNeedsUpdating = true; }
+        if (value != _resonance) { _resonance = value; CoeffNeedsUpdating = true; }
       }
     }
     public bool CoeffNeedsUpdating { get; private set; }
@@ -28,21 +28,21 @@
     public void Disable() => FilterMethod = FilterTypeEnum.None;
     public void QuickSetup(int sampleRate, int note, float velocity, FilterDescriptor filterInfo) {
       CoeffNeedsUpdating = false;
-      cutOff = filterInfo.CutOff;
-      resonance = filterInfo.Resonance;
+      _cutOff = filterInfo.CutOff;
+      _resonance = filterInfo.Resonance;
       FilterMethod = filterInfo.FilterMethod;
-      a1 = 0;
-      a2 = 0;
-      b1 = 0;
-      b2 = 0;
-      m1 = 0f;
-      m2 = 0f;
-      m3 = 0f;
-      if (cutOff <= 0 || resonance <= 0) {
+      _a1 = 0;
+      _a2 = 0;
+      _b1 = 0;
+      _b2 = 0;
+      _m1 = 0f;
+      _m2 = 0f;
+      _m3 = 0f;
+      if (_cutOff <= 0 || _resonance <= 0) {
         FilterMethod = FilterTypeEnum.None;
       }
       if (FilterMethod != FilterTypeEnum.None) {
-        cutOff *= SynthHelper.CentsToPitch(((note - filterInfo.RootKey) * filterInfo.KeyTrack) + (int)(velocity * filterInfo.VelTrack));
+        _cutOff *= SynthHelper.CentsToPitch(((note - filterInfo.RootKey) * filterInfo.KeyTrack) + (int)(velocity * filterInfo.VelTrack));
         UpdateCoeff(sampleRate);
       }
     }
@@ -50,14 +50,14 @@
       switch (FilterMethod) {
         case FilterTypeEnum.BiquadHighpass:
         case FilterTypeEnum.BiquadLowpass:
-          m3 = sample - (a1 * m1) - (a2 * m2);
-          sample = (b2 * (m3 + m2)) + (b1 * m1);
-          m2 = m1;
-          m1 = m3;
+          _m3 = sample - (_a1 * _m1) - (_a2 * _m2);
+          sample = (_b2 * (_m3 + _m2)) + (_b1 * _m1);
+          _m2 = _m1;
+          _m1 = _m3;
           return sample;
         case FilterTypeEnum.OnePoleLowpass:
-          m1 += a1 * (sample - m1);
-          return m1;
+          _m1 += _a1 * (sample - _m1);
+          return _m1;
         case FilterTypeEnum.None:
         default:
           return 0f;
@@ -68,16 +68,16 @@
         case FilterTypeEnum.BiquadHighpass:
         case FilterTypeEnum.BiquadLowpass:
           for (var x = 0; x < data.Length; x++) {
-            m3 = data[x] - (a1 * m1) - (a2 * m2);
-            data[x] = (b2 * (m3 + m2)) + (b1 * m1);
-            m2 = m1;
-            m1 = m3;
+            _m3 = data[x] - (_a1 * _m1) - (_a2 * _m2);
+            data[x] = (_b2 * (_m3 + _m2)) + (_b1 * _m1);
+            _m2 = _m1;
+            _m1 = _m3;
           }
           break;
         case FilterTypeEnum.OnePoleLowpass:
           for (var x = 0; x < data.Length; x++) {
-            m1 += a1 * (data[x] - m1);
-            data[x] = m1;
+            _m1 += _a1 * (data[x] - _m1);
+            data[x] = _m1;
           }
           break;
         case FilterTypeEnum.None:
@@ -87,36 +87,36 @@
       }
     }
     public void ApplyFilterInterp(float[] data, int sampleRate) {
-      var ic = GenerateFilterCoeff(cutOff / sampleRate, resonance);
-      var a1_inc = (ic[0] - a1) / data.Length;
-      var a2_inc = (ic[1] - a2) / data.Length;
-      var b1_inc = (ic[2] - b1) / data.Length;
-      var b2_inc = (ic[3] - b2) / data.Length;
+      var ic = GenerateFilterCoeff(_cutOff / sampleRate, _resonance);
+      var a1_inc = (ic[0] - _a1) / data.Length;
+      var a2_inc = (ic[1] - _a2) / data.Length;
+      var b1_inc = (ic[2] - _b1) / data.Length;
+      var b2_inc = (ic[3] - _b2) / data.Length;
       switch (FilterMethod) {
         case FilterTypeEnum.BiquadHighpass:
         case FilterTypeEnum.BiquadLowpass:
           for (var x = 0; x < data.Length; x++) {
-            a1 += a1_inc;
-            a2 += a2_inc;
-            b1 += b1_inc;
-            b2 += b2_inc;
-            m3 = data[x] - (a1 * m1) - (a2 * m2);
-            data[x] = (b2 * (m3 + m2)) + (b1 * m1);
-            m2 = m1;
-            m1 = m3;
+            _a1 += a1_inc;
+            _a2 += a2_inc;
+            _b1 += b1_inc;
+            _b2 += b2_inc;
+            _m3 = data[x] - (_a1 * _m1) - (_a2 * _m2);
+            data[x] = (_b2 * (_m3 + _m2)) + (_b1 * _m1);
+            _m2 = _m1;
+            _m1 = _m3;
           }
-          a1 = ic[0];
-          a2 = ic[1];
-          b1 = ic[2];
-          b2 = ic[3];
+          _a1 = ic[0];
+          _a2 = ic[1];
+          _b1 = ic[2];
+          _b2 = ic[3];
           break;
         case FilterTypeEnum.OnePoleLowpass:
           for (var x = 0; x < data.Length; x++) {
-            a1 += a1_inc;
-            m1 += a1 * (data[x] - m1);
-            data[x] = m1;
+            _a1 += a1_inc;
+            _m1 += _a1 * (data[x] - _m1);
+            data[x] = _m1;
           }
-          a1 = ic[0];
+          _a1 = ic[0];
           break;
         case FilterTypeEnum.None:
           break;
@@ -126,16 +126,16 @@
       CoeffNeedsUpdating = false;
     }
     public void UpdateCoeff(int sampleRate) {
-      var coeff = GenerateFilterCoeff(cutOff / sampleRate, resonance);
-      a1 = coeff[0];
-      a2 = coeff[1];
-      b1 = coeff[2];
-      b2 = coeff[3];
+      var coeff = GenerateFilterCoeff(_cutOff / sampleRate, _resonance);
+      _a1 = coeff[0];
+      _a2 = coeff[1];
+      _b1 = coeff[2];
+      _b2 = coeff[3];
       CoeffNeedsUpdating = false;
     }
     public override string ToString() {
       if (Enabled) {
-        return string.Format("Type: {0}, CutOff: {1}Hz, Resonance: {2}", FilterMethod, cutOff, resonance);
+        return string.Format("Type: {0}, CutOff: {1}Hz, Resonance: {2}", FilterMethod, _cutOff, _resonance);
       }
       else {
         return "Disabled";
@@ -155,7 +155,7 @@
             coeff[0] = (float)(-2.0 * cosw0 * a0inv);
             coeff[1] = (float)((1.0 - alpha) * a0inv);
             coeff[2] = (float)((1.0 - cosw0) * a0inv * (1.0 / Math.Sqrt(q)));
-            coeff[3] = b1 * 0.5f;
+            coeff[3] = _b1 * 0.5f;
           }
           break;
         case FilterTypeEnum.BiquadHighpass: {
