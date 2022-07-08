@@ -9,93 +9,93 @@
     internal static readonly SquareGenerator DefaultSquare = new(new GeneratorDescriptor());
     internal static readonly TriangleGenerator DefaultTriangle = new(new GeneratorDescriptor());
 
-    protected LoopModeEnum loopMethod;
-    protected double loopStart;
-    protected double loopEnd;
-    protected double start;
-    protected double end;
-    protected double startOffset;
-    protected double genPeriod;
-    protected double freq;
-    protected short root;
-    protected short noteTrack;
-    protected short velTrack;
-    protected short tuneCents;
+    protected LoopModeEnum _loopMethod;
+    protected double _loopStart;
+    protected double _loopEnd;
+    protected double _start;
+    protected double _end;
+    protected double _startOffset;
+    protected double _genPeriod;
+    protected double _freq;
+    protected short _root;
+    protected short _noteTrack;
+    protected short _velTrack;
+    protected short _tuneCents;
 
     //--Properties
     public LoopModeEnum LoopMode {
-      get => loopMethod;
-      set => loopMethod = value;
+      get => _loopMethod;
+      set => _loopMethod = value;
     }
     public double LoopStartPhase {
-      get => loopStart;
-      set => loopStart = value;
+      get => _loopStart;
+      set => _loopStart = value;
     }
     public double LoopEndPhase {
-      get => loopEnd;
-      set => loopEnd = value;
+      get => _loopEnd;
+      set => _loopEnd = value;
     }
     public double StartPhase {
-      get => start;
-      set => start = value;
+      get => _start;
+      set => _start = value;
     }
     public double EndPhase {
-      get => end;
-      set => end = value;
+      get => _end;
+      set => _end = value;
     }
     public double Offset {
-      get => startOffset;
-      set => startOffset = value;
+      get => _startOffset;
+      set => _startOffset = value;
     }
     public double Period {
-      get => genPeriod;
-      set => genPeriod = value;
+      get => _genPeriod;
+      set => _genPeriod = value;
     }
     public double Frequency {
-      get => freq;
-      set => freq = value;
+      get => _freq;
+      set => _freq = value;
     }
     public short RootKey {
-      get => root;
-      set => root = value;
+      get => _root;
+      set => _root = value;
     }
     public short KeyTrack {
-      get => noteTrack;
-      set => noteTrack = value;
+      get => _noteTrack;
+      set => _noteTrack = value;
     }
     public short VelocityTrack {
-      get => velTrack;
-      set => velTrack = value;
+      get => _velTrack;
+      set => _velTrack = value;
     }
     public short Tune {
-      get => tuneCents;
-      set => tuneCents = value;
+      get => _tuneCents;
+      set => _tuneCents = value;
     }
 
     //--Methods
     public Generator(GeneratorDescriptor description) {
-      loopMethod = description.LoopMethod;
-      loopStart = description.LoopStartPhase;
-      loopEnd = description.LoopEndPhase;
-      start = description.StartPhase;
-      end = description.EndPhase;
-      startOffset = description.Offset;
-      genPeriod = description.Period;
-      root = description.Rootkey;
-      noteTrack = description.KeyTrack;
-      velTrack = description.VelTrack;
-      tuneCents = description.Tune;
+      _loopMethod = description.LoopMethod;
+      _loopStart = description.LoopStartPhase;
+      _loopEnd = description.LoopEndPhase;
+      _start = description.StartPhase;
+      _end = description.EndPhase;
+      _startOffset = description.Offset;
+      _genPeriod = description.Period;
+      _root = description.Rootkey;
+      _noteTrack = description.KeyTrack;
+      _velTrack = description.VelTrack;
+      _tuneCents = description.Tune;
     }
     public void Release(GeneratorParameters generatorParams) {
-      if (loopMethod == LoopModeEnum.LoopUntilNoteOff) {
+      if (_loopMethod == LoopModeEnum.LoopUntilNoteOff) {
         generatorParams.currentState = GeneratorStateEnum.PostLoop;
-        generatorParams.currentStart = start;
-        generatorParams.currentEnd = end;
+        generatorParams.currentStart = _start;
+        generatorParams.currentEnd = _end;
       }
     }
     public abstract float GetValue(double phase);
     public abstract void GetValues(GeneratorParameters generatorParams, float[] blockBuffer, double increment);
-    public override string ToString() => string.Format("LoopMode: {0}, RootKey: {1}, Period: {2:0.00}", loopMethod, root, genPeriod);
+    public override string ToString() => string.Format("LoopMode: {0}, RootKey: {1}, Period: {2:0.00}", _loopMethod, _root, _genPeriod);
 
     public static WaveformEnum GetWaveformFromString(string value) => value.ToLower().Trim() switch {
       "sine" => WaveformEnum.Sine,

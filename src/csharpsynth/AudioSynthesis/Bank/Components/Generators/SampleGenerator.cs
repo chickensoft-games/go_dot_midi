@@ -1,75 +1,84 @@
-﻿using System;
-using AudioSynthesis.Bank.Descriptors;
-using AudioSynthesis.Synthesis;
-using AudioSynthesis.Util;
-using AudioSynthesis.Wave;
+﻿namespace AudioSynthesis.Bank.Components.Generators {
+  using System;
+  using AudioSynthesis.Bank.Descriptors;
+  using AudioSynthesis.Synthesis;
+  using AudioSynthesis.Util;
+  using AudioSynthesis.Wave;
 
-namespace AudioSynthesis.Bank.Components.Generators {
   public class SampleGenerator : Generator {
-    private PcmData data;
-
-    public PcmData Samples {
-      get { return data; }
-      set { data = value; }
-    }
+    public PcmData Samples { get; set; } = null!;
 
     public SampleGenerator()
         : base(new GeneratorDescriptor()) { }
     public SampleGenerator(GeneratorDescriptor description, AssetManager assets)
         : base(description) {
-      SampleDataAsset sample = assets.FindSample(IOHelper.GetFileNameWithoutExtension(description.AssetName));
-      if (sample == null)
+      var sample = assets.FindSample(IOHelper.GetFileNameWithoutExtension(description.AssetName));
+      if (sample == null) {
         throw new Exception("Could not find asset: (" + description.AssetName + ").");
-      data = sample.SampleData;
-      freq = sample.SampleRate;
-      if (end < 0)
-        end = sample.End;
-      if (start < 0)
-        start = sample.Start;
-      if (loopEnd < 0) {
-        if (sample.LoopEnd < 0)
-          loopEnd = end;
-        else
-          loopEnd = sample.LoopEnd;
       }
-      if (loopStart < 0) {
-        if (sample.LoopStart < 0)
-          loopStart = start;
-        else
-          loopStart = sample.LoopStart;
+
+      Samples = sample.SampleData;
+      _freq = sample.SampleRate;
+      if (_end < 0) {
+        _end = sample.End;
       }
-      if (genPeriod < 0)
-        genPeriod = 1;
-      if (root < 0) {
-        root = sample.RootKey;
-        if (tuneCents == 0)
-          tuneCents = sample.Tune;
+
+      if (_start < 0) {
+        _start = sample.Start;
       }
-      //check sample end and loop end for consistency
-      if (end > data.Length)
-        end = data.Length;
-      if (loopEnd > end)
-        loopEnd = end;
-    }
-    public override float GetValue(double phase) {
-      return data[(int)phase];
-    }
-    public override void GetValues(GeneratorParameters generatorParams, float[] blockBuffer, double increment) {
-      int proccessed = 0;
-      do {
-        int samplesAvailable = (int)Math.Ceiling((generatorParams.currentEnd - generatorParams.phase) / increment);
-        if (samplesAvailable > blockBuffer.Length - proccessed) {
-          Interpolate(generatorParams, blockBuffer, increment, proccessed, blockBuffer.Length);
-          return; //proccessed = blockBuffer.Length;
+
+      if (_loopEnd < 0) {
+        if (sample.LoopEnd < 0) {
+          _loopEnd = _end;
         }
         else {
-          int endProccessed = proccessed + samplesAvailable;
-          Interpolate(generatorParams, blockBuffer, increment, proccessed, endProccessed);
-          proccessed = endProccessed;
+          _loopEnd = sample.LoopEnd;
+        }
+      }
+      if (_loopStart < 0) {
+        if (sample.LoopStart < 0) {
+          _loopStart = _start;
+        }
+        else {
+          _loopStart = sample.LoopStart;
+        }
+      }
+      if (_genPeriod < 0) {
+        _genPeriod = 1;
+      }
+
+      if (_root < 0) {
+        _root = sample.RootKey;
+        if (_tuneCents == 0) {
+          _tuneCents = sample.Tune;
+        }
+      }
+      //check sample end and loop end for consistency
+      if (_end > Samples.Length) {
+        _end = Samples.Length;
+      }
+
+      if (_loopEnd > _end) {
+        _loopEnd = _end;
+      }
+    }
+    public override float GetValue(double phase) => Samples[(int)phase];
+    public override void GetValues(GeneratorParameters generatorParams, float[] blockBuffer, double increment) {
+      var processed = 0;
+      do {
+        var samplesAvailable = (int)Math.Ceiling((generatorParams.currentEnd - generatorParams.phase) / increment);
+        if (samplesAvailable > blockBuffer.Length - processed) {
+          Interpolate(generatorParams, blockBuffer, increment, processed, blockBuffer.Length);
+          return; //processed = blockBuffer.Length;
+        }
+        else {
+          var endProcessed = processed + samplesAvailable;
+          Interpolate(generatorParams, blockBuffer, increment, processed, endProcessed);
+          processed = endProcessed;
           switch (generatorParams.currentState) {
             case GeneratorStateEnum.PreLoop:
-              generatorParams.currentStart = loopStart;
-              generatorParams.currentEnd = loopEnd;
+              generatorParams.currentStart = _loopStart;
+              generatorParams.currentEnd = _loopEnd;
               generatorParams.currentState = GeneratorStateEnum.Loop;
               break;
             case GeneratorStateEnum.Loop:
@@ -77,13 +86,18 @@ namespace AudioSynthesis.Bank.Components.Generators {
               break;
             case GeneratorStateEnum.PostLoop:
               generatorParams.currentState = GeneratorStateEnum.Finished;
-              while (proccessed < blockBuffer.Length)
-                blockBuffer[proccessed++] = 0f;
+              while (processed < blockBuffer.Length) {
+                blockBuffer[processed++] = 0f;
+              }
+
+              break;
+            case GeneratorStateEnum.Finished:
+            default:
               break;
           }
         }
       }
-      while (proccessed < blockBuffer.Length);
+      while (processed < blockBuffer.Length);
     }
 
     private void Interpolate(GeneratorParameters generatorParams, float[] blockBuffer, double increment, int start, int end) {
@@ -91,28 +105,31 @@ namespace AudioSynthesis.Bank.Components.Generators {
         case InterpolationEnum.Linear:
           #region Linear
         {
-            double _end = generatorParams.currentState == GeneratorStateEnum.Loop ? this.loopEnd - 1 : this.end - 1;
+            var end2 = generatorParams.currentState == GeneratorStateEnum.Loop ? _loopEnd - 1 : _end - 1;
             int index;
             float s1, s2, mu;
-            while (start < end && generatorParams.phase < _end)//do this until we reach an edge case or fill the buffer
+            while (start < end && generatorParams.phase < end2)//do this until we reach an edge case or fill the buffer
             {
               index = (int)generatorParams.phase;
-              s1 = data[index];
-              s2 = data[index + 1];
+              s1 = Samples[index];
+              s2 = Samples[index + 1];
               mu = (float)(generatorParams.phase - index);
-              blockBuffer[start++] = s1 + mu * (s2 - s1);
+              blockBuffer[start++] = s1 + (mu * (s2 - s1));
               generatorParams.phase += increment;
             }
             while (start < end)//edge case, if in loop wrap to loop start else use duplicate sample
             {
               index = (int)generatorParams.phase;
-              s1 = data[index];
-              if (generatorParams.currentState == GeneratorStateEnum.Loop)
-                s2 = data[(int)generatorParams.currentStart];
-              else
+              s1 = Samples[index];
+              if (generatorParams.currentState == GeneratorStateEnum.Loop) {
+                s2 = Samples[(int)generatorParams.currentStart];
+              }
+              else {
                 s2 = s1;
+              }
+
               mu = (float)(generatorParams.phase - index);
-              blockBuffer[start++] = s1 + mu * (s2 - s1);
+              blockBuffer[start++] = s1 + (mu * (s2 - s1));
               generatorParams.phase += increment;
             }
           }
@@ -121,28 +138,31 @@ namespace AudioSynthesis.Bank.Components.Generators {
         case InterpolationEnum.Cosine:
           #region Cosine
         {
-            double _end = generatorParams.currentState == GeneratorStateEnum.Loop ? this.loopEnd - 1 : this.end - 1;
+            var end3 = generatorParams.currentState == GeneratorStateEnum.Loop ? _loopEnd - 1 : _end - 1;
             int index;
             float s1, s2, mu;
-            while (start < end && generatorParams.phase < _end)//do this until we reach an edge case or fill the buffer
+            while (start < end && generatorParams.phase < end3)//do this until we reach an edge case or fill the buffer
             {
               index = (int)generatorParams.phase;
-              s1 = data[index];
-              s2 = data[index + 1];
+              s1 = Samples[index];
+              s2 = Samples[index + 1];
               mu = (1f - (float)Math.Cos((generatorParams.phase - index) * Math.PI)) * 0.5f;
-              blockBuffer[start++] = s1 * (1f - mu) + s2 * mu;
+              blockBuffer[start++] = (s1 * (1f - mu)) + (s2 * mu);
               generatorParams.phase += increment;
             }
             while (start < end)//edge case, if in loop wrap to loop start else use duplicate sample
             {
               index = (int)generatorParams.phase;
-              s1 = data[index];
-              if (generatorParams.currentState == GeneratorStateEnum.Loop)
-                s2 = data[(int)generatorParams.currentStart];
-              else
+              s1 = Samples[index];
+              if (generatorParams.currentState == GeneratorStateEnum.Loop) {
+                s2 = Samples[(int)generatorParams.currentStart];
+              }
+              else {
                 s2 = s1;
+              }
+
               mu = (1f - (float)Math.Cos((generatorParams.phase - index) * Math.PI)) * 0.5f;
-              blockBuffer[start++] = s1 * (1f - mu) + s2 * mu;
+              blockBuffer[start++] = (s1 * (1f - mu)) + (s2 * mu);
               generatorParams.phase += increment;
             }
           }
@@ -151,51 +171,56 @@ namespace AudioSynthesis.Bank.Components.Generators {
         case InterpolationEnum.CubicSpline:
           #region CubicSpline
         {
-            double _end = generatorParams.currentState == GeneratorStateEnum.Loop ? this.loopStart + 1 : this.start + 1;
+            var end4 = generatorParams.currentState == GeneratorStateEnum.Loop ? _loopStart + 1 : _start + 1;
             int index;
             float s0, s1, s2, s3, mu;
-            while (start < end && generatorParams.phase < _end)//edge case, wrap to endpoint or duplicate sample
+            while (start < end && generatorParams.phase < end4)//edge case, wrap to endpoint or duplicate sample
             {
               index = (int)generatorParams.phase;
-              if (generatorParams.currentState == GeneratorStateEnum.Loop)
-                s0 = data[(int)generatorParams.currentEnd - 1];
-              else
-                s0 = data[index];
-              s1 = data[index];
-              s2 = data[index + 1];
-              s3 = data[index + 2];
+              if (generatorParams.currentState == GeneratorStateEnum.Loop) {
+                s0 = Samples[(int)generatorParams.currentEnd - 1];
+              }
+              else {
+                s0 = Samples[index];
+              }
+
+              s1 = Samples[index];
+              s2 = Samples[index + 1];
+              s3 = Samples[index + 2];
               mu = (float)(generatorParams.phase - index);
-              blockBuffer[start++] = ((-0.5f * s0 + 1.5f * s1 - 1.5f * s2 + 0.5f * s3) * mu * mu * mu + (s0 - 2.5f * s1 + 2f * s2 - 0.5f * s3) * mu * mu + (-0.5f * s0 + 0.5f * s2) * mu + (s1));
+              blockBuffer[start++] = (((-0.5f * s0) + (1.5f * s1) - (1.5f * s2) + (0.5f * s3)) * mu * mu * mu) + ((s0 - (2.5f * s1) + (2f * s2) - (0.5f * s3)) * mu * mu) + (((-0.5f * s0) + (0.5f * s2)) * mu) + s1;
               generatorParams.phase += increment;
             }
-            _end = generatorParams.currentState == GeneratorStateEnum.Loop ? this.loopEnd - 2 : this.end - 2;
-            while (start < end && generatorParams.phase < _end) {
+            end4 = generatorParams.currentState == GeneratorStateEnum.Loop ? _loopEnd - 2 : _end - 2;
+            while (start < end && generatorParams.phase < end4) {
               index = (int)generatorParams.phase;
-              s0 = data[index - 1];
-              s1 = data[index];
-              s2 = data[index + 1];
-              s3 = data[index + 2];
+              s0 = Samples[index - 1];
+              s1 = Samples[index];
+              s2 = Samples[index + 1];
+              s3 = Samples[index + 2];
               mu = (float)(generatorParams.phase - index);
-              blockBuffer[start++] = ((-0.5f * s0 + 1.5f * s1 - 1.5f * s2 + 0.5f * s3) * mu * mu * mu + (s0 - 2.5f * s1 + 2f * s2 - 0.5f * s3) * mu * mu + (-0.5f * s0 + 0.5f * s2) * mu + (s1));
+              blockBuffer[start++] = (((-0.5f * s0) + (1.5f * s1) - (1.5f * s2) + (0.5f * s3)) * mu * mu * mu) + ((s0 - (2.5f * s1) + (2f * s2) - (0.5f * s3)) * mu * mu) + (((-0.5f * s0) + (0.5f * s2)) * mu) + s1;
               generatorParams.phase += increment;
             }
-            _end += 1;
-            while (start < end)//edge case, wrap to startpoint or duplicate sample
+            end4 += 1;
+            while (start < end)//edge case, wrap to start point or duplicate sample
             {
               index = (int)generatorParams.phase;
-              s0 = data[index - 1];
-              s1 = data[index];
-              if (generatorParams.phase < _end) {
-                s2 = data[index + 1];
-                if (generatorParams.currentState == GeneratorStateEnum.Loop)
-                  s3 = data[(int)generatorParams.currentStart];
-                else
+              s0 = Samples[index - 1];
+              s1 = Samples[index];
+              if (generatorParams.phase < end4) {
+                s2 = Samples[index + 1];
+                if (generatorParams.currentState == GeneratorStateEnum.Loop) {
+                  s3 = Samples[(int)generatorParams.currentStart];
+                }
+                else {
                   s3 = s2;
+                }
               }
               else {
                 if (generatorParams.currentState == GeneratorStateEnum.Loop) {
-                  s2 = data[(int)generatorParams.currentStart];
-                  s3 = data[(int)generatorParams.currentStart + 1];
+                  s2 = Samples[(int)generatorParams.currentStart];
+                  s3 = Samples[(int)generatorParams.currentStart + 1];
                 }
                 else {
                   s2 = s1;
@@ -203,17 +228,19 @@ namespace AudioSynthesis.Bank.Components.Generators {
                 }
               }
               mu = (float)(generatorParams.phase - index);
-              blockBuffer[start++] = ((-0.5f * s0 + 1.5f * s1 - 1.5f * s2 + 0.5f * s3) * mu * mu * mu + (s0 - 2.5f * s1 + 2f * s2 - 0.5f * s3) * mu * mu + (-0.5f * s0 + 0.5f * s2) * mu + (s1));
+              blockBuffer[start++] = (((-0.5f * s0) + (1.5f * s1) - (1.5f * s2) + (0.5f * s3)) * mu * mu * mu) + ((s0 - (2.5f * s1) + (2f * s2) - (0.5f * s3)) * mu * mu) + (((-0.5f * s0) + (0.5f * s2)) * mu) + s1;
               generatorParams.phase += increment;
             }
           }
           #endregion
           break;
+        case InterpolationEnum.None:
+          break;
         default:
           #region None
-        {
+                {
             while (start < end) {
-              blockBuffer[start++] = data[(int)generatorParams.phase];
+              blockBuffer[start++] = Samples[(int)generatorParams.phase];
               generatorParams.phase += increment;
             }
           }

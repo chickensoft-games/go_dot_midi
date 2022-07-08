@@ -7,31 +7,31 @@
     //--Methods
     public SineGenerator(GeneratorDescriptor description)
         : base(description) {
-      if (end < 0) {
-        end = Synthesizer.TWO_PI;
+      if (_end < 0) {
+        _end = Synthesizer.TWO_PI;
       }
 
-      if (start < 0) {
-        start = 0;
+      if (_start < 0) {
+        _start = 0;
       }
 
-      if (loopEnd < 0) {
-        loopEnd = end;
+      if (_loopEnd < 0) {
+        _loopEnd = _end;
       }
 
-      if (loopStart < 0) {
-        loopStart = start;
+      if (_loopStart < 0) {
+        _loopStart = _start;
       }
 
-      if (genPeriod < 0) {
-        genPeriod = Synthesizer.TWO_PI;
+      if (_genPeriod < 0) {
+        _genPeriod = Synthesizer.TWO_PI;
       }
 
-      if (root < 0) {
-        root = 69;
+      if (_root < 0) {
+        _root = 69;
       }
 
-      freq = 440;
+      _freq = 440;
     }
     public override float GetValue(double phase) => (float)Math.Sin(phase);
     public override void GetValues(GeneratorParameters generatorParams, float[] blockBuffer, double increment) {
@@ -52,8 +52,8 @@
           }
           switch (generatorParams.currentState) {
             case GeneratorStateEnum.PreLoop:
-              generatorParams.currentStart = loopStart;
-              generatorParams.currentEnd = loopEnd;
+              generatorParams.currentStart = _loopStart;
+              generatorParams.currentEnd = _loopEnd;
               generatorParams.currentState = GeneratorStateEnum.Loop;
               break;
             case GeneratorStateEnum.Loop:
