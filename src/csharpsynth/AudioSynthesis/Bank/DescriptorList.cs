@@ -10,16 +10,14 @@
 
   public class DescriptorList {
     //--Fields
-    public EnvelopeDescriptor[] EnvelopeDescriptions;
-    public FilterDescriptor[] FilterDescriptions;
-    public LfoDescriptor[] LfoDescriptions;
-    public GeneratorDescriptor[] GenDescriptions;
-    public CustomDescriptor[] CustomDescriptions;
+    public EnvelopeDescriptor[] EnvelopeDescriptions = null!;
+    public FilterDescriptor[] FilterDescriptions = null!;
+    public LfoDescriptor[] LfoDescriptions = null!;
+    public GeneratorDescriptor[] GenDescriptions = null!;
+    public CustomDescriptor[] CustomDescriptions = null!;
 
     //--Properties
-    public int DescriptorCount {
-      get { return EnvelopeDescriptions.Length + FilterDescriptions.Length + LfoDescriptions.Length + GenDescriptions.Length + CustomDescriptions.Length; }
-    }
+    public int DescriptorCount => EnvelopeDescriptions.Length + FilterDescriptions.Length + LfoDescriptions.Length + GenDescriptions.Length + CustomDescriptions.Length;
 
     //--Methods
     public DescriptorList() {
@@ -30,42 +28,42 @@
       CustomDescriptions = new CustomDescriptor[0];
     }
     public DescriptorList(StreamReader reader) {
-      List<EnvelopeDescriptor> envList = new List<EnvelopeDescriptor>();
-      List<FilterDescriptor> fltrList = new List<FilterDescriptor>();
-      List<LfoDescriptor> lfoList = new List<LfoDescriptor>();
-      List<GeneratorDescriptor> genList = new List<GeneratorDescriptor>();
-      List<CustomDescriptor> cList = new List<CustomDescriptor>();
-      List<string> descList = new List<string>();
+      var envList = new List<EnvelopeDescriptor>();
+      var fltrList = new List<FilterDescriptor>();
+      var lfoList = new List<LfoDescriptor>();
+      var genList = new List<GeneratorDescriptor>();
+      var cList = new List<CustomDescriptor>();
+      var descList = new List<string>();
       while (!reader.EndOfStream) {
-        string tag = ReadNextTag(reader, descList);
+        var tag = ReadNextTag(reader, descList);
         switch (tag) {
           case "envelope": {
-              EnvelopeDescriptor env = new EnvelopeDescriptor();
+              var env = new EnvelopeDescriptor();
               env.Read(descList.ToArray());
               envList.Add(env);
               break;
             }
           case "generator": {
-              GeneratorDescriptor gen = new GeneratorDescriptor();
+              var gen = new GeneratorDescriptor();
               gen.Read(descList.ToArray());
               genList.Add(gen);
               break;
             }
           case "filter": {
-              FilterDescriptor fltr = new FilterDescriptor();
+              var fltr = new FilterDescriptor();
               fltr.Read(descList.ToArray());
               fltrList.Add(fltr);
               break;
             }
           case "lfo": {
-              LfoDescriptor lfo = new LfoDescriptor();
+              var lfo = new LfoDescriptor();
               lfo.Read(descList.ToArray());
               lfoList.Add(lfo);
               break;
             }
           default:
             if (!tag.Equals(string.Empty)) {
-              CustomDescriptor cus = new CustomDescriptor(tag, 0);
+              var cus = new CustomDescriptor(tag, 0);
               cus.Read(descList.ToArray());
               cList.Add(cus);
             }
@@ -80,42 +78,42 @@
       CustomDescriptions = cList.ToArray();
     }
     public DescriptorList(BinaryReader reader) {
-      List<EnvelopeDescriptor> envList = new List<EnvelopeDescriptor>();
-      List<FilterDescriptor> fltrList = new List<FilterDescriptor>();
-      List<LfoDescriptor> lfoList = new List<LfoDescriptor>();
-      List<GeneratorDescriptor> genList = new List<GeneratorDescriptor>();
-      List<CustomDescriptor> cList = new List<CustomDescriptor>();
+      var envList = new List<EnvelopeDescriptor>();
+      var fltrList = new List<FilterDescriptor>();
+      var lfoList = new List<LfoDescriptor>();
+      var genList = new List<GeneratorDescriptor>();
+      var cList = new List<CustomDescriptor>();
       int count = reader.ReadInt16();
-      for (int x = 0; x < count; x++) {
-        string id = new string(IOHelper.Read8BitChars(reader, 4));
-        int size = reader.ReadInt32();
+      for (var x = 0; x < count; x++) {
+        var id = new string(IOHelper.Read8BitChars(reader, 4));
+        var size = reader.ReadInt32();
         switch (id.ToLower()) {
           case EnvelopeDescriptor.ID: {
-              EnvelopeDescriptor env = new EnvelopeDescriptor();
+              var env = new EnvelopeDescriptor();
               env.Read(reader);
               envList.Add(env);
               break;
             }
           case GeneratorDescriptor.ID: {
-              GeneratorDescriptor gen = new GeneratorDescriptor();
+              var gen = new GeneratorDescriptor();
               gen.Read(reader);
               genList.Add(gen);
               break;
             }
           case FilterDescriptor.ID: {
-              FilterDescriptor fltr = new FilterDescriptor();
+              var fltr = new FilterDescriptor();
               fltr.Read(reader);
               fltrList.Add(fltr);
               break;
             }
           case LfoDescriptor.ID: {
-              LfoDescriptor lfo = new LfoDescriptor();
+              var lfo = new LfoDescriptor();
               lfo.Read(reader);
               lfoList.Add(lfo);
               break;
             }
           default: {
-              CustomDescriptor cus = new CustomDescriptor(id, size);
+              var cus = new CustomDescriptor(id, size);
               cus.Read(reader);
               cList.Add(cus);
               break;
@@ -137,142 +135,164 @@
     }
 
     public CustomDescriptor FindCustomDescriptor(string name) {
-      for (int x = 0; x < CustomDescriptions.Length; x++) {
-        if (CustomDescriptions[x].ID.Equals(name))
+      for (var x = 0; x < CustomDescriptions.Length; x++) {
+        if (CustomDescriptions[x].ID.Equals(name)) {
           return CustomDescriptions[x];
+        }
       }
-      return null;
+      return null!;
     }
     public void Write(BinaryWriter writer) {
-      for (int x = 0; x < EnvelopeDescriptions.Length; x++) {
+      for (var x = 0; x < EnvelopeDescriptions.Length; x++) {
         IOHelper.Write8BitString(writer, EnvelopeDescriptor.ID, 4);
-        writer.Write((int)EnvelopeDescriptor.SIZE);
+        writer.Write(EnvelopeDescriptor.SIZE);
         EnvelopeDescriptions[x].Write(writer);
       }
-      for (int x = 0; x < FilterDescriptions.Length; x++) {
+      for (var x = 0; x < FilterDescriptions.Length; x++) {
         IOHelper.Write8BitString(writer, FilterDescriptor.ID, 4);
-        writer.Write((int)FilterDescriptor.SIZE);
+        writer.Write(FilterDescriptor.SIZE);
         FilterDescriptions[x].Write(writer);
       }
-      for (int x = 0; x < LfoDescriptions.Length; x++) {
+      for (var x = 0; x < LfoDescriptions.Length; x++) {
         IOHelper.Write8BitString(writer, LfoDescriptor.ID, 4);
-        writer.Write((int)LfoDescriptor.SIZE);
+        writer.Write(LfoDescriptor.SIZE);
         LfoDescriptions[x].Write(writer);
       }
-      for (int x = 0; x < GenDescriptions.Length; x++) {
+      for (var x = 0; x < GenDescriptions.Length; x++) {
         IOHelper.Write8BitString(writer, GeneratorDescriptor.ID, 4);
-        writer.Write((int)GeneratorDescriptor.SIZE);
+        writer.Write(GeneratorDescriptor.SIZE);
         GenDescriptions[x].Write(writer);
       }
-      for (int x = 0; x < CustomDescriptions.Length; x++) {
+      for (var x = 0; x < CustomDescriptions.Length; x++) {
         IOHelper.Write8BitString(writer, CustomDescriptions[x].ID, 4);
-        writer.Write((int)CustomDescriptions[x].Size);
+        writer.Write(CustomDescriptions[x].Size);
         CustomDescriptions[x].Write(writer);
       }
     }
 
     private void LoadSfzEnvelopes(SfzRegion region) {
       EnvelopeDescriptions = new EnvelopeDescriptor[3];
-      EnvelopeDescriptions[0] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[0].DelayTime = region.PitchEGDelay;
-      EnvelopeDescriptions[0].AttackTime = region.PitchEGAttack;
-      EnvelopeDescriptions[0].HoldTime = region.PitchEGHold;
-      EnvelopeDescriptions[0].DecayTime = region.PitchEGDecay;
-      EnvelopeDescriptions[0].SustainLevel = region.PitchEGSustain / 100f;
-      EnvelopeDescriptions[0].ReleaseTime = region.PitchEGRelease;
-      EnvelopeDescriptions[0].StartLevel = region.PitchEGStart / 100f;
-      EnvelopeDescriptions[0].Depth = region.PitchEGDepth;
-      EnvelopeDescriptions[0].Vel2Delay = region.PitchEGVel2Delay;
-      EnvelopeDescriptions[0].Vel2Attack = region.PitchEGVel2Attack;
-      EnvelopeDescriptions[0].Vel2Hold = region.PitchEGVel2Hold;
-      EnvelopeDescriptions[0].Vel2Decay = region.PitchEGVel2Decay;
-      EnvelopeDescriptions[0].Vel2Sustain = region.PitchEGVel2Sustain;
-      EnvelopeDescriptions[0].Vel2Release = region.PitchEGVel2Release;
-      EnvelopeDescriptions[0].Vel2Depth = region.PitchEGVel2Depth;
-      EnvelopeDescriptions[1] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[1].DelayTime = region.FilterEGDelay;
-      EnvelopeDescriptions[1].AttackTime = region.FilterEGAttack;
-      EnvelopeDescriptions[1].HoldTime = region.FilterEGHold;
-      EnvelopeDescriptions[1].DecayTime = region.FilterEGDecay;
-      EnvelopeDescriptions[1].SustainLevel = region.FilterEGSustain / 100f;
-      EnvelopeDescriptions[1].ReleaseTime = region.FilterEGRelease;
-      EnvelopeDescriptions[1].StartLevel = region.FilterEGStart / 100f;
-      EnvelopeDescriptions[1].Depth = region.FilterEGDepth;
-      EnvelopeDescriptions[1].Vel2Delay = region.FilterEGVel2Delay;
-      EnvelopeDescriptions[1].Vel2Attack = region.FilterEGVel2Attack;
-      EnvelopeDescriptions[1].Vel2Hold = region.FilterEGVel2Hold;
-      EnvelopeDescriptions[1].Vel2Decay = region.FilterEGVel2Decay;
-      EnvelopeDescriptions[1].Vel2Sustain = region.FilterEGVel2Sustain;
-      EnvelopeDescriptions[1].Vel2Release = region.FilterEGVel2Release;
-      EnvelopeDescriptions[1].Vel2Depth = region.FilterEGVel2Depth;
-      EnvelopeDescriptions[2] = new EnvelopeDescriptor();
-      EnvelopeDescriptions[2].DelayTime = region.AmpEGDelay;
-      EnvelopeDescriptions[2].AttackTime = region.AmpEGAttack;
-      EnvelopeDescriptions[2].HoldTime = region.AmpEGHold;
-      EnvelopeDescriptions[2].DecayTime = region.AmpEGDecay;
-      EnvelopeDescriptions[2].SustainLevel = region.AmpEGSustain / 100f;
-      EnvelopeDescriptions[2].ReleaseTime = region.AmpEGRelease;
-      EnvelopeDescriptions[2].StartLevel = region.AmpEGStart / 100f;
-      EnvelopeDescriptions[2].Depth = 1f;
-      EnvelopeDescriptions[2].Vel2Delay = region.AmpEGVel2Delay;
-      EnvelopeDescriptions[2].Vel2Attack = region.AmpEGVel2Attack;
-      EnvelopeDescriptions[2].Vel2Hold = region.AmpEGVel2Hold;
-      EnvelopeDescriptions[2].Vel2Decay = region.AmpEGVel2Decay;
-      EnvelopeDescriptions[2].Vel2Sustain = region.AmpEGVel2Sustain;
-      EnvelopeDescriptions[2].Vel2Release = region.AmpEGVel2Release;
-      EnvelopeDescriptions[2].Vel2Depth = 0f;
+      EnvelopeDescriptions[0] = new EnvelopeDescriptor {
+        DelayTime = region.PitchEGDelay,
+        AttackTime = region.PitchEGAttack,
+        HoldTime = region.PitchEGHold,
+        DecayTime = region.PitchEGDecay,
+        SustainLevel = region.PitchEGSustain / 100f,
+        ReleaseTime = region.PitchEGRelease,
+        StartLevel = region.PitchEGStart / 100f,
+        Depth = region.PitchEGDepth,
+        Vel2Delay = region.PitchEGVel2Delay,
+        Vel2Attack = region.PitchEGVel2Attack,
+        Vel2Hold = region.PitchEGVel2Hold,
+        Vel2Decay = region.PitchEGVel2Decay,
+        Vel2Sustain = region.PitchEGVel2Sustain,
+        Vel2Release = region.PitchEGVel2Release,
+        Vel2Depth = region.PitchEGVel2Depth
+      };
+      EnvelopeDescriptions[1] = new EnvelopeDescriptor {
+        DelayTime = region.FilterEGDelay,
+        AttackTime = region.FilterEGAttack,
+        HoldTime = region.FilterEGHold,
+        DecayTime = region.FilterEGDecay,
+        SustainLevel = region.FilterEGSustain / 100f,
+        ReleaseTime = region.FilterEGRelease,
+        StartLevel = region.FilterEGStart / 100f,
+        Depth = region.FilterEGDepth,
+        Vel2Delay = region.FilterEGVel2Delay,
+        Vel2Attack = region.FilterEGVel2Attack,
+        Vel2Hold = region.FilterEGVel2Hold,
+        Vel2Decay = region.FilterEGVel2Decay,
+        Vel2Sustain = region.FilterEGVel2Sustain,
+        Vel2Release = region.FilterEGVel2Release,
+        Vel2Depth = region.FilterEGVel2Depth
+      };
+      EnvelopeDescriptions[2] = new EnvelopeDescriptor {
+        DelayTime = region.AmpEGDelay,
+        AttackTime = region.AmpEGAttack,
+        HoldTime = region.AmpEGHold,
+        DecayTime = region.AmpEGDecay,
+        SustainLevel = region.AmpEGSustain / 100f,
+        ReleaseTime = region.AmpEGRelease,
+        StartLevel = region.AmpEGStart / 100f,
+        Depth = 1f,
+        Vel2Delay = region.AmpEGVel2Delay,
+        Vel2Attack = region.AmpEGVel2Attack,
+        Vel2Hold = region.AmpEGVel2Hold,
+        Vel2Decay = region.AmpEGVel2Decay,
+        Vel2Sustain = region.AmpEGVel2Sustain,
+        Vel2Release = region.AmpEGVel2Release,
+        Vel2Depth = 0f
+      };
     }
     private void LoadSfzFilters(SfzRegion region) {
       FilterDescriptions = new FilterDescriptor[1];
-      FilterDescriptions[0] = new FilterDescriptor();
-      FilterDescriptions[0].FilterMethod = region.FilterType;
-      FilterDescriptions[0].CutOff = region.CutOff;
-      FilterDescriptions[0].KeyTrack = region.FilterKeyTrack;
-      FilterDescriptions[0].Resonance = (float)SynthHelper.DBtoLinear(region.Resonance);
-      FilterDescriptions[0].RootKey = region.FilterKeyCenter;
-      FilterDescriptions[0].VelTrack = region.FilterVelTrack;
+      FilterDescriptions[0] = new FilterDescriptor {
+        FilterMethod = region.FilterType,
+        CutOff = region.CutOff,
+        KeyTrack = region.FilterKeyTrack,
+        Resonance = (float)SynthHelper.DBtoLinear(region.Resonance),
+        RootKey = region.FilterKeyCenter,
+        VelTrack = region.FilterVelTrack
+      };
     }
     private void LoadSfzLfos(SfzRegion region) {
       LfoDescriptions = new LfoDescriptor[3];
-      LfoDescriptions[0] = new LfoDescriptor();
-      LfoDescriptions[0].DelayTime = region.PitchLfoDelay; //make sure pitch lfo is enabled for midi mod event
-      LfoDescriptions[0].Frequency = region.PitchLfoFrequency > 0 ? region.PitchLfoFrequency : (float)Synthesizer.DEFAULT_LFO_FREQUENCY;
-      LfoDescriptions[0].Depth = region.PitchLfoDepth;
-      LfoDescriptions[1] = new LfoDescriptor();
-      LfoDescriptions[1].DelayTime = region.FilterLfoDelay;
-      LfoDescriptions[1].Frequency = region.FilterLfoFrequency;
-      LfoDescriptions[1].Depth = region.FilterLfoDepth;
-      LfoDescriptions[2] = new LfoDescriptor();
-      LfoDescriptions[2].DelayTime = region.AmpLfoDelay;
-      LfoDescriptions[2].Frequency = region.AmpLfoFrequency;
-      LfoDescriptions[2].Depth = (float)SynthHelper.DBtoLinear(region.AmpLfoDepth);
+      LfoDescriptions[0] = new LfoDescriptor {
+        DelayTime = region.PitchLfoDelay, //make sure pitch lfo is enabled for midi mod event
+        Frequency = region.PitchLfoFrequency > 0 ? region.PitchLfoFrequency : (float)Synthesizer.DEFAULT_LFO_FREQUENCY,
+        Depth = region.PitchLfoDepth
+      };
+      LfoDescriptions[1] = new LfoDescriptor {
+        DelayTime = region.FilterLfoDelay,
+        Frequency = region.FilterLfoFrequency,
+        Depth = region.FilterLfoDepth
+      };
+      LfoDescriptions[2] = new LfoDescriptor {
+        DelayTime = region.AmpLfoDelay,
+        Frequency = region.AmpLfoFrequency,
+        Depth = (float)SynthHelper.DBtoLinear(region.AmpLfoDepth)
+      };
     }
     private void LoadSfzGens(SfzRegion region) {
       GenDescriptions = new GeneratorDescriptor[1];
-      GenDescriptions[0] = new GeneratorDescriptor();
-      GenDescriptions[0].SamplerType = Components.WaveformEnum.SampleData;
-      GenDescriptions[0].AssetName = region.Sample;
+      GenDescriptions[0] = new GeneratorDescriptor {
+        SamplerType = Components.WaveformEnum.SampleData,
+        AssetName = region.Sample
+      };
       //deal with end point
       if (region.End == -1) //-1 is silent region, so set end to 0 and let the generator figure it out later
+{
         GenDescriptions[0].EndPhase = 0;
+      }
       else if (region.End == 0) //set end out of range and let the descriptor default it to the proper end value
+{
         GenDescriptions[0].EndPhase = -1;
+      }
       else //add one to the value because its inclusive
+      {
         GenDescriptions[0].EndPhase = region.End + 1;
+      }
+
       GenDescriptions[0].KeyTrack = region.PitchKeyTrack;
       //deal with loop end
-      if (region.LoopEnd < 0)
+      if (region.LoopEnd < 0) {
         GenDescriptions[0].LoopEndPhase = -1;
-      else
+      }
+      else {
         GenDescriptions[0].LoopEndPhase = region.LoopEnd + 1;
+      }
+
       GenDescriptions[0].LoopMethod = region.LoopMode;
-      if (region.LoopStart < 0)
+      if (region.LoopStart < 0) {
         GenDescriptions[0].LoopStartPhase = -1;
-      else
+      }
+      else {
         GenDescriptions[0].LoopStartPhase = region.LoopStart;
+      }
+
       GenDescriptions[0].Offset = region.Offset;
       GenDescriptions[0].Rootkey = region.PitchKeyCenter;
-      GenDescriptions[0].Tune = (short)(region.Tune + region.Transpose * 100);
+      GenDescriptions[0].Tune = (short)(region.Tune + (region.Transpose * 100));
       GenDescriptions[0].VelTrack = region.PitchVelTrack;
     }
     private void LoadSfzCustom(SfzRegion region) {
@@ -285,14 +305,15 @@
       string tagName;
       string closeTag;
       string description;
-      StringBuilder sbuild = new StringBuilder();
-      int c = reader.Read();
+      var sbuild = new StringBuilder();
+      var c = reader.Read();
       //skip anything outside of the tags
-      while (c != -1 && c != '<')
+      while (c is not (-1) and not '<') {
         c = reader.Read();
+      }
       //read opening tag
       c = reader.Read();
-      while (c != -1 && c != '>') {
+      while (c is not (-1) and not '>') {
         sbuild.Append((char)c);
         c = reader.Read();
       }
@@ -300,7 +321,7 @@
       sbuild.Length = 0;
       //read the description
       c = reader.Read();
-      while (c != -1 && c != '<') {
+      while (c is not (-1) and not '<') {
         sbuild.Append((char)c);
         c = reader.Read();
       }
@@ -308,12 +329,12 @@
       sbuild.Length = 0;
       //read closing tag
       c = reader.Read();
-      while (c != -1 && c != '>') {
+      while (c is not (-1) and not '>') {
         sbuild.Append((char)c);
         c = reader.Read();
       }
       closeTag = sbuild.ToString().Trim().ToLower();
-      if (closeTag.Length > 1 && closeTag.StartsWith("/") && closeTag.Substring(1).Equals(tagName)) {
+      if (closeTag.Length > 1 && closeTag.StartsWith("/") && closeTag[1..].Equals(tagName)) {
         descList.AddRange(description.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
         return tagName;
       }
