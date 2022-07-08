@@ -1,31 +1,31 @@
 ﻿namespace AudioSynthesis.Bank.Components.Generators {
   public class GeneratorParameters {
-    public double phase;
-    public double currentStart;
-    public double currentEnd;
-    public GeneratorStateEnum currentState;
+    public double Phase;
+    public double CurrentStart;
+    public double CurrentEnd;
+    public GeneratorStateEnum CurrentState;
 
     public void QuickSetup(Generator generator) {
-      currentStart = generator.StartPhase;
-      phase = currentStart + generator.Offset;
+      CurrentStart = generator.StartPhase;
+      Phase = CurrentStart + generator.Offset;
       switch (generator.LoopMode) {
         case LoopModeEnum.Continuous:
         case LoopModeEnum.LoopUntilNoteOff:
-          if (phase >= generator.EndPhase) {//phase is greater than the end index so generator is finished
-            currentState = GeneratorStateEnum.Finished;
+          if (Phase >= generator.EndPhase) {//phase is greater than the end index so generator is finished
+            CurrentState = GeneratorStateEnum.Finished;
           }
-          else if (phase >= generator.LoopEndPhase) {//phase is greater than the loop end point so generator is in post loop
-            currentState = GeneratorStateEnum.PostLoop;
-            currentEnd = generator.EndPhase;
+          else if (Phase >= generator.LoopEndPhase) {//phase is greater than the loop end point so generator is in post loop
+            CurrentState = GeneratorStateEnum.PostLoop;
+            CurrentEnd = generator.EndPhase;
           }
-          else if (phase >= generator.LoopStartPhase) {//phase is greater than loop start so we are inside the loop
-            currentState = GeneratorStateEnum.Loop;
-            currentEnd = generator.LoopEndPhase;
-            currentStart = generator.LoopStartPhase;
+          else if (Phase >= generator.LoopStartPhase) {//phase is greater than loop start so we are inside the loop
+            CurrentState = GeneratorStateEnum.Loop;
+            CurrentEnd = generator.LoopEndPhase;
+            CurrentStart = generator.LoopStartPhase;
           }
           else {//phase is less than the loop so generator is in pre loop
-            currentState = GeneratorStateEnum.PreLoop;
-            currentEnd = generator.LoopStartPhase;
+            CurrentState = GeneratorStateEnum.PreLoop;
+            CurrentEnd = generator.LoopStartPhase;
           }
           break;
         case LoopModeEnum.NoLoop:
@@ -33,17 +33,17 @@
         case LoopModeEnum.OneShot:
           break;
         default:
-          currentEnd = generator.EndPhase;
-          if (phase >= currentEnd) {
-            currentState = GeneratorStateEnum.Finished;
+          CurrentEnd = generator.EndPhase;
+          if (Phase >= CurrentEnd) {
+            CurrentState = GeneratorStateEnum.Finished;
           }
           else {
-            currentState = GeneratorStateEnum.PostLoop;
+            CurrentState = GeneratorStateEnum.PostLoop;
           }
 
           break;
       }
     }
-    public override string ToString() => string.Format("State: {0}, Bounds: {1} to {2}, CurrentIndex: {3:0.00}", currentState, currentStart, currentEnd, phase);
+    public override string ToString() => string.Format("State: {0}, Bounds: {1} to {2}, CurrentIndex: {3:0.00}", CurrentState, CurrentStart, CurrentEnd, Phase);
   }
 }

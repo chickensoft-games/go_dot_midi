@@ -17,199 +17,191 @@ namespace AudioSynthesis.Bank.Components {
   public class Envelope {
     //--Classes and Enum
     private class EnvelopeStage {
-      public int time;
-      public float[] graph;
-      public float scale;
-      public float offset;
-      public bool reverse;
+      public int Time;
+      public float[] Graph;
+      public float Scale;
+      public float Offset;
+      public bool Reverse;
 
       public EnvelopeStage() {
-        time = 0;
-        graph = null;
-        scale = 0;
-        offset = 0;
-        reverse = false;
+        Time = 0;
+        Graph = null!;
+        Scale = 0;
+        Offset = 0;
+        Reverse = false;
       }
     }
 
-    //--Fields
-    private EnvelopeStateEnum envState;
-    private EnvelopeStage[] stages;
-    private EnvelopeStage stage;
-    private int index;
-    private float value;
-    private float depth;
+    private readonly EnvelopeStage[] _stages;
+    private EnvelopeStage _stage;
+    private int _index;
 
     //--Properties
-    public float Value {
-      get { return value; }
-      set { this.value = value; }
-    }
-    public EnvelopeStateEnum CurrentState {
-      get { return envState; }
-    }
-    public float Depth {
-      get { return depth; }
-      set { depth = value; }
-    }
+    public float Value { get; set; }
+    public EnvelopeStateEnum CurrentState { get; private set; }
+    public float Depth { get; set; }
 
     //--Methods
     public Envelope() {
-      stages = new EnvelopeStage[7];
-      for (int x = 0; x < stages.Length; x++) {
-        stages[x] = new EnvelopeStage();
-        stages[x].graph = Tables.EnvelopeTables[0];
+      _stages = new EnvelopeStage[7];
+      for (var x = 0; x < _stages.Length; x++) {
+        _stages[x] = new EnvelopeStage {
+          Graph = Tables.EnvelopeTables[0]
+        };
       }
-      stages[3].reverse = true;
-      stages[5].reverse = true;
-      stages[6].time = 100000000;
-      envState = EnvelopeStateEnum.None;
-      stage = stages[(int)envState];
+      _stages[3].Reverse = true;
+      _stages[5].Reverse = true;
+      _stages[6].Time = 100000000;
+      CurrentState = EnvelopeStateEnum.None;
+      _stage = _stages[(int)CurrentState];
     }
     public void QuickSetup(int sampleRate, float velocity, EnvelopeDescriptor envelopeInfo) {
-      depth = envelopeInfo.Depth + velocity * envelopeInfo.Vel2Depth;
+      Depth = envelopeInfo.Depth + (velocity * envelopeInfo.Vel2Depth);
       //Delay
-      stages[0].offset = 0;
-      stages[0].scale = 0;
-      stages[0].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DelayTime + envelopeInfo.Vel2Delay * velocity)));
+      _stages[0].Offset = 0;
+      _stages[0].Scale = 0;
+      _stages[0].Time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DelayTime + (envelopeInfo.Vel2Delay * velocity))));
       //Attack
-      stages[1].offset = envelopeInfo.StartLevel;
-      stages[1].scale = envelopeInfo.PeakLevel - envelopeInfo.StartLevel;
-      stages[1].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.AttackTime + envelopeInfo.Vel2Attack * velocity)));
-      stages[1].graph = Tables.EnvelopeTables[envelopeInfo.AttackGraph];
+      _stages[1].Offset = envelopeInfo.StartLevel;
+      _stages[1].Scale = envelopeInfo.PeakLevel - envelopeInfo.StartLevel;
+      _stages[1].Time = Math.Max(0, (int)(sampleRate * (envelopeInfo.AttackTime + (envelopeInfo.Vel2Attack * velocity))));
+      _stages[1].Graph = Tables.EnvelopeTables[envelopeInfo.AttackGraph];
       //Hold
-      stages[2].offset = 0;
-      stages[2].scale = envelopeInfo.PeakLevel;
-      stages[2].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.HoldTime + envelopeInfo.Vel2Hold * velocity)));
+      _stages[2].Offset = 0;
+      _stages[2].Scale = envelopeInfo.PeakLevel;
+      _stages[2].Time = Math.Max(0, (int)(sampleRate * (envelopeInfo.HoldTime + (envelopeInfo.Vel2Hold * velocity))));
       //Decay
-      stages[3].offset = envelopeInfo.SustainLevel;
-      stages[3].scale = envelopeInfo.PeakLevel - envelopeInfo.SustainLevel;
-      stages[3].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DecayTime + envelopeInfo.Vel2Decay * velocity)));
-      stages[3].graph = Tables.EnvelopeTables[envelopeInfo.DecayGraph];
+      _stages[3].Offset = envelopeInfo.SustainLevel;
+      _stages[3].Scale = envelopeInfo.PeakLevel - envelopeInfo.SustainLevel;
+      _stages[3].Time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DecayTime + (envelopeInfo.Vel2Decay * velocity))));
+      _stages[3].Graph = Tables.EnvelopeTables[envelopeInfo.DecayGraph];
       //Sustain
-      stages[4].offset = 0;
-      stages[4].scale = envelopeInfo.SustainLevel + envelopeInfo.Vel2Sustain * velocity;
-      stages[4].time = (int)(sampleRate * envelopeInfo.SustainTime);
+      _stages[4].Offset = 0;
+      _stages[4].Scale = envelopeInfo.SustainLevel + (envelopeInfo.Vel2Sustain * velocity);
+      _stages[4].Time = (int)(sampleRate * envelopeInfo.SustainTime);
       //Release
-      stages[5].offset = 0;
-      stages[5].scale = (stages[3].time == 0 && stages[4].time == 0) ? envelopeInfo.PeakLevel : stages[4].scale;
-      stages[5].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.ReleaseTime + envelopeInfo.Vel2Release * velocity)));
-      stages[5].graph = Tables.EnvelopeTables[envelopeInfo.ReleaseGraph];
+      _stages[5].Offset = 0;
+      _stages[5].Scale = (_stages[3].Time == 0 && _stages[4].Time == 0) ? envelopeInfo.PeakLevel : _stages[4].Scale;
+      _stages[5].Time = Math.Max(0, (int)(sampleRate * (envelopeInfo.ReleaseTime + (envelopeInfo.Vel2Release * velocity))));
+      _stages[5].Graph = Tables.EnvelopeTables[envelopeInfo.ReleaseGraph];
       //None
-      stages[6].scale = 0;
+      _stages[6].Scale = 0;
       //Reset value, index, and starting state
-      index = 0;
-      value = 0;
-      envState = EnvelopeStateEnum.Delay;
-      while (stages[(int)envState].time == 0) {
-        envState++;
+      _index = 0;
+      Value = 0;
+      CurrentState = EnvelopeStateEnum.Delay;
+      while (_stages[(int)CurrentState].Time == 0) {
+        CurrentState++;
       }
-      stage = stages[(int)envState];
+      _stage = _stages[(int)CurrentState];
     }
     public void QuickSetupSf2(int sampleRate, int note, short keyNumToHold, short keyNumToDecay, bool isVolumeEnvelope, EnvelopeDescriptor envelopeInfo) {
-      depth = envelopeInfo.Depth;
+      Depth = envelopeInfo.Depth;
       //Delay
-      stages[0].offset = 0;
-      stages[0].scale = 0;
-      stages[0].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DelayTime)));
+      _stages[0].Offset = 0;
+      _stages[0].Scale = 0;
+      _stages[0].Time = Math.Max(0, (int)(sampleRate * envelopeInfo.DelayTime));
       //Attack
-      stages[1].offset = envelopeInfo.StartLevel;
-      stages[1].scale = envelopeInfo.PeakLevel - envelopeInfo.StartLevel;
-      stages[1].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.AttackTime)));
-      stages[1].graph = Tables.EnvelopeTables[envelopeInfo.AttackGraph];
+      _stages[1].Offset = envelopeInfo.StartLevel;
+      _stages[1].Scale = envelopeInfo.PeakLevel - envelopeInfo.StartLevel;
+      _stages[1].Time = Math.Max(0, (int)(sampleRate * envelopeInfo.AttackTime));
+      _stages[1].Graph = Tables.EnvelopeTables[envelopeInfo.AttackGraph];
       //Hold
-      stages[2].offset = 0;
-      stages[2].scale = envelopeInfo.PeakLevel;
-      stages[2].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.HoldTime) * Math.Pow(2, ((60 - note) * keyNumToHold) / 1200.0)));
+      _stages[2].Offset = 0;
+      _stages[2].Scale = envelopeInfo.PeakLevel;
+      _stages[2].Time = Math.Max(0, (int)(sampleRate * envelopeInfo.HoldTime * Math.Pow(2, (60 - note) * keyNumToHold / 1200.0)));
       //Decay
-      stages[3].offset = envelopeInfo.SustainLevel;
-      stages[3].scale = envelopeInfo.PeakLevel - envelopeInfo.SustainLevel;
-      if (envelopeInfo.SustainLevel == envelopeInfo.PeakLevel)
-        stages[3].time = 0;
-      else
-        stages[3].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.DecayTime) * Math.Pow(2, ((60 - note) * keyNumToDecay) / 1200.0)));
-      stages[3].graph = Tables.EnvelopeTables[envelopeInfo.DecayGraph];
-      //Sustain
-      stages[4].offset = 0;
-      stages[4].scale = envelopeInfo.SustainLevel;
-      stages[4].time = (int)(sampleRate * envelopeInfo.SustainTime);
-      //Release
-      stages[5].scale = stages[3].time == 0 && stages[4].time == 0 ? envelopeInfo.PeakLevel : stages[4].scale;
-      if (isVolumeEnvelope) {
-        stages[5].offset = -100;
-        stages[5].scale += 100;
-        stages[6].scale = -100;
+      _stages[3].Offset = envelopeInfo.SustainLevel;
+      _stages[3].Scale = envelopeInfo.PeakLevel - envelopeInfo.SustainLevel;
+      if (envelopeInfo.SustainLevel == envelopeInfo.PeakLevel) {
+        _stages[3].Time = 0;
       }
       else {
-        stages[5].offset = 0;
-        stages[6].scale = 0;
+        _stages[3].Time = Math.Max(0, (int)(sampleRate * envelopeInfo.DecayTime * Math.Pow(2, (60 - note) * keyNumToDecay / 1200.0)));
       }
-      stages[5].time = Math.Max(0, (int)(sampleRate * (envelopeInfo.ReleaseTime)));
-      stages[5].graph = Tables.EnvelopeTables[envelopeInfo.ReleaseGraph];
+
+      _stages[3].Graph = Tables.EnvelopeTables[envelopeInfo.DecayGraph];
+      //Sustain
+      _stages[4].Offset = 0;
+      _stages[4].Scale = envelopeInfo.SustainLevel;
+      _stages[4].Time = (int)(sampleRate * envelopeInfo.SustainTime);
+      //Release
+      _stages[5].Scale = _stages[3].Time == 0 && _stages[4].Time == 0 ? envelopeInfo.PeakLevel : _stages[4].Scale;
+      if (isVolumeEnvelope) {
+        _stages[5].Offset = -100;
+        _stages[5].Scale += 100;
+        _stages[6].Scale = -100;
+      }
+      else {
+        _stages[5].Offset = 0;
+        _stages[6].Scale = 0;
+      }
+      _stages[5].Time = Math.Max(0, (int)(sampleRate * envelopeInfo.ReleaseTime));
+      _stages[5].Graph = Tables.EnvelopeTables[envelopeInfo.ReleaseGraph];
       //Reset value, index, and starting state
-      index = 0;
-      value = 0;
-      envState = EnvelopeStateEnum.Delay;
-      while (stages[(int)envState].time == 0) {
-        envState++;
+      _index = 0;
+      Value = 0;
+      CurrentState = EnvelopeStateEnum.Delay;
+      while (_stages[(int)CurrentState].Time == 0) {
+        CurrentState++;
       }
-      stage = stages[(int)envState];
+      _stage = _stages[(int)CurrentState];
     }
     public void Increment(int samples) {
       do {
-        int neededSamples = stage.time - index;
+        var neededSamples = _stage.Time - _index;
         if (neededSamples > samples) {
-          index += samples;
+          _index += samples;
           samples = 0;
         }
         else {
-          index = 0;
-          if (envState != EnvelopeStateEnum.None) {
+          _index = 0;
+          if (CurrentState != EnvelopeStateEnum.None) {
             do {
-              stage = stages[(int)++envState];
+              _stage = _stages[(int)++CurrentState];
             }
-            while (stage.time == 0);
+            while (_stage.Time == 0);
           }
           samples -= neededSamples;
         }
       }
       while (samples > 0);
 
-      int i = (int)(stage.graph.Length * (index / (double)stage.time));
-      if (stage.reverse)
-        value = (1f - stage.graph[i]) * stage.scale + stage.offset;
-      else
-        value = stage.graph[i] * stage.scale + stage.offset;
+      var i = (int)(_stage.Graph.Length * (_index / (double)_stage.Time));
+      if (_stage.Reverse) {
+        Value = ((1f - _stage.Graph[i]) * _stage.Scale) + _stage.Offset;
+      }
+      else {
+        Value = (_stage.Graph[i] * _stage.Scale) + _stage.Offset;
+      }
     }
     public void Release(float lowerLimit) {
-      if (value <= lowerLimit) {
-        index = 0;
-        envState = EnvelopeStateEnum.None;
-        stage = stages[(int)envState];
+      if (Value <= lowerLimit) {
+        _index = 0;
+        CurrentState = EnvelopeStateEnum.None;
+        _stage = _stages[(int)CurrentState];
       }
-      else if (envState < EnvelopeStateEnum.Release) {
-        index = 0;
-        envState = EnvelopeStateEnum.Release;
-        stage = stages[(int)envState];
-        stage.scale = value;
+      else if (CurrentState < EnvelopeStateEnum.Release) {
+        _index = 0;
+        CurrentState = EnvelopeStateEnum.Release;
+        _stage = _stages[(int)CurrentState];
+        _stage.Scale = Value;
       }
     }
     public void ReleaseSf2VolumeEnvelope() {
-      if (value <= -100) {
-        index = 0;
-        envState = EnvelopeStateEnum.None;
-        stage = stages[(int)envState];
+      if (Value <= -100) {
+        _index = 0;
+        CurrentState = EnvelopeStateEnum.None;
+        _stage = _stages[(int)CurrentState];
       }
-      else if (envState < EnvelopeStateEnum.Release) {
-        index = 0;
-        envState = EnvelopeStateEnum.Release;
-        stage = stages[(int)envState];
-        stage.offset = -100;
-        stage.scale = 100 + value;
+      else if (CurrentState < EnvelopeStateEnum.Release) {
+        _index = 0;
+        CurrentState = EnvelopeStateEnum.Release;
+        _stage = _stages[(int)CurrentState];
+        _stage.Offset = -100;
+        _stage.Scale = 100 + Value;
       }
     }
-    public override string ToString() {
-      return string.Format("State: {0}, Time: {1}%, Value: {2:0.00}", envState, (int)((index / (float)stage.time) * 100f), value);
-    }
+    public override string ToString() => string.Format("State: {0}, Time: {1}%, Value: {2:0.00}", CurrentState, (int)(_index / (float)_stage.Time * 100f), Value);
   }
 }

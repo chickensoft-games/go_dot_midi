@@ -37,30 +37,30 @@
     public override void GetValues(GeneratorParameters generatorParams, float[] blockBuffer, double increment) {
       var processed = 0;
       do {
-        var samplesAvailable = (int)Math.Ceiling((generatorParams.currentEnd - generatorParams.phase) / increment);
+        var samplesAvailable = (int)Math.Ceiling((generatorParams.CurrentEnd - generatorParams.Phase) / increment);
         if (samplesAvailable > blockBuffer.Length - processed) {
           while (processed < blockBuffer.Length) {
             blockBuffer[processed++] = (float)((_random.NextDouble() * 2.0) - 1.0);
-            generatorParams.phase += increment;
+            generatorParams.Phase += increment;
           }
         }
         else {
           var endProcessed = processed + samplesAvailable;
           while (processed < endProcessed) {
             blockBuffer[processed++] = (float)((_random.NextDouble() * 2.0) - 1.0);
-            generatorParams.phase += increment;
+            generatorParams.Phase += increment;
           }
-          switch (generatorParams.currentState) {
+          switch (generatorParams.CurrentState) {
             case GeneratorStateEnum.PreLoop:
-              generatorParams.currentStart = _loopStart;
-              generatorParams.currentEnd = _loopEnd;
-              generatorParams.currentState = GeneratorStateEnum.Loop;
+              generatorParams.CurrentStart = _loopStart;
+              generatorParams.CurrentEnd = _loopEnd;
+              generatorParams.CurrentState = GeneratorStateEnum.Loop;
               break;
             case GeneratorStateEnum.Loop:
-              generatorParams.phase += generatorParams.currentStart - generatorParams.currentEnd;
+              generatorParams.Phase += generatorParams.CurrentStart - generatorParams.CurrentEnd;
               break;
             case GeneratorStateEnum.PostLoop:
-              generatorParams.currentState = GeneratorStateEnum.Finished;
+              generatorParams.CurrentState = GeneratorStateEnum.Finished;
               while (processed < blockBuffer.Length) {
                 blockBuffer[processed++] = 0f;
               }

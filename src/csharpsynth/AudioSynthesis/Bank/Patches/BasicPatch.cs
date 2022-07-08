@@ -36,7 +36,7 @@ namespace AudioSynthesis.Bank.Patches {
       voiceparams.VolOffset = voiceparams.SynthParams.Volume.Combined / 16383f;
       voiceparams.VolOffset *= voiceparams.VolOffset * fVel * voiceparams.SynthParams.Synth.MixGain;
       //check if we have finished before we have begun
-      return voiceparams.GeneratorParams[0].currentState != GeneratorStateEnum.Finished && voiceparams.Envelopes[0].CurrentState != EnvelopeStateEnum.None;
+      return voiceparams.GeneratorParams[0].CurrentState != GeneratorStateEnum.Finished && voiceparams.Envelopes[0].CurrentState != EnvelopeStateEnum.None;
     }
     public override void Stop(VoiceParameters voiceparams) {
       gen.Release(voiceparams.GeneratorParams[0]);
@@ -73,7 +73,7 @@ namespace AudioSynthesis.Bank.Patches {
         else
           voiceparams.MixMonoToMonoInterp(x, volume);
         //--Check and end early if necessary
-        if (voiceparams.Envelopes[0].CurrentState == EnvelopeStateEnum.None || voiceparams.GeneratorParams[0].currentState == GeneratorStateEnum.Finished) {
+        if (voiceparams.Envelopes[0].CurrentState == EnvelopeStateEnum.None || voiceparams.GeneratorParams[0].CurrentState == GeneratorStateEnum.Finished) {
           voiceparams.State = VoiceStateEnum.Stopped;
           return;
         }

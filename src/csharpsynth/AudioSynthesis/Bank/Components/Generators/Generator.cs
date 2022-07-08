@@ -88,9 +88,9 @@
     }
     public void Release(GeneratorParameters generatorParams) {
       if (_loopMethod == LoopModeEnum.LoopUntilNoteOff) {
-        generatorParams.currentState = GeneratorStateEnum.PostLoop;
-        generatorParams.currentStart = _start;
-        generatorParams.currentEnd = _end;
+        generatorParams.CurrentState = GeneratorStateEnum.PostLoop;
+        generatorParams.CurrentStart = _start;
+        generatorParams.CurrentEnd = _end;
       }
     }
     public abstract float GetValue(double phase);
