@@ -191,14 +191,14 @@ namespace AudioSynthesis.Synthesis {
           switch (data1) {
             case 0x00: //Bank select coarse
               if (channel == MidiHelper.DRUM_CHANNEL) {
-                data2 += PatchBank.DrumBank;
+                data2 += PatchBank.DRUM_BANK;
               }
 
               if (SoundBank.IsBankLoaded(data2)) {
                 _synthChannels[channel].BankSelect = (byte)data2;
               }
               else {
-                _synthChannels[channel].BankSelect = (channel == MidiHelper.DRUM_CHANNEL) ? (byte)PatchBank.DrumBank : (byte)0;
+                _synthChannels[channel].BankSelect = (channel == MidiHelper.DRUM_CHANNEL) ? (byte)PatchBank.DRUM_BANK : (byte)0;
               }
 
               break;

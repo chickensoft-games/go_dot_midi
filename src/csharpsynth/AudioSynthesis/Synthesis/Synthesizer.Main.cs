@@ -149,7 +149,7 @@ namespace AudioSynthesis.Synthesis {
       for (var x = 0; x < _synthChannels.Length; x++) {
         _synthChannels[x].ResetControllers();
       }
-      _synthChannels[MidiHelper.DRUM_CHANNEL].BankSelect = PatchBank.DrumBank;
+      _synthChannels[MidiHelper.DRUM_CHANNEL].BankSelect = PatchBank.DRUM_BANK;
       ReleaseAllHoldPedals();
     }
     public void ResetPrograms() {
