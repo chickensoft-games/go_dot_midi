@@ -245,7 +245,7 @@ namespace AudioSynthesis.Synthesis {
         while (node != null) {
           node.Value.Process(sampleIndex, sampleIndex + microBufferSize * audioChannels);
           //if an active voice has stopped remove it from the list
-          if (node.Value.VoiceParams.state == VoiceStateEnum.Stopped) {
+          if (node.Value.VoiceParams.State == VoiceStateEnum.Stopped) {
             LinkedListNode<Voice> delnode = node; //node used to remove inactive voices
             node = node.Next;
             voiceManager.RemoveFromRegistry(delnode.Value);

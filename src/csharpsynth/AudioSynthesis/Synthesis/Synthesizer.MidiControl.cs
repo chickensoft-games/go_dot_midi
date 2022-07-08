@@ -86,7 +86,7 @@ namespace AudioSynthesis.Synthesis {
       if (synthChannels[channel].holdPedal) {
         VoiceManager.VoiceNode node = voiceManager.registry[channel, note];
         while (node != null) {
-          node.Value.VoiceParams.noteOffPending = true;
+          node.Value.VoiceParams.NoteOffPending = true;
           node = node.Next;
         }
       }
@@ -118,10 +118,10 @@ namespace AudioSynthesis.Synthesis {
       else {//otherwise we have to check for hold pedals and double check the registry before removing the voice
         while (node != null) {
           VoiceParameters voiceParams = node.Value.VoiceParams;
-          if (voiceParams.state == VoiceStateEnum.Playing) {
+          if (voiceParams.State == VoiceStateEnum.Playing) {
             //if hold pedal is enabled do not stop the voice
-            if (synthChannels[voiceParams.channel].holdPedal) {
-              voiceParams.noteOffPending = true;
+            if (synthChannels[voiceParams.Channel].holdPedal) {
+              voiceParams.NoteOffPending = true;
             }
             else {
               node.Value.Stop();
@@ -140,7 +140,7 @@ namespace AudioSynthesis.Synthesis {
     public void NoteOffAll(int channel, bool immediate) {
       LinkedListNode<Voice> node = voiceManager.activeVoices.First;
       while (node != null) {
-        if (channel == node.Value.VoiceParams.channel) {
+        if (channel == node.Value.VoiceParams.Channel) {
           if (immediate) {
             node.Value.StopImmediately();
             LinkedListNode<Voice> delnode = node;
@@ -151,7 +151,7 @@ namespace AudioSynthesis.Synthesis {
           else {
             //if hold pedal is enabled do not stop the voice
             if (synthChannels[channel].holdPedal)
-              node.Value.VoiceParams.noteOffPending = true;
+              node.Value.VoiceParams.NoteOffPending = true;
             else
               node.Value.Stop();
             node = node.Next;
@@ -311,7 +311,7 @@ namespace AudioSynthesis.Synthesis {
     private void ReleaseAllHoldPedals() {
       LinkedListNode<Voice> node = voiceManager.activeVoices.First;
       while (node != null) {
-        if (node.Value.VoiceParams.noteOffPending) {
+        if (node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();
           voiceManager.RemoveFromRegistry(node.Value);
         }
@@ -321,7 +321,7 @@ namespace AudioSynthesis.Synthesis {
     private void ReleaseHoldPedal(int channel) {
       LinkedListNode<Voice> node = voiceManager.activeVoices.First;
       while (node != null) {
-        if (node.Value.VoiceParams.channel == channel && node.Value.VoiceParams.noteOffPending) {
+        if (node.Value.VoiceParams.Channel == channel && node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();
           voiceManager.RemoveFromRegistry(node.Value);
         }

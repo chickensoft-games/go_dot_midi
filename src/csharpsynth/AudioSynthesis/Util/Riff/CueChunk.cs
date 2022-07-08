@@ -5,15 +5,15 @@
 
   public class CueChunk : Chunk {
     //--Fields
-    private readonly CuePoint[] cues;
+    private readonly CuePoint[] _cues;
     //--Properties
-    public IList<CuePoint> CuePoints => cues;
+    public IList<CuePoint> CuePoints => _cues;
     //--Methods
     public CueChunk(string id, int size, BinaryReader reader)
             : base(id, size) {
-      cues = new CuePoint[reader.ReadInt32()];
-      for (var x = 0; x < cues.Length; x++) {
-        cues[x] = new CuePoint(reader);
+      _cues = new CuePoint[reader.ReadInt32()];
+      for (var x = 0; x < _cues.Length; x++) {
+        _cues[x] = new CuePoint(reader);
       }
     }
     //--Internal classes and structs

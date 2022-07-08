@@ -41,90 +41,90 @@ namespace AudioSynthesis.Bank.Patches {
     public Fm2Patch(string name) : base(name) { }
     public override bool Start(VoiceParameters voiceparams) {
       //calculate velocity
-      float fVel = voiceparams.velocity / 127f;
+      float fVel = voiceparams.Velocity / 127f;
       //reset counters
-      voiceparams.pData[0].double1 = cGen.LoopStartPhase;
-      voiceparams.pData[1].double1 = mGen.LoopStartPhase;
-      voiceparams.pData[2].double1 = 0.0;
+      voiceparams.PData[0].double1 = cGen.LoopStartPhase;
+      voiceparams.PData[1].double1 = mGen.LoopStartPhase;
+      voiceparams.PData[2].double1 = 0.0;
       //reset envelopes
-      voiceparams.envelopes[0].QuickSetup(voiceparams.synthParams.synth.SampleRate, fVel, cEnv);
-      voiceparams.envelopes[1].QuickSetup(voiceparams.synthParams.synth.SampleRate, fVel, mEnv);
+      voiceparams.Envelopes[0].QuickSetup(voiceparams.SynthParams.synth.SampleRate, fVel, cEnv);
+      voiceparams.Envelopes[1].QuickSetup(voiceparams.SynthParams.synth.SampleRate, fVel, mEnv);
       //reset lfo (vibra)
-      voiceparams.lfos[0].QuickSetup(voiceparams.synthParams.synth.SampleRate, lfo);
+      voiceparams.Lfos[0].QuickSetup(voiceparams.SynthParams.synth.SampleRate, lfo);
       //calculate initial pitch
-      voiceparams.pitchOffset = (int)(100.0 * (voiceparams.synthParams.masterCoarseTune + (voiceparams.synthParams.masterFineTune.Combined - 8192.0) / 8192.0));
+      voiceparams.PitchOffset = (int)(100.0 * (voiceparams.SynthParams.masterCoarseTune + (voiceparams.SynthParams.masterFineTune.Combined - 8192.0) / 8192.0));
       //calc initial volume
-      voiceparams.volOffset = voiceparams.synthParams.volume.Combined / 16383f;
-      voiceparams.volOffset *= voiceparams.volOffset * fVel * voiceparams.synthParams.synth.MixGain;
+      voiceparams.VolOffset = voiceparams.SynthParams.volume.Combined / 16383f;
+      voiceparams.VolOffset *= voiceparams.VolOffset * fVel * voiceparams.SynthParams.synth.MixGain;
       //check if we have finished before we have begun
-      return voiceparams.envelopes[0].CurrentState != EnvelopeStateEnum.None;
+      return voiceparams.Envelopes[0].CurrentState != EnvelopeStateEnum.None;
     }
     public override void Stop(VoiceParameters voiceparams) {
-      voiceparams.envelopes[0].Release(Synthesis.Synthesizer.NonAudible);
-      voiceparams.envelopes[1].Release(Synthesis.Synthesizer.DenormLimit);
+      voiceparams.Envelopes[0].Release(Synthesis.Synthesizer.NonAudible);
+      voiceparams.Envelopes[1].Release(Synthesis.Synthesizer.DenormLimit);
     }
     public override void Process(VoiceParameters voiceparams, int startIndex, int endIndex) {
       //--Base pitch calculation
-      double carrierPitch = SynthHelper.CentsToPitch((voiceparams.note - cGen.RootKey) * cGen.KeyTrack + cGen.Tune + voiceparams.pitchOffset + voiceparams.synthParams.currentPitch)
-          * cGen.Period * cGen.Frequency * cIndex / voiceparams.synthParams.synth.SampleRate;
-      double modulatorPitch = SynthHelper.CentsToPitch((voiceparams.note - mGen.RootKey) * mGen.KeyTrack + mGen.Tune + voiceparams.pitchOffset + voiceparams.synthParams.currentPitch)
-          * mGen.Period * mGen.Frequency * mIndex / voiceparams.synthParams.synth.SampleRate;
+      double carrierPitch = SynthHelper.CentsToPitch((voiceparams.Note - cGen.RootKey) * cGen.KeyTrack + cGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.currentPitch)
+          * cGen.Period * cGen.Frequency * cIndex / voiceparams.SynthParams.synth.SampleRate;
+      double modulatorPitch = SynthHelper.CentsToPitch((voiceparams.Note - mGen.RootKey) * mGen.KeyTrack + mGen.Tune + voiceparams.PitchOffset + voiceparams.SynthParams.currentPitch)
+          * mGen.Period * mGen.Frequency * mIndex / voiceparams.SynthParams.synth.SampleRate;
       //--Base volume calculation
-      float baseVolume = voiceparams.volOffset * voiceparams.synthParams.currentVolume;
+      float baseVolume = voiceparams.VolOffset * voiceparams.SynthParams.currentVolume;
       //--Main Loop
-      for (int x = startIndex; x < endIndex; x += Synthesizer.DefaultBlockSize * voiceparams.synthParams.synth.AudioChannels) {
+      for (int x = startIndex; x < endIndex; x += Synthesizer.DefaultBlockSize * voiceparams.SynthParams.synth.AudioChannels) {
         //--Calculate pitch modifications
         double pitchMod;
-        if (voiceparams.synthParams.modRange.Combined != 0) {
-          voiceparams.lfos[0].Increment(Synthesizer.DefaultBlockSize);
-          pitchMod = SynthHelper.CentsToPitch((int)(voiceparams.lfos[0].Value * voiceparams.synthParams.currentMod));
+        if (voiceparams.SynthParams.modRange.Combined != 0) {
+          voiceparams.Lfos[0].Increment(Synthesizer.DefaultBlockSize);
+          pitchMod = SynthHelper.CentsToPitch((int)(voiceparams.Lfos[0].Value * voiceparams.SynthParams.currentMod));
         }
         else {
           pitchMod = 1;
         }
         //--Get amplitude values for carrier and modulator
-        voiceparams.envelopes[0].Increment(Synthesizer.DefaultBlockSize);
-        voiceparams.envelopes[1].Increment(Synthesizer.DefaultBlockSize);
-        float c_amp = baseVolume * voiceparams.envelopes[0].Value;
-        float m_amp = voiceparams.envelopes[1].Value;
+        voiceparams.Envelopes[0].Increment(Synthesizer.DefaultBlockSize);
+        voiceparams.Envelopes[1].Increment(Synthesizer.DefaultBlockSize);
+        float c_amp = baseVolume * voiceparams.Envelopes[0].Value;
+        float m_amp = voiceparams.Envelopes[1].Value;
         //--Interpolator for modulator amplitude
-        float linear_m_amp = (m_amp - voiceparams.pData[3].float1) / Synthesizer.DefaultBlockSize;
+        float linear_m_amp = (m_amp - voiceparams.PData[3].float1) / Synthesizer.DefaultBlockSize;
         //--Process block
-        for (int i = 0; i < voiceparams.blockBuffer.Length; i++) {
+        for (int i = 0; i < voiceparams.BlockBuffer.Length; i++) {
           //calculate current modulator amplitude
-          voiceparams.pData[3].float1 += linear_m_amp;
+          voiceparams.PData[3].float1 += linear_m_amp;
           //calculate sample
-          voiceparams.blockBuffer[i] = cGen.GetValue(voiceparams.pData[0].double1 + voiceparams.pData[3].float1 * mGen.GetValue(voiceparams.pData[1].double1 + voiceparams.pData[2].double1 * feedBack));
+          voiceparams.BlockBuffer[i] = cGen.GetValue(voiceparams.PData[0].double1 + voiceparams.PData[3].float1 * mGen.GetValue(voiceparams.PData[1].double1 + voiceparams.PData[2].double1 * feedBack));
           //store sample for feedback calculation
-          voiceparams.pData[2].double1 = voiceparams.blockBuffer[i];
+          voiceparams.PData[2].double1 = voiceparams.BlockBuffer[i];
           //increment phase counters
-          voiceparams.pData[0].double1 += carrierPitch * pitchMod;
-          voiceparams.pData[1].double1 += modulatorPitch * pitchMod;
+          voiceparams.PData[0].double1 += carrierPitch * pitchMod;
+          voiceparams.PData[1].double1 += modulatorPitch * pitchMod;
         }
-        voiceparams.pData[3].float1 = m_amp;
+        voiceparams.PData[3].float1 = m_amp;
         //--Mix block based on number of channels
-        if (voiceparams.synthParams.synth.AudioChannels == 2)
+        if (voiceparams.SynthParams.synth.AudioChannels == 2)
           voiceparams.MixMonoToStereoInterp(x,
-              c_amp * voiceparams.synthParams.currentPan.Left,
-              c_amp * voiceparams.synthParams.currentPan.Right);
+              c_amp * voiceparams.SynthParams.currentPan.Left,
+              c_amp * voiceparams.SynthParams.currentPan.Right);
         else
           voiceparams.MixMonoToMonoInterp(x, c_amp);
         //--Bounds check
         if (sync == SyncMode.Soft) {
-          if (voiceparams.pData[0].double1 >= cGen.LoopEndPhase)
-            voiceparams.pData[0].double1 = cGen.LoopStartPhase + (voiceparams.pData[0].double1 - cGen.LoopEndPhase) % (cGen.LoopEndPhase - cGen.LoopStartPhase);
-          if (voiceparams.pData[1].double1 >= mGen.LoopEndPhase)
-            voiceparams.pData[1].double1 = mGen.LoopStartPhase + (voiceparams.pData[1].double1 - mGen.LoopEndPhase) % (mGen.LoopEndPhase - mGen.LoopStartPhase);
+          if (voiceparams.PData[0].double1 >= cGen.LoopEndPhase)
+            voiceparams.PData[0].double1 = cGen.LoopStartPhase + (voiceparams.PData[0].double1 - cGen.LoopEndPhase) % (cGen.LoopEndPhase - cGen.LoopStartPhase);
+          if (voiceparams.PData[1].double1 >= mGen.LoopEndPhase)
+            voiceparams.PData[1].double1 = mGen.LoopStartPhase + (voiceparams.PData[1].double1 - mGen.LoopEndPhase) % (mGen.LoopEndPhase - mGen.LoopStartPhase);
         }
         else {
-          if (voiceparams.pData[0].double1 >= cGen.LoopEndPhase) {
-            voiceparams.pData[0].double1 = cGen.LoopStartPhase;
-            voiceparams.pData[1].double1 = mGen.LoopStartPhase;
+          if (voiceparams.PData[0].double1 >= cGen.LoopEndPhase) {
+            voiceparams.PData[0].double1 = cGen.LoopStartPhase;
+            voiceparams.PData[1].double1 = mGen.LoopStartPhase;
           }
         }
         //--Check and end early if necessary
-        if (voiceparams.envelopes[0].CurrentState == EnvelopeStateEnum.None) {
-          voiceparams.state = VoiceStateEnum.Stopped;
+        if (voiceparams.Envelopes[0].CurrentState == EnvelopeStateEnum.None) {
+          voiceparams.State = VoiceStateEnum.Stopped;
           return;
         }
       }

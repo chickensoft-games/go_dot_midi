@@ -18,33 +18,33 @@ namespace AudioSynthesis.Synthesis {
       voiceparams = new VoiceParameters();
     }
     public void Start() {
-      if (voiceparams.state != VoiceStateEnum.Stopped)
+      if (voiceparams.State != VoiceStateEnum.Stopped)
         return;
       if (patch.Start(voiceparams))
-        voiceparams.state = VoiceStateEnum.Playing;
+        voiceparams.State = VoiceStateEnum.Playing;
     }
     public void Stop() {
-      if (voiceparams.state != VoiceStateEnum.Playing)
+      if (voiceparams.State != VoiceStateEnum.Playing)
         return;
-      voiceparams.state = VoiceStateEnum.Stopping;
+      voiceparams.State = VoiceStateEnum.Stopping;
       patch.Stop(voiceparams);
     }
     public void StopImmediately() {
-      voiceparams.state = VoiceStateEnum.Stopped;
+      voiceparams.State = VoiceStateEnum.Stopped;
     }
     public void Process(int startIndex, int endIndex) {
       //do not process if the voice is stopped
-      if (voiceparams.state == VoiceStateEnum.Stopped)
+      if (voiceparams.State == VoiceStateEnum.Stopped)
         return;
       //process using the patch's algorithm
       patch.Process(voiceparams, startIndex, endIndex);
     }
     public void Configure(int channel, int note, int velocity, Patch patch, SynthParameters synthParams) {
       voiceparams.Reset();
-      voiceparams.channel = channel;
-      voiceparams.note = note;
-      voiceparams.velocity = velocity;
-      voiceparams.synthParams = synthParams;
+      voiceparams.Channel = channel;
+      voiceparams.Note = note;
+      voiceparams.Velocity = velocity;
+      voiceparams.SynthParams = synthParams;
       this.patch = patch;
     }
     public override string ToString() {

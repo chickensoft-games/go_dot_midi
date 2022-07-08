@@ -1,90 +1,86 @@
-﻿using System;
-using AudioSynthesis.Bank.Components;
-using AudioSynthesis.Bank.Components.Generators;
+﻿namespace AudioSynthesis.Synthesis {
+  using System;
+  using AudioSynthesis.Bank.Components;
+  using AudioSynthesis.Bank.Components.Generators;
 
-namespace AudioSynthesis.Synthesis {
   public class VoiceParameters {
-    public int channel;
-    public int note;
-    public int velocity;
-    public bool noteOffPending;
-    public VoiceStateEnum state;
-    public int pitchOffset;
-    public float volOffset;
-    public float[] blockBuffer;
-    public UnionData[] pData;    //used for anything, counters, params, or mixing
-    public SynthParameters synthParams;
-    public GeneratorParameters[] generatorParams;
-    public Envelope[] envelopes;    //set by parameters (quicksetup)
-    public Filter[] filters;        //set by parameters (quicksetup)
-    public Lfo[] lfos;              //set by parameters (quicksetup)
-    private float mix1, mix2;
+    public int Channel;
+    public int Note;
+    public int Velocity;
+    public bool NoteOffPending;
+    public VoiceStateEnum State;
+    public int PitchOffset;
+    public float VolOffset;
+    public float[] BlockBuffer;
+    public UnionData[] PData;    //used for anything, counters, params, or mixing
+    public SynthParameters SynthParams = null!;
+    public GeneratorParameters[] GeneratorParams;
+    public Envelope[] Envelopes;    //set by parameters (quicksetup)
+    public Filter[] Filters;        //set by parameters (quicksetup)
+    public Lfo[] Lfos;              //set by parameters (quicksetup)
+    private float _mix1, _mix2;
 
-    public float CombinedVolume {
-      get { return mix1 + mix2; }
-    }
+    public float CombinedVolume => _mix1 + _mix2;
 
     public VoiceParameters() {
-      blockBuffer = new float[Synthesizer.DefaultBlockSize];
+      BlockBuffer = new float[Synthesizer.DefaultBlockSize];
       //create default number of each component
-      pData = new UnionData[Synthesizer.MaxVoiceComponents];
-      generatorParams = new GeneratorParameters[Synthesizer.MaxVoiceComponents];
-      envelopes = new Envelope[Synthesizer.MaxVoiceComponents];
-      filters = new Filter[Synthesizer.MaxVoiceComponents];
-      lfos = new Lfo[Synthesizer.MaxVoiceComponents];
+      PData = new UnionData[Synthesizer.MaxVoiceComponents];
+      GeneratorParams = new GeneratorParameters[Synthesizer.MaxVoiceComponents];
+      Envelopes = new Envelope[Synthesizer.MaxVoiceComponents];
+      Filters = new Filter[Synthesizer.MaxVoiceComponents];
+      Lfos = new Lfo[Synthesizer.MaxVoiceComponents];
       //initialize each component
-      for (int x = 0; x < Synthesizer.MaxVoiceComponents; x++) {
-        generatorParams[x] = new GeneratorParameters();
-        envelopes[x] = new Envelope();
-        filters[x] = new Filter();
-        lfos[x] = new Lfo();
+      for (var x = 0; x < Synthesizer.MaxVoiceComponents; x++) {
+        GeneratorParams[x] = new GeneratorParameters();
+        Envelopes[x] = new Envelope();
+        Filters[x] = new Filter();
+        Lfos[x] = new Lfo();
       }
     }
     public void Reset() {
-      noteOffPending = false;
-      pitchOffset = 0;
-      volOffset = 0;
-      Array.Clear(pData, 0, pData.Length);
-      mix1 = 0;
-      mix2 = 0;
+      NoteOffPending = false;
+      PitchOffset = 0;
+      VolOffset = 0;
+      Array.Clear(PData, 0, PData.Length);
+      _mix1 = 0;
+      _mix2 = 0;
     }
     public void MixMonoToMonoInterp(int startIndex, float volume) {
-      float inc = (volume - mix1) / Synthesizer.DefaultBlockSize;
-      for (int i = 0; i < blockBuffer.Length; i++) {
-        mix1 += inc;
-        synthParams.synth.sampleBuffer[startIndex + i] += blockBuffer[i] * mix1;
+      var inc = (volume - _mix1) / Synthesizer.DefaultBlockSize;
+      for (var i = 0; i < BlockBuffer.Length; i++) {
+        _mix1 += inc;
+        SynthParams.synth.sampleBuffer[startIndex + i] += BlockBuffer[i] * _mix1;
       }
-      mix1 = volume;
+      _mix1 = volume;
     }
     public void MixMonoToStereoInterp(int startIndex, float leftVol, float rightVol) {
-      float inc_l = (leftVol - mix1) / Synthesizer.DefaultBlockSize;
-      float inc_r = (rightVol - mix2) / Synthesizer.DefaultBlockSize;
-      for (int i = 0; i < blockBuffer.Length; i++) {
-        mix1 += inc_l;
-        mix2 += inc_r;
-        synthParams.synth.sampleBuffer[startIndex] += blockBuffer[i] * mix1;
-        synthParams.synth.sampleBuffer[startIndex + 1] += blockBuffer[i] * mix2;
+      var inc_l = (leftVol - _mix1) / Synthesizer.DefaultBlockSize;
+      var inc_r = (rightVol - _mix2) / Synthesizer.DefaultBlockSize;
+      for (var i = 0; i < BlockBuffer.Length; i++) {
+        _mix1 += inc_l;
+        _mix2 += inc_r;
+        SynthParams.synth.sampleBuffer[startIndex] += BlockBuffer[i] * _mix1;
+        SynthParams.synth.sampleBuffer[startIndex + 1] += BlockBuffer[i] * _mix2;
         startIndex += 2;
       }
-      mix1 = leftVol;
-      mix2 = rightVol;
+      _mix1 = leftVol;
+      _mix2 = rightVol;
     }
     public void MixStereoToStereoInterp(int startIndex, float leftVol, float rightVol) {
-      float inc_l = (leftVol - mix1) / Synthesizer.DefaultBlockSize;
-      float inc_r = (rightVol - mix2) / Synthesizer.DefaultBlockSize;
-      for (int i = 0; i < blockBuffer.Length; i++) {
-        mix1 += inc_l;
-        mix2 += inc_r;
-        synthParams.synth.sampleBuffer[startIndex + i] += blockBuffer[i] * mix1;
+      var inc_l = (leftVol - _mix1) / Synthesizer.DefaultBlockSize;
+      var inc_r = (rightVol - _mix2) / Synthesizer.DefaultBlockSize;
+      for (var i = 0; i < BlockBuffer.Length; i++) {
+        _mix1 += inc_l;
+        _mix2 += inc_r;
+        SynthParams.synth.sampleBuffer[startIndex + i] += BlockBuffer[i] * _mix1;
         i++;
-        synthParams.synth.sampleBuffer[startIndex + i] += blockBuffer[i] * mix2;
+        SynthParams.synth.sampleBuffer[startIndex + i] += BlockBuffer[i] * _mix2;
       }
-      mix1 = leftVol;
-      mix2 = rightVol;
+      _mix1 = leftVol;
+      _mix2 = rightVol;
     }
 
-    public override string ToString() {
-      return string.Format("Channel: {0}, Key: {1}, Velocity: {2}, State: {3}", channel, note, velocity, state);
-    }
+    public override string ToString() => string.Format("Channel: {0}, Key: {1}, Velocity: {2}, State: {3}", Channel, Note, Velocity, State);
   }
 }

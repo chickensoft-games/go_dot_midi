@@ -50,8 +50,8 @@ namespace AudioSynthesis.Synthesis {
     public void AddToRegistry(Voice voice) {
       VoiceNode node = vnodes.Pop();
       node.Value = voice;
-      node.Next = registry[voice.VoiceParams.channel, voice.VoiceParams.note];
-      registry[voice.VoiceParams.channel, voice.VoiceParams.note] = node;
+      node.Next = registry[voice.VoiceParams.Channel, voice.VoiceParams.Note];
+      registry[voice.VoiceParams.Channel, voice.VoiceParams.Note] = node;
     }
     public void RemoveFromRegistry(int channel, int note) {
       VoiceNode node = registry[channel, note];
@@ -62,11 +62,11 @@ namespace AudioSynthesis.Synthesis {
       registry[channel, note] = null;
     }
     public void RemoveFromRegistry(Voice voice) {
-      VoiceNode node = registry[voice.VoiceParams.channel, voice.VoiceParams.note];
+      VoiceNode node = registry[voice.VoiceParams.Channel, voice.VoiceParams.Note];
       if (node == null)
         return;
       if (node.Value == voice) {
-        registry[voice.VoiceParams.channel, voice.VoiceParams.note] = node.Next;
+        registry[voice.VoiceParams.Channel, voice.VoiceParams.Note] = node.Next;
         vnodes.Push(node);
         return;
       }
@@ -87,12 +87,12 @@ namespace AudioSynthesis.Synthesis {
     public void ClearRegistry() {
       LinkedListNode<Voice> node = activeVoices.First;
       while (node != null) {
-        VoiceNode vnode = registry[node.Value.VoiceParams.channel, node.Value.VoiceParams.note];
+        VoiceNode vnode = registry[node.Value.VoiceParams.Channel, node.Value.VoiceParams.Note];
         while (vnode != null) {
           vnodes.Push(vnode);
           vnode = vnode.Next;
         }
-        registry[node.Value.VoiceParams.channel, node.Value.VoiceParams.note] = null;
+        registry[node.Value.VoiceParams.Channel, node.Value.VoiceParams.Note] = null;
         node = node.Next;
       }
     }
@@ -107,7 +107,7 @@ namespace AudioSynthesis.Synthesis {
     private Voice StealOldest() {
       LinkedListNode<Voice> node = activeVoices.First;
       //first look for a voice that is not playing
-      while (node != null && node.Value.VoiceParams.state == VoiceStateEnum.Playing)
+      while (node != null && node.Value.VoiceParams.State == VoiceStateEnum.Playing)
         node = node.Next;
       //if no stopping voice is found use the oldest
       if (node == null)
@@ -116,7 +116,7 @@ namespace AudioSynthesis.Synthesis {
       RemoveFromRegistry(node.Value);
       activeVoices.Remove(node);
       //stop voice if it is not already
-      node.Value.VoiceParams.state = VoiceStateEnum.Stopped;
+      node.Value.VoiceParams.State = VoiceStateEnum.Stopped;
       return node.Value;
     }
     private Voice StealQuietestVoice() {
@@ -124,7 +124,7 @@ namespace AudioSynthesis.Synthesis {
       LinkedListNode<Voice> quietest = null;
       LinkedListNode<Voice> node = activeVoices.First;
       while (node != null) {
-        if (node.Value.VoiceParams.state != VoiceStateEnum.Playing) {
+        if (node.Value.VoiceParams.State != VoiceStateEnum.Playing) {
           float volume = node.Value.VoiceParams.CombinedVolume;
           if (volume < voice_volume) {
             quietest = node;
@@ -139,7 +139,7 @@ namespace AudioSynthesis.Synthesis {
       RemoveFromRegistry(quietest.Value);
       activeVoices.Remove(quietest);
       //stop voice if it is not already
-      quietest.Value.VoiceParams.state = VoiceStateEnum.Stopped;
+      quietest.Value.VoiceParams.State = VoiceStateEnum.Stopped;
       return quietest.Value;
     }
     private Voice StealLowestScore() {
@@ -148,13 +148,13 @@ namespace AudioSynthesis.Synthesis {
       int lowScore = int.MaxValue;
       while (node != null) {
         int score = 0;
-        if (node.Value.VoiceParams.state == VoiceStateEnum.Stopped) {
+        if (node.Value.VoiceParams.State == VoiceStateEnum.Stopped) {
           lowest = node;
           break;
         }
-        else if (node.Value.VoiceParams.state == VoiceStateEnum.Stopping)
+        else if (node.Value.VoiceParams.State == VoiceStateEnum.Stopping)
           score -= 50;
-        if (node.Value.VoiceParams.channel == Midi.MidiHelper.DrumChannel)
+        if (node.Value.VoiceParams.Channel == Midi.MidiHelper.DrumChannel)
           score -= 20;
 
         if (score < lowScore) {
@@ -167,7 +167,7 @@ namespace AudioSynthesis.Synthesis {
       RemoveFromRegistry(lowest.Value);
       activeVoices.Remove(lowest);
       //stop voice if it is not already
-      lowest.Value.VoiceParams.state = VoiceStateEnum.Stopped;
+      lowest.Value.VoiceParams.State = VoiceStateEnum.Stopped;
       return lowest.Value;
     }
   }
