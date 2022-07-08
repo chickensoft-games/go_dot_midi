@@ -34,8 +34,8 @@ namespace AudioSynthesis.Synthesis {
         layerList[0] = inst;
       }
       // If a key with the same note value exists, stop it
-      if (voiceManager.registry[channel, note] != null) {
-        VoiceManager.VoiceNode node = voiceManager.registry[channel, note];
+      if (voiceManager.Registry[channel, note] != null) {
+        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.Stop();
           node = node.Next;
@@ -52,7 +52,7 @@ namespace AudioSynthesis.Synthesis {
           }
         }
         if (layerList[x].ExclusiveGroupTarget != 0 && notseen) {
-          LinkedListNode<Voice> node = voiceManager.activeVoices.First;
+          LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
           while (node != null) {
             if (layerList[x].ExclusiveGroupTarget == node.Value.Patch.ExclusiveGroup) {
               node.Value.Stop();
@@ -69,7 +69,7 @@ namespace AudioSynthesis.Synthesis {
           break;
         voice.Configure(channel, note, velocity, layerList[x], synthChannels[channel]);
         voiceManager.AddToRegistry(voice);
-        voiceManager.activeVoices.AddLast(voice);
+        voiceManager.ActiveVoices.AddLast(voice);
         voice.Start();
       }
       // Clear layer list
@@ -84,14 +84,14 @@ namespace AudioSynthesis.Synthesis {
     /// <param name="note">The key of the voice.</param>
     public void NoteOff(int channel, int note) {
       if (synthChannels[channel].holdPedal) {
-        VoiceManager.VoiceNode node = voiceManager.registry[channel, note];
+        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.VoiceParams.NoteOffPending = true;
           node = node.Next;
         }
       }
       else {
-        VoiceManager.VoiceNode node = voiceManager.registry[channel, note];
+        VoiceManager.VoiceNode node = voiceManager.Registry[channel, note];
         while (node != null) {
           node.Value.Stop();
           node = node.Next;
@@ -104,15 +104,15 @@ namespace AudioSynthesis.Synthesis {
     /// </summary>
     /// <param name="immediate">If true all voices will stop immediately regardless of their release phase.</param>
     public void NoteOffAll(bool immediate) {
-      LinkedListNode<Voice> node = voiceManager.activeVoices.First;
+      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
       if (immediate) {//if immediate ignore hold pedals and clear the entire registry
         voiceManager.ClearRegistry();
         while (node != null) {
           node.Value.StopImmediately();
           LinkedListNode<Voice> delnode = node;
           node = node.Next;
-          voiceManager.activeVoices.Remove(delnode);
-          voiceManager.freeVoices.AddFirst(delnode);
+          voiceManager.ActiveVoices.Remove(delnode);
+          voiceManager.FreeVoices.AddFirst(delnode);
         }
       }
       else {//otherwise we have to check for hold pedals and double check the registry before removing the voice
@@ -138,15 +138,15 @@ namespace AudioSynthesis.Synthesis {
     /// <param name="channel">The midi channel.</param>
     /// <param name="immediate">If true the voices will stop immediately regardless of their release phase.</param>
     public void NoteOffAll(int channel, bool immediate) {
-      LinkedListNode<Voice> node = voiceManager.activeVoices.First;
+      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
       while (node != null) {
         if (channel == node.Value.VoiceParams.Channel) {
           if (immediate) {
             node.Value.StopImmediately();
             LinkedListNode<Voice> delnode = node;
             node = node.Next;
-            voiceManager.activeVoices.Remove(delnode);
-            voiceManager.freeVoices.AddFirst(delnode);
+            voiceManager.ActiveVoices.Remove(delnode);
+            voiceManager.FreeVoices.AddFirst(delnode);
           }
           else {
             //if hold pedal is enabled do not stop the voice
@@ -309,7 +309,7 @@ namespace AudioSynthesis.Synthesis {
 
     //private
     private void ReleaseAllHoldPedals() {
-      LinkedListNode<Voice> node = voiceManager.activeVoices.First;
+      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
       while (node != null) {
         if (node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();
@@ -319,7 +319,7 @@ namespace AudioSynthesis.Synthesis {
       }
     }
     private void ReleaseHoldPedal(int channel) {
-      LinkedListNode<Voice> node = voiceManager.activeVoices.First;
+      LinkedListNode<Voice> node = voiceManager.ActiveVoices.First;
       while (node != null) {
         if (node.Value.VoiceParams.Channel == channel && node.Value.VoiceParams.NoteOffPending) {
           node.Value.Stop();

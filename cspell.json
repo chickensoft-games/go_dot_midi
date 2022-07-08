@@ -23,11 +23,13 @@
     "Deps",
     "Endianess",
     "Fasterflect",
+    "fltr",
     "globaltool",
     "Hann",
     "Highpass",
     "inheritdoc",
     "Interp",
+    "keynum",
     "labl",
     "lcov",
     "Lfos",
@@ -59,6 +61,8 @@
     "tscn",
     "typeparam",
     "uvalue",
+    "vnodes",
+    "voiceparams",
     "whitenoise"
   ]
 }

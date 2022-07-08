@@ -1,10 +1,10 @@
-﻿using System;
-using AudioSynthesis.Bank.Components;
-using AudioSynthesis.Bank.Components.Generators;
-using AudioSynthesis.Bank.Descriptors;
-using AudioSynthesis.Synthesis;
-
+﻿
 namespace AudioSynthesis.Bank.Patches {
+  using System;
+  using AudioSynthesis.Bank.Components;
+  using AudioSynthesis.Bank.Components.Generators;
+  using AudioSynthesis.Bank.Descriptors;
+  using AudioSynthesis.Synthesis;
   /* FM 2 Operator Patch
    *   M --> C --> OUT
    *

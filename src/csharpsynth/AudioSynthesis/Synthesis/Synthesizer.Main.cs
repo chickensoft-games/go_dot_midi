@@ -38,20 +38,20 @@ namespace AudioSynthesis.Synthesis {
     /// Controls the method used when stealing voices.
     /// </summary>
     public VoiceStealEnum VoiceStealMethod {
-      get { return voiceManager.stealingMethod; }
-      set { voiceManager.stealingMethod = value; }
+      get { return voiceManager.StealingMethod; }
+      set { voiceManager.StealingMethod = value; }
     }
     /// <summary>
     /// The number of voices in use.
     /// </summary>
     public int ActiveVoices {
-      get { return voiceManager.activeVoices.Count; }
+      get { return voiceManager.ActiveVoices.Count; }
     }
     /// <summary>
     /// The number of voices that are not being used.
     /// </summary>
     public int FreeVoices {
-      get { return voiceManager.freeVoices.Count; }
+      get { return voiceManager.FreeVoices.Count; }
     }
     /// <summary>
     /// The size of the individual sub buffers in samples
@@ -87,7 +87,7 @@ namespace AudioSynthesis.Synthesis {
     /// The number of voices
     /// </summary>
     public int Polyphony {
-      get { return voiceManager.polyphony; }
+      get { return voiceManager.Polyphony; }
     }
     /// <summary>
     /// Global volume control
@@ -241,7 +241,7 @@ namespace AudioSynthesis.Synthesis {
           }
         }
         //voice processing loop
-        LinkedListNode<Voice> node = voiceManager.activeVoices.First; //node used to traverse the active voices
+        LinkedListNode<Voice> node = voiceManager.ActiveVoices.First; //node used to traverse the active voices
         while (node != null) {
           node.Value.Process(sampleIndex, sampleIndex + microBufferSize * audioChannels);
           //if an active voice has stopped remove it from the list
@@ -249,8 +249,8 @@ namespace AudioSynthesis.Synthesis {
             LinkedListNode<Voice> delnode = node; //node used to remove inactive voices
             node = node.Next;
             voiceManager.RemoveFromRegistry(delnode.Value);
-            voiceManager.activeVoices.Remove(delnode);
-            voiceManager.freeVoices.AddFirst(delnode);
+            voiceManager.ActiveVoices.Remove(delnode);
+            voiceManager.FreeVoices.AddFirst(delnode);
           }
           else {
             node = node.Next;
