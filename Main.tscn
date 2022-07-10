@@ -4,6 +4,7 @@
 [ext_resource path="res://src/midi/MidiPlayer.tscn" type="PackedScene" id=2]
 
 [sub_resource type="AudioStreamGenerator" id=1]
+buffer_length = 10.0
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
