@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using AudioSynthesis.Bank;
 using AudioSynthesis.Midi;
 using AudioSynthesis.Sequencer;
@@ -66,26 +67,37 @@ public class MidiPlayer : AudioStreamPlayer {
 
   public void Buffer() {
 
-    var initFrames = _playback.GetFramesAvailable();
     var deinterleaved = new float[][] { };
 
     // GD.Print("Need to buffer " + initFrames.ToString() + " frames");
 
-    for (var frame = 0; frame < initFrames; frame++) {
-      if (_bufferHead >= _buffer.Length) {
-        _sequencer.FillMidiEventQueue();
-        _synthesizer.GetNext();
-        _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
-        _bufferHead = 0;
-      }
-      var length = Mathf.Min(_buffer[0].Length - _bufferHead, initFrames - frame);
-      // GD.Print("Buffering " + length.ToString() + " frames");
-      for (var i = 0; i < length; i++) {
-        _playback.PushFrame(new Vector2(_buffer[0][i], _buffer[1][i]));
-      }
+    var bufferLength = _synthesizer.WorkingBufferSize / 2;
+    // for (var frame = 0; frame < initFrames; frame++) {
+    if (_bufferHead >= _buffer.Length) {
+      _sequencer.FillMidiEventQueue();
+      _synthesizer.GetNext();
+      // _buffer = _synthesizer.WorkingBuffer;
+      _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
+      _bufferHead = 0;
+    }
+    var initFrames = _playback.GetFramesAvailable();
+    var length = Mathf.Min(bufferLength - _bufferHead, initFrames);
+    var frames = new Vector2[bufferLength];
+    ConvertToGodotAudioFrames(_buffer, frames);
+    // GD.Print("Buffering " + length.ToString() + " frames");
+    _playback.PushBuffer(frames);
 
-      _bufferHead += length;
-      initFrames -= 1;
+    _bufferHead += length;
+    initFrames -= 1;
+    // }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected static void ConvertToGodotAudioFrames(
+    float[][] samples, Vector2[] buffer
+  ) {
+    for (var i = 0; i < samples[0].Length; i++) {
+      buffer[i] = new Vector2(samples[0][i], samples[1][i]);
     }
   }
 
