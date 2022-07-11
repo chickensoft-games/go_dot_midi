@@ -32,8 +32,6 @@ public class MidiPlayer : AudioStreamPlayer {
   protected int _bufferHead = 0;
 
   public override void _Ready() {
-    // based on https://github.com/n-yoda/unity-midi/blob/master/Assets/UnityMidi/Scripts/MidiPlayer.cs
-    // _soundFont = new SoundFont(ReadFile(SoundFontPath));
     _midiFile = new MidiFile(ReadFile(MidiFilePath));
     _synthesizer = new Synthesizer(SAMPLE_RATE, CHANNELS);
     _sequencer = new MidiFileSequencer(_synthesizer);
@@ -66,17 +64,12 @@ public class MidiPlayer : AudioStreamPlayer {
   }
 
   public void Buffer() {
-
     var deinterleaved = new float[][] { };
 
-    // GD.Print("Need to buffer " + initFrames.ToString() + " frames");
-
     var bufferLength = _synthesizer.WorkingBufferSize / 2;
-    // for (var frame = 0; frame < initFrames; frame++) {
     if (_bufferHead >= _buffer.Length) {
       _sequencer.FillMidiEventQueue();
       _synthesizer.GetNext();
-      // _buffer = _synthesizer.WorkingBuffer;
       _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
       _bufferHead = 0;
     }
@@ -84,12 +77,11 @@ public class MidiPlayer : AudioStreamPlayer {
     var length = Mathf.Min(bufferLength - _bufferHead, initFrames);
     var frames = new Vector2[bufferLength];
     ConvertToGodotAudioFrames(_buffer, frames);
-    // GD.Print("Buffering " + length.ToString() + " frames");
+
     _playback.PushBuffer(frames);
 
     _bufferHead += length;
     initFrames -= 1;
-    // }
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
