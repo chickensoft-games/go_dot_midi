@@ -71,31 +71,31 @@ public class MidiPlayer : AudioStreamPlayer {
   public void Buffer() {
     var bufferLength = _synthesizer.WorkingBufferSize / 2;
 
-    var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+    var framesUsed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
 
-    while (needed < BUFFER_SIZE) {
+    while (framesUsed < BUFFER_SIZE) {
       if (_bufferHead >= _buffer[0].Length) {
         _sequencer.FillMidiEventQueue();
         _synthesizer.GetNext();
         _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
         _bufferHead = 0;
       }
-      var length = Mathf.Min(bufferLength - _bufferHead, needed);
-      var buffer = new Vector2[bufferLength];
-      ConvertToGodotAudioFrames(_buffer, buffer);
+      var length = Mathf.Min(bufferLength - _bufferHead, BUFFER_SIZE);
+      var buffer = new Vector2[length];
+      ConvertToGodotAudioFrames(_buffer, _bufferHead, _bufferHead + length, buffer);
 
       _playback.PushBuffer(buffer);
 
       _bufferHead += length;
-      needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+      framesUsed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
     }
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   protected static void ConvertToGodotAudioFrames(
-    float[][] samples, Vector2[] buffer
+    float[][] samples, int start, int length, Vector2[] buffer
   ) {
-    for (var i = 0; i < samples[0].Length; i++) {
+    for (var i = start; i < length; i++) {
       buffer[i] = new Vector2(samples[0][i], samples[1][i]);
     }
   }
