@@ -32,6 +32,7 @@
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <!-- Required for inheritdoc -->
+    <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="SauceControl.InheritDoc" Version="1.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

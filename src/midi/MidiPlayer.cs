@@ -1,12 +1,8 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using AudioSynthesis.Bank;
-using AudioSynthesis.Midi;
-using AudioSynthesis.Sequencer;
-using AudioSynthesis.Synthesis;
-using AudioSynthesis.Wave;
 using Godot;
+using MeltySynth;
 
 /// <summary>
 /// Midi player for Godot, based on https://github.com/n-yoda/unity-midi/.
@@ -27,6 +23,7 @@ public class MidiPlayer : AudioStreamPlayer {
   public string MidiFilePath { get; set; } = "";
 
   protected MidiFile _midiFile = null!;
+  protected SoundFont _soundFont = null!;
   protected Synthesizer _synthesizer = null!;
   protected MidiFileSequencer _sequencer = null!;
   protected AudioStreamGeneratorPlayback _playback = null!;
@@ -35,19 +32,24 @@ public class MidiPlayer : AudioStreamPlayer {
   protected float[][] _buffer = new float[][] { };
   protected int _bufferHead = 0;
 
+  protected float[] _left = null!;
+  protected float[] _right = null!;
+
   public override void _Ready() {
+    _soundFont = new SoundFont(ReadFile(SoundFontPath));
     _midiFile = new MidiFile(ReadFile(MidiFilePath));
-    _synthesizer = new Synthesizer(SAMPLE_RATE, CHANNELS);
+    _synthesizer = new Synthesizer(_soundFont, new SynthesizerSettings(SAMPLE_RATE) {
+      BlockSize = 128,
+      MaximumPolyphony = 256,
+      EnableReverbAndChorus = true
+    });
     _sequencer = new MidiFileSequencer(_synthesizer);
-    _synthesizer.MixGain = 1.0f;
-    _synthesizer.LoadBank(
-      ReadFile(SoundFontPath),
-      System.IO.Path.GetFileName(SoundFontPath),
-      PatchBank.PatchBankType.Sf2
-    );
-    _sequencer.LoadMidi(_midiFile);
+    _synthesizer.MasterVolume = 1.0f;
 
     _playback = (AudioStreamGeneratorPlayback)GetStreamPlayback();
+
+    _left = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
+    _right = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
 
     var a = new int[] { 1 };
     var b = new int[10];
@@ -58,7 +60,8 @@ public class MidiPlayer : AudioStreamPlayer {
   public override void _Process(float delta) {
     if (!_started) {
       _started = true;
-      _sequencer.Play();
+      _sequencer.Play(_midiFile, true);
+      _sequencer.Render(_left, _right);
       Play();
       GD.Print("Is Playing? " + Playing.ToString());
     }
@@ -68,18 +71,15 @@ public class MidiPlayer : AudioStreamPlayer {
   }
 
   public void Buffer() {
-    var bufferLength = _synthesizer.WorkingBufferSize / 2;
+    var bufferLength = _left.Length;
 
     var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
     while (needed < BUFFER_SIZE) {
       if (_bufferHead >= _buffer.Length) {
-        _sequencer.FillMidiEventQueue();
-        _synthesizer.GetNext();
-        _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
         _bufferHead = 0;
       }
       var length = Mathf.Min(bufferLength - _bufferHead, needed);
-      var buffer = new Vector2[bufferLength];
+      var buffer = new Vector2[length];
       ConvertToGodotAudioFrames(_buffer, buffer);
 
       _playback.PushBuffer(buffer);
