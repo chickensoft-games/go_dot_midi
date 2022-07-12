@@ -29,7 +29,6 @@ public class MidiPlayer : AudioStreamPlayer {
   protected AudioStreamGeneratorPlayback _playback = null!;
   protected bool _started = false;
 
-  protected float[][] _buffer = new float[][] { };
   protected int _bufferHead = 0;
 
   protected float[] _left = null!;
@@ -73,28 +72,29 @@ public class MidiPlayer : AudioStreamPlayer {
   public void Buffer() {
     var bufferLength = _left.Length;
 
-    var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
-    while (needed < BUFFER_SIZE) {
-      if (_bufferHead >= _buffer.Length) {
+    var framesUsed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+    while (framesUsed < BUFFER_SIZE) {
+      if (_bufferHead >= _left.Length) {
         _bufferHead = 0;
       }
-      var length = Mathf.Min(bufferLength - _bufferHead, needed);
+      var length = Mathf.Min(bufferLength - _bufferHead, BUFFER_SIZE);
       var buffer = new Vector2[length];
-      ConvertToGodotAudioFrames(_buffer, buffer);
+      ConvertToGodotAudioFrames(_left, _right, _bufferHead, length, buffer);
 
       _playback.PushBuffer(buffer);
 
       _bufferHead += length;
-      needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+      framesUsed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
     }
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   protected static void ConvertToGodotAudioFrames(
-    float[][] samples, Vector2[] buffer
+    float[] left, float[] right, int start, int length, Vector2[] buffer
   ) {
-    for (var i = 0; i < samples[0].Length; i++) {
-      buffer[i] = new Vector2(samples[0][i], samples[1][i]);
+    var n = 0;
+    for (var i = start; i < start + length; i++, n++) {
+      buffer[n] = new Vector2(left[i], right[i]);
     }
   }
 
