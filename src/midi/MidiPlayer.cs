@@ -82,7 +82,7 @@ public class MidiPlayer : AudioStreamPlayer {
       }
       var length = Mathf.Min(bufferLength - _bufferHead, BUFFER_SIZE);
       var buffer = new Vector2[length];
-      ConvertToGodotAudioFrames(_buffer, _bufferHead, _bufferHead + length, buffer);
+      ConvertToGodotAudioFrames(_buffer, _bufferHead, length, buffer);
 
       _playback.PushBuffer(buffer);
 
@@ -95,8 +95,9 @@ public class MidiPlayer : AudioStreamPlayer {
   protected static void ConvertToGodotAudioFrames(
     float[][] samples, int start, int length, Vector2[] buffer
   ) {
-    for (var i = start; i < length; i++) {
-      buffer[i] = new Vector2(samples[0][i], samples[1][i]);
+    var n = 0;
+    for (var i = start; i < start + length; i++, n++) {
+      buffer[n] = new Vector2(samples[0][i], samples[1][i]);
     }
   }
 
