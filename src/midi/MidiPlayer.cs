@@ -15,11 +15,17 @@ public class MidiPlayer : AudioStreamPlayer {
   // Melty Synth and Godot both use this sample rate, so no need to configure.
   protected const int SAMPLE_RATE = 44100;
   protected const int CHANNELS = 2; // stereo
+  protected const float COMPENSATE_FRAMES = 1.5f;
+  // audio server returns this when all frames are available
+  protected const int MAX_FRAMES_AVAILABLE = ushort.MaxValue;
 
-  [Export(PropertyHint.File, hintString: "Resource path to sound font file")]
+  // num samples to keep in the buffer at all times.
+  protected const int BUFFER_SIZE = (int)(SAMPLE_RATE * 0.5f);
+
+  [Export(PropertyHint.File, "*.sf2")]
   public string SoundFontPath { get; set; } = "";
 
-  [Export(PropertyHint.File, hintString: "Resource path to midi file")]
+  [Export(PropertyHint.File, "*.mid")]
   public string MidiFilePath { get; set; } = "";
 
   protected MidiFile _midiFile = null!;
@@ -28,7 +34,7 @@ public class MidiPlayer : AudioStreamPlayer {
   protected AudioStreamGeneratorPlayback _playback = null!;
   protected bool _started = false;
 
-  protected float[][] _buffer = new float[][] { };
+  protected float[][] _buffer = new float[][] { new float[] { }, new float[] { } };
   protected int _bufferHead = 0;
 
   public override void _Ready() {
@@ -64,24 +70,28 @@ public class MidiPlayer : AudioStreamPlayer {
   }
 
   public void Buffer() {
-    var deinterleaved = new float[][] { };
-
     var bufferLength = _synthesizer.WorkingBufferSize / 2;
-    if (_bufferHead >= _buffer.Length) {
-      _sequencer.FillMidiEventQueue();
-      _synthesizer.GetNext();
-      _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
-      _bufferHead = 0;
+    var i = 0;
+
+    var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+
+    while (needed < BUFFER_SIZE) {
+      if (_bufferHead >= _buffer[0].Length) {
+        _sequencer.FillMidiEventQueue();
+        _synthesizer.GetNext();
+        _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
+        _bufferHead = 0;
+      }
+      var length = Mathf.Min(bufferLength - _bufferHead, needed);
+      var buffer = new Vector2[bufferLength];
+      ConvertToGodotAudioFrames(_buffer, buffer);
+
+      _playback.PushBuffer(buffer);
+
+      _bufferHead += length;
+      i += length;
+      needed = _playback.GetFramesAvailable();
     }
-    var initFrames = _playback.GetFramesAvailable();
-    var length = Mathf.Min(bufferLength - _bufferHead, initFrames);
-    var frames = new Vector2[bufferLength];
-    ConvertToGodotAudioFrames(_buffer, frames);
-
-    _playback.PushBuffer(frames);
-
-    _bufferHead += length;
-    initFrames -= 1;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -4,7 +4,7 @@
 [ext_resource path="res://src/midi/MidiPlayer.tscn" type="PackedScene" id=2]
 
 [sub_resource type="AudioStreamGenerator" id=1]
-buffer_length = 10.0
+buffer_length = 1.0
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
@@ -12,5 +12,5 @@ script = ExtResource( 1 )
 [node name="MidiPlayer" parent="." instance=ExtResource( 2 )]
 stream = SubResource( 1 )
 autoplay = true
-SoundFontPath = "res://assets/__Florestan_Basic_GM_GS.sf2"
-MidiFilePath = "res://assets/pirate.mid"
+SoundFontPath = "res://assets/GeneralUser GS v1.471.sf2"
+MidiFilePath = "res://assets/mozk175b.mid"
