@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Godot;
@@ -49,11 +48,6 @@ public class MidiPlayer : AudioStreamPlayer {
 
     _left = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
     _right = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
-
-    var a = new int[] { 1 };
-    var b = new int[10];
-    Array.Copy(a, b, 1);
-    GD.Print("b" + b.ToString());
   }
 
   public override void _Process(float delta) {
