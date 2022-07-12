@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using AudioSynthesis.Bank;
@@ -49,11 +48,6 @@ public class MidiPlayer : AudioStreamPlayer {
     _sequencer.LoadMidi(_midiFile);
 
     _playback = (AudioStreamGeneratorPlayback)GetStreamPlayback();
-
-    var a = new int[] { 1 };
-    var b = new int[10];
-    Array.Copy(a, b, 1);
-    GD.Print("b" + b.ToString());
   }
 
   public override void _Process(float delta) {
