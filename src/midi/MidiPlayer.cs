@@ -15,6 +15,10 @@ public class MidiPlayer : AudioStreamPlayer {
   // Melty Synth and Godot both use this sample rate, so no need to configure.
   protected const int SAMPLE_RATE = 44100;
   protected const int CHANNELS = 2; // stereo
+  // audio server returns this when all frames are available
+  protected const int MAX_FRAMES_AVAILABLE = ushort.MaxValue;
+  // num samples to keep in the buffer at all times.
+  protected const int BUFFER_SIZE = (int)(SAMPLE_RATE * 0.5f);
 
   [Export(PropertyHint.File, hintString: "Resource path to sound font file")]
   public string SoundFontPath { get; set; } = "";
@@ -64,24 +68,25 @@ public class MidiPlayer : AudioStreamPlayer {
   }
 
   public void Buffer() {
-    var deinterleaved = new float[][] { };
-
     var bufferLength = _synthesizer.WorkingBufferSize / 2;
-    if (_bufferHead >= _buffer.Length) {
-      _sequencer.FillMidiEventQueue();
-      _synthesizer.GetNext();
-      _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
-      _bufferHead = 0;
+
+    var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
+    while (needed < BUFFER_SIZE) {
+      if (_bufferHead >= _buffer.Length) {
+        _sequencer.FillMidiEventQueue();
+        _synthesizer.GetNext();
+        _buffer = WaveHelper.Deinterleave(_synthesizer.WorkingBuffer, CHANNELS);
+        _bufferHead = 0;
+      }
+      var length = Mathf.Min(bufferLength - _bufferHead, needed);
+      var buffer = new Vector2[bufferLength];
+      ConvertToGodotAudioFrames(_buffer, buffer);
+
+      _playback.PushBuffer(buffer);
+
+      _bufferHead += length;
+      needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
     }
-    var initFrames = _playback.GetFramesAvailable();
-    var length = Mathf.Min(bufferLength - _bufferHead, initFrames);
-    var frames = new Vector2[bufferLength];
-    ConvertToGodotAudioFrames(_buffer, frames);
-
-    _playback.PushBuffer(frames);
-
-    _bufferHead += length;
-    initFrames -= 1;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
