@@ -1,4 +1,7 @@
 ﻿namespace MeltySynth {
+  using System.Diagnostics;
+  using System.Linq;
+
   internal sealed class Voice {
     private readonly Synthesizer synthesizer;
 
@@ -153,6 +156,10 @@
         }
 
         filter.SetLowPassFilter(smoothedCutoff, resonance);
+      }
+      if (Block.Any(x => x != 0f)) {
+        // do something here
+        Debug.WriteLine("okay");
       }
       filter.Process(Block);
 

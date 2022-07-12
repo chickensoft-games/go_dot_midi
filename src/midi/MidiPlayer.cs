@@ -46,15 +46,14 @@ public class MidiPlayer : AudioStreamPlayer {
 
     _playback = (AudioStreamGeneratorPlayback)GetStreamPlayback();
 
-    _left = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
-    _right = new float[(int)(SAMPLE_RATE * _midiFile.Length.TotalSeconds)];
+    _left = new float[BUFFER_SIZE];
+    _right = new float[BUFFER_SIZE];
   }
 
   public override void _Process(float delta) {
     if (!_started) {
       _started = true;
       _sequencer.Play(_midiFile, true);
-      _sequencer.Render(_left, _right);
       Play();
       GD.Print("Is Playing? " + Playing.ToString());
     }
@@ -70,6 +69,7 @@ public class MidiPlayer : AudioStreamPlayer {
     while (framesUsed < BUFFER_SIZE) {
       if (_bufferHead >= _left.Length) {
         _bufferHead = 0;
+        _sequencer.Render(_left, _right);
       }
       var length = Mathf.Min(bufferLength - _bufferHead, BUFFER_SIZE);
       var buffer = new Vector2[length];
