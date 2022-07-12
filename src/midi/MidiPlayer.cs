@@ -70,7 +70,6 @@ public class MidiPlayer : AudioStreamPlayer {
 
   public void Buffer() {
     var bufferLength = _synthesizer.WorkingBufferSize / 2;
-    var i = 0;
 
     var needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
 
@@ -88,8 +87,7 @@ public class MidiPlayer : AudioStreamPlayer {
       _playback.PushBuffer(buffer);
 
       _bufferHead += length;
-      i += length;
-      needed = _playback.GetFramesAvailable();
+      needed = MAX_FRAMES_AVAILABLE - _playback.GetFramesAvailable();
     }
   }
 
