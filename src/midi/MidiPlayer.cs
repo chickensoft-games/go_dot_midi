@@ -15,7 +15,6 @@ public class MidiPlayer : AudioStreamPlayer {
   // Melty Synth and Godot both use this sample rate, so no need to configure.
   protected const int SAMPLE_RATE = 44100;
   protected const int CHANNELS = 2; // stereo
-  protected const float COMPENSATE_FRAMES = 1.5f;
   // audio server returns this when all frames are available
   protected const int MAX_FRAMES_AVAILABLE = ushort.MaxValue;
 
